@@ -6,7 +6,7 @@
 import { UserMetrics } from "./CareerEngine";
 
 // NOTE: Key is now retrieved via Vite env variable for better security
-const OPENROUTER_API_KEY = "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";
+const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 const SYSTEM_INSTRUCTION = `

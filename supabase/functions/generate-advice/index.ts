@@ -4,9 +4,8 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-// NOTE: In production, use Deno.env.get("OPENROUTER_API_KEY") and set via `supabase secrets set`.
-// For this hotfix/demo, we are using the provided key directly to ensure immediate functionality.
-const OPENROUTER_API_KEY = "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";
+// NOTE: Use Deno.env.get("OPENROUTER_API_KEY") and set via `supabase secrets set`.
+const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY");
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 const corsHeaders = {
