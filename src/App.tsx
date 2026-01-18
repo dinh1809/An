@@ -38,6 +38,7 @@ import DetailSpotter from "./pages/assessment/DetailSpotter";
 import RuleSwitcher from "./pages/assessment/RuleSwitcher";
 import RuleSwitcherTutorial from "./pages/assessment/RuleSwitcherTutorial";
 import SequenceMemory from "./pages/assessment/SequenceMemory";
+import DispatcherAssessment from "./pages/assessment/DispatcherAssessment";
 import MatrixAssessment from "./pages/assessment/MatrixAssessment";
 import AssessmentResult from "./pages/assessment/AssessmentResult";
 
@@ -88,11 +89,13 @@ const App = () => (
 
               {/* --- ASSESSMENT MODE --- */}
               <Route element={<FocusLayout />}>
-                <Route path="/assessment" element={<Navigate to="/assessment/matrix" replace />} />
+                <Route path="/assessment" element={<AssessmentHome />} />
                 <Route path="/assessment/detail-spotter" element={<DetailSpotter />} />
                 <Route path="/assessment/rule-switcher" element={<RuleSwitcher />} />
                 <Route path="/assessment/rule-switcher/tutorial" element={<RuleSwitcherTutorial />} />
+                <Route path="/assessment/piano" element={<SequenceMemory />} />
                 <Route path="/assessment/sequence-memory" element={<SequenceMemory />} />
+                <Route path="/assessment/dispatcher" element={<DispatcherAssessment />} />
                 <Route path="/assessment/matrix" element={<MatrixAssessment />} />
                 <Route path="/assessment/result" element={<AssessmentResult />} />
               </Route>

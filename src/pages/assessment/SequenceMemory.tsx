@@ -1,761 +1,417 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Heart, Play, Zap, Brain, AlertTriangle, RotateCcw } from "lucide-react";
+import { Music, Volume2, ArrowRight, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { useGameSoundContext } from "@/hooks/useGameSound";
+import { useAudioSynth } from "@/hooks/useAudioSynth";
+import { PianoKey } from "@/components/PianoKey";
 
-// Musical notes for each pad (frequencies in Hz)
-const PAD_NOTES = [
-  261.63, // C4
-  293.66, // D4
-  329.63, // E4
-  349.23, // F4
-  392.00, // G4
-  440.00, // A4
-  493.88, // B4
-  523.25, // C5
-  587.33, // D5
+// ----------------------------------------------------------------------
+// 1. CONFIGURATION: 2 OCTAVES (C3 - B4)
+// ----------------------------------------------------------------------
+const NOTES = [
+  // Octave 3 (Indices 0-11)
+  { note: 'C3', freq: 130.81, type: 'white', octave: 3 },
+  { note: 'C#3', freq: 138.59, type: 'black', octave: 3, pos: 1 },
+  { note: 'D3', freq: 146.83, type: 'white', octave: 3 },
+  { note: 'D#3', freq: 155.56, type: 'black', octave: 3, pos: 2 },
+  { note: 'E3', freq: 164.81, type: 'white', octave: 3 },
+  { note: 'F3', freq: 174.61, type: 'white', octave: 3 },
+  { note: 'F#3', freq: 185.00, type: 'black', octave: 3, pos: 4 },
+  { note: 'G3', freq: 196.00, type: 'white', octave: 3 },
+  { note: 'G#3', freq: 207.65, type: 'black', octave: 3, pos: 5 },
+  { note: 'A3', freq: 220.00, type: 'white', octave: 3 },
+  { note: 'A#3', freq: 233.08, type: 'black', octave: 3, pos: 6 },
+  { note: 'B3', freq: 246.94, type: 'white', octave: 3 },
+
+  // Octave 4 (Indices 12-23)
+  { note: 'C4', freq: 261.63, type: 'white', octave: 4 },
+  { note: 'C#4', freq: 277.18, type: 'black', octave: 4, pos: 1 },
+  { note: 'D4', freq: 293.66, type: 'white', octave: 4 },
+  { note: 'D#4', freq: 311.13, type: 'black', octave: 4, pos: 2 },
+  { note: 'E4', freq: 329.63, type: 'white', octave: 4 },
+  { note: 'F4', freq: 349.23, type: 'white', octave: 4 },
+  { note: 'F#4', freq: 369.99, type: 'black', octave: 4, pos: 4 },
+  { note: 'G4', freq: 392.00, type: 'white', octave: 4 },
+  { note: 'G#4', freq: 415.30, type: 'black', octave: 4, pos: 5 },
+  { note: 'A4', freq: 440.00, type: 'white', octave: 4 },
+  { note: 'A#4', freq: 466.16, type: 'black', octave: 4, pos: 6 },
+  { note: 'B4', freq: 493.88, type: 'white', octave: 4 },
 ];
 
-// Pad colors - Sci-fi neon style
-const PAD_COLORS = [
-  { base: "bg-gray-700/30", active: "bg-rose-500", ring: "ring-rose-400", glow: "shadow-rose-500/50" },
-  { base: "bg-gray-700/30", active: "bg-orange-500", ring: "ring-orange-400", glow: "shadow-orange-500/50" },
-  { base: "bg-gray-700/30", active: "bg-amber-500", ring: "ring-amber-400", glow: "shadow-amber-500/50" },
-  { base: "bg-gray-700/30", active: "bg-lime-500", ring: "ring-lime-400", glow: "shadow-lime-500/50" },
-  { base: "bg-gray-700/30", active: "bg-emerald-500", ring: "ring-emerald-400", glow: "shadow-emerald-500/50" },
-  { base: "bg-gray-700/30", active: "bg-cyan-500", ring: "ring-cyan-400", glow: "shadow-cyan-500/50" },
-  { base: "bg-gray-700/30", active: "bg-blue-500", ring: "ring-blue-400", glow: "shadow-blue-500/50" },
-  { base: "bg-gray-700/30", active: "bg-violet-500", ring: "ring-violet-400", glow: "shadow-violet-500/50" },
-  { base: "bg-gray-700/30", active: "bg-fuchsia-500", ring: "ring-fuchsia-400", glow: "shadow-fuchsia-500/50" },
-];
+const MAX_ROUNDS = 5;
 
-type GamePhase = "ready" | "watching" | "playing" | "success" | "fail" | "gameover";
-type GameMode = "forward" | "reverse" | "distraction";
+type GamePhase = "intro" | "watching" | "playing" | "round_summary" | "completed";
 
-interface GameState {
-  sequence: number[];
-  phantomLights: number[]; // For distraction mode
-  userSequence: number[];
-  lives: number;
-  level: number;
-  currentSpan: number;
-  maxForwardSpan: number;
-  maxReverseSpan: number;
-  totalErrors: number;
-  phantomClicks: number; // Did user click phantom lights?
-  activePad: number | null;
-  phantomActivePad: number | null; // Phantom light (faint, no sound)
-  mode: GameMode;
+interface MistakeLog {
+  round: number;
+  expected: string;
+  actual: string;
+  interval_direction_match: boolean;
 }
 
 const SequenceMemory = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { playSound, triggerHaptic, initAudio: initGameSound } = useGameSoundContext();
-  const audioContextRef = useRef<AudioContext | null>(null);
+  const { triggerHaptic } = useGameSoundContext();
+  const { initAudio, playTone } = useAudioSynth();
   const sessionIdRef = useRef<string | null>(null);
 
-  const [gamePhase, setGamePhase] = useState<GamePhase>("ready");
-  const [gameState, setGameState] = useState<GameState>({
-    sequence: [],
-    phantomLights: [],
-    userSequence: [],
-    lives: 3,
-    level: 1,
-    currentSpan: 3,
-    maxForwardSpan: 0,
-    maxReverseSpan: 0,
-    totalErrors: 0,
-    phantomClicks: 0,
-    activePad: null,
-    phantomActivePad: null,
-    mode: "forward",
-  });
+  // STATE MANAGEMENT
+  const [phase, setPhase] = useState<GamePhase>("intro");
+  const [round, setRound] = useState(1);
+  const [sequence, setSequence] = useState<number[]>([]);
+  const [userInputs, setUserInputs] = useState<number[]>([]);
 
-  const [showFlash, setShowFlash] = useState<"success" | "fail" | null>(null);
-  const [showReverseWarning, setShowReverseWarning] = useState(false);
+  // Feedback state
+  const [activeKey, setActiveKey] = useState<number | null>(null);
+  const [pressedKey, setPressedKey] = useState<number | null>(null);
+  const [keyStatus, setKeyStatus] = useState<"correct" | "wrong" | null>(null);
 
-  // Get mode and span for a given level
-  const getLevelConfig = useCallback((level: number): { mode: GameMode; span: number } => {
-    if (level <= 4) {
-      // Levels 1-4: Forward Span (3, 4, 5, 6)
-      return { mode: "forward", span: 2 + level };
-    } else if (level <= 8) {
-      // Levels 5-8: Reverse Span (3, 4, 5, 6)
-      return { mode: "reverse", span: level - 2 };
-    } else {
-      // Levels 9+: Distraction Mode with Reverse (span continues increasing)
-      return { mode: "distraction", span: Math.min(level - 2, 9) };
-    }
-  }, []);
+  // Scoring
+  const [totalNotes, setTotalNotes] = useState(0);
+  const [correctNotes, setCorrectNotes] = useState(0);
+  const [mistakesLog, setMistakesLog] = useState<MistakeLog[]>([]);
 
-  // Initialize audio context
-  const initAudio = useCallback(() => {
-    if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
-    }
-  }, []);
+  // --------------------------------------------------------------------
+  // GAME LOGIC
+  // --------------------------------------------------------------------
 
-  // Play a note
-  const playNote = useCallback((padIndex: number, isSuccess: boolean = false) => {
-    if (!audioContextRef.current) return;
-
-    const ctx = audioContextRef.current;
-    const oscillator = ctx.createOscillator();
-    const gainNode = ctx.createGain();
-
-    oscillator.connect(gainNode);
-    gainNode.connect(ctx.destination);
-
-    if (isSuccess) {
-      // Special "tech success" sound - ascending chord
-      oscillator.type = "triangle";
-      oscillator.frequency.setValueAtTime(523.25, ctx.currentTime);
-      oscillator.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1);
-      oscillator.frequency.setValueAtTime(783.99, ctx.currentTime + 0.2);
-      gainNode.gain.setValueAtTime(0.25, ctx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-      oscillator.start(ctx.currentTime);
-      oscillator.stop(ctx.currentTime + 0.4);
-    } else {
-      oscillator.type = "sine";
-      oscillator.frequency.value = PAD_NOTES[padIndex];
-      gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-      oscillator.start(ctx.currentTime);
-      oscillator.stop(ctx.currentTime + 0.3);
-    }
-  }, []);
-
-  // Generate a new sequence
-  const generateSequence = useCallback((length: number): number[] => {
-    const seq: number[] = [];
-    for (let i = 0; i < length; i++) {
-      seq.push(Math.floor(Math.random() * 9));
-    }
-    return seq;
-  }, []);
-
-  // Generate phantom lights for distraction mode
-  const generatePhantomLights = useCallback((sequenceLength: number): number[] => {
-    const numPhantoms = Math.floor(sequenceLength / 3) + 1;
-    const phantoms: number[] = [];
-    for (let i = 0; i < numPhantoms; i++) {
-      phantoms.push(Math.floor(Math.random() * 9));
-    }
-    return phantoms;
-  }, []);
-
-  // Create game session
-  const createSession = useCallback(async () => {
-    if (!user) return null;
-
-    const { data, error } = await supabase
+  const createSession = async () => {
+    if (!user) return;
+    const { data } = await supabase
       .from("game_sessions")
       .insert({
         user_id: user.id,
-        game_type: "sequence_memory",
+        game_type: "sonic_conservatory",
         started_at: new Date().toISOString(),
       })
       .select("id")
       .single();
-
-    if (error) {
-      console.error("Failed to create session:", error);
-      return null;
-    }
-    return data.id;
-  }, [user]);
-
-  // Save game result
-  const saveResult = useCallback(async () => {
-    if (!sessionIdRef.current || !user) return;
-
-    const maxSpan = Math.max(gameState.maxForwardSpan, gameState.maxReverseSpan);
-    const distractionResistance = gameState.phantomClicks === 0
-      ? "High"
-      : gameState.phantomClicks <= 2
-        ? "Medium"
-        : "Low";
-
-    // Metrics for the Neuro-Radar profile
-    const metrics = {
-      max_forward_span: gameState.maxForwardSpan,
-      max_reverse_span: gameState.maxReverseSpan,
-      max_span_reached: maxSpan,
-      total_errors: gameState.totalErrors,
-      distraction_resistance: distractionResistance,
-      memory_type: "visual_sequential",
-    };
-
-    const { error } = await supabase
-      .from("game_sessions")
-      .update({
-        completed_at: new Date().toISOString(),
-        final_score: (gameState.maxForwardSpan * 10) + (gameState.maxReverseSpan * 20),
-        accuracy_percentage: Math.round(
-          (maxSpan / (maxSpan + gameState.totalErrors)) * 100
-        ),
-        difficulty_level_reached: gameState.level,
-        avg_reaction_time_ms: 0, // Not tracking reaction time for this game
-        metrics: metrics,
-      })
-      .eq("id", sessionIdRef.current);
-
-    if (error) {
-      console.error("Failed to save result:", error);
-    }
-
-    navigate(`/assessment/result?session=${sessionIdRef.current}`);
-  }, [user, gameState, navigate]);
-
-  // Play the sequence to the user
-  const playSequence = useCallback(async (
-    sequence: number[],
-    phantomLights: number[] = [],
-    mode: GameMode
-  ) => {
-    setGamePhase("watching");
-
-    // Show reverse warning
-    if (mode === "reverse" || mode === "distraction") {
-      setShowReverseWarning(true);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setShowReverseWarning(false);
-      await new Promise(resolve => setTimeout(resolve, 300));
-    }
-
-    // Interleave phantom lights in distraction mode
-    const phantomPositions = phantomLights.map(() =>
-      Math.floor(Math.random() * (sequence.length + 1))
-    );
-
-    let phantomIndex = 0;
-
-    for (let i = 0; i <= sequence.length; i++) {
-      // Play any phantom lights at this position
-      while (phantomIndex < phantomPositions.length && phantomPositions[phantomIndex] === i) {
-        const phantomPad = phantomLights[phantomIndex];
-        // Show phantom light (faint, NO SOUND)
-        setGameState(prev => ({ ...prev, phantomActivePad: phantomPad }));
-        await new Promise(resolve => setTimeout(resolve, 300));
-        setGameState(prev => ({ ...prev, phantomActivePad: null }));
-        await new Promise(resolve => setTimeout(resolve, 200));
-        phantomIndex++;
-      }
-
-      // Play actual sequence
-      if (i < sequence.length) {
-        await new Promise(resolve => setTimeout(resolve, 400));
-        const padIndex = sequence[i];
-        setGameState(prev => ({ ...prev, activePad: padIndex }));
-        playNote(padIndex);
-        await new Promise(resolve => setTimeout(resolve, 600));
-        setGameState(prev => ({ ...prev, activePad: null }));
-      }
-    }
-
-    await new Promise(resolve => setTimeout(resolve, 300));
-    setGamePhase("playing");
-  }, [playNote]);
-
-  // Start a new round
-  const startRound = useCallback(async (level: number) => {
-    const config = getLevelConfig(level);
-    const newSequence = generateSequence(config.span);
-    const phantomLights = config.mode === "distraction"
-      ? generatePhantomLights(config.span)
-      : [];
-
-    setGameState(prev => ({
-      ...prev,
-      sequence: newSequence,
-      phantomLights,
-      userSequence: [],
-      level,
-      currentSpan: config.span,
-      mode: config.mode,
-    }));
-
-    await playSequence(newSequence, phantomLights, config.mode);
-  }, [getLevelConfig, generateSequence, generatePhantomLights, playSequence]);
-
-  // Start game
-  const startGame = useCallback(async () => {
-    initAudio();
-    initGameSound(); // Initialize game sound context
-
-    const id = await createSession();
-    if (id) sessionIdRef.current = id;
-
-    setGameState({
-      sequence: [],
-      phantomLights: [],
-      userSequence: [],
-      lives: 3,
-      level: 1,
-      currentSpan: 3,
-      maxForwardSpan: 0,
-      maxReverseSpan: 0,
-      totalErrors: 0,
-      phantomClicks: 0,
-      activePad: null,
-      phantomActivePad: null,
-      mode: "forward",
-    });
-
-    startRound(1);
-  }, [initAudio, initGameSound, createSession, startRound]);
-
-  // Get expected sequence (reversed for reverse/distraction modes)
-  const getExpectedSequence = useCallback(() => {
-    if (gameState.mode === "forward") {
-      return gameState.sequence;
-    }
-    return [...gameState.sequence].reverse();
-  }, [gameState.sequence, gameState.mode]);
-
-  // Handle pad click
-  const handlePadClick = useCallback((padIndex: number) => {
-    if (gamePhase !== "playing") return;
-
-    // Check if this was a phantom light click
-    if (gameState.phantomLights.includes(padIndex) && gameState.mode === "distraction") {
-      setGameState(prev => ({
-        ...prev,
-        phantomClicks: prev.phantomClicks + 1,
-      }));
-    }
-
-    playNote(padIndex);
-    setGameState(prev => ({ ...prev, activePad: padIndex }));
-    setTimeout(() => setGameState(prev => ({ ...prev, activePad: null })), 150);
-
-    const expectedSequence = getExpectedSequence();
-    const newUserSequence = [...gameState.userSequence, padIndex];
-    const currentIndex = newUserSequence.length - 1;
-
-    // Check if the input is correct
-    if (expectedSequence[currentIndex] !== padIndex) {
-      // Wrong! Play wrong sound and haptic
-      playSound("wrong");
-      triggerHaptic(200);
-
-      setShowFlash("fail");
-      setTimeout(() => setShowFlash(null), 300);
-
-      const newLives = gameState.lives - 1;
-      const newTotalErrors = gameState.totalErrors + 1;
-
-      setGameState(prev => ({
-        ...prev,
-        userSequence: [],
-        lives: newLives,
-        totalErrors: newTotalErrors,
-      }));
-
-      if (newLives <= 0) {
-        // Game Over
-        playSound("gameOver");
-        setGamePhase("gameover");
-      } else if (gameState.level === 5 && gameState.mode === "reverse") {
-        // Checkpoint: Failed at Level 5 (first reverse level)
-        // Downgrade to Level 4 to measure forward capacity
-        setGamePhase("fail");
-        setTimeout(() => {
-          startRound(4);
-        }, 1500);
-      } else {
-        // Replay same sequence
-        setGamePhase("fail");
-        setTimeout(() => {
-          playSequence(gameState.sequence, gameState.phantomLights, gameState.mode);
-        }, 1500);
-      }
-      return;
-    }
-
-    // Correct input - play correct sound
-    playSound("correct");
-
-    setGameState(prev => ({ ...prev, userSequence: newUserSequence }));
-
-    // Check if sequence is complete
-    if (newUserSequence.length === expectedSequence.length) {
-      // Success! Play level up sound
-      playSound("levelUp");
-      const isReverseMode = gameState.mode === "reverse" || gameState.mode === "distraction";
-
-      if (isReverseMode) {
-        playNote(0, true); // Special success sound for reverse
-      }
-
-      setShowFlash("success");
-      setTimeout(() => setShowFlash(null), 300);
-
-      // Update max spans
-      setGameState(prev => ({
-        ...prev,
-        maxForwardSpan: prev.mode === "forward"
-          ? Math.max(prev.maxForwardSpan, prev.currentSpan)
-          : prev.maxForwardSpan,
-        maxReverseSpan: (prev.mode === "reverse" || prev.mode === "distraction")
-          ? Math.max(prev.maxReverseSpan, prev.currentSpan)
-          : prev.maxReverseSpan,
-      }));
-
-      setGamePhase("success");
-
-      setTimeout(() => {
-        startRound(gameState.level + 1);
-      }, 1000);
-    }
-  }, [
-    gamePhase,
-    gameState,
-    playNote,
-    getExpectedSequence,
-    playSequence,
-    startRound,
-    playSound,
-    triggerHaptic
-  ]);
-
-  // Save result when game is over
-  useEffect(() => {
-    if (gamePhase === "gameover") {
-      const timer = setTimeout(() => {
-        saveResult();
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [gamePhase, saveResult]);
-
-  // Get progress bar color based on mode
-  const getProgressColor = () => {
-    if (gameState.mode === "forward") return "bg-primary";
-    if (gameState.mode === "reverse") return "bg-secondary";
-    return "bg-destructive";
+    if (data) sessionIdRef.current = data.id;
   };
 
-  // Calculate progress percentage
-  const progressPercent = Math.min(100, (gameState.level / 12) * 100);
+  const generateSequence = (roundNum: number) => {
+    const length = 2 + roundNum;
+    const newSeq: number[] = [];
+
+    let currentNote = Math.floor(Math.random() * NOTES.length);
+    newSeq.push(currentNote);
+
+    const range = roundNum === 1 ? 5 : roundNum === 2 ? 7 : 12;
+
+    for (let i = 1; i < length; i++) {
+      const jump = Math.floor(Math.random() * range) * (Math.random() > 0.5 ? 1 : -1);
+      let nextNote = currentNote + jump;
+
+      if (nextNote < 0) nextNote = 0;
+      if (nextNote >= NOTES.length) nextNote = NOTES.length - 1;
+
+      newSeq.push(nextNote);
+      currentNote = nextNote;
+    }
+    return newSeq;
+  };
+
+  const startRound = async (r: number) => {
+    setRound(r);
+    setPhase("watching");
+    setUserInputs([]);
+    setKeyStatus(null);
+
+    const newSeq = generateSequence(r);
+    setSequence(newSeq);
+
+    await new Promise(res => setTimeout(res, 1000));
+    for (let i = 0; i < newSeq.length; i++) {
+      const idx = newSeq[i];
+      setActiveKey(idx);
+      playTone(NOTES[idx].freq, 0.4, "triangle");
+      await new Promise(res => setTimeout(res, 600));
+      setActiveKey(null);
+      await new Promise(res => setTimeout(res, 200));
+    }
+    setPhase("playing");
+  };
+
+  const handleKeyPress = (idx: number) => {
+    if (phase !== "playing") return;
+
+    initAudio();
+    triggerHaptic(50);
+    playTone(NOTES[idx].freq, 0.3, "sine");
+
+    setPressedKey(idx);
+
+    const currentStep = userInputs.length;
+    const expectedIdx = sequence[currentStep];
+    const isCorrect = idx === expectedIdx;
+
+    setKeyStatus(isCorrect ? "correct" : "wrong");
+
+    if (isCorrect) {
+      setCorrectNotes(prev => prev + 1);
+    } else {
+      const expectedNote = NOTES[expectedIdx].note;
+      const actualNote = NOTES[idx].note;
+
+      // Contour Match logic
+      let contourCorrect = false;
+      if (currentStep > 0) {
+        const prevExp = sequence[currentStep - 1];
+        const prevUser = userInputs[currentStep - 1] ?? prevExp;
+
+        const expDir = expectedIdx - prevExp;
+        const actDir = idx - prevUser;
+
+        if ((expDir > 0 && actDir > 0) || (expDir < 0 && actDir < 0) || (expDir === 0 && actDir === 0)) {
+          contourCorrect = true;
+        }
+      }
+
+      setMistakesLog(prev => [...prev, {
+        round: round,
+        expected: expectedNote,
+        actual: actualNote,
+        interval_direction_match: contourCorrect
+      }]);
+    }
+    setTotalNotes(prev => prev + 1);
+
+    const newUserInputs = [...userInputs, idx];
+    setUserInputs(newUserInputs);
+
+    setTimeout(() => {
+      setPressedKey(null);
+      setKeyStatus(null);
+    }, 250);
+
+    if (newUserInputs.length === sequence.length) {
+      if (round >= MAX_ROUNDS) {
+        endGame();
+      } else {
+        setPhase("round_summary");
+        setTimeout(() => {
+          startRound(round + 1);
+        }, 1500);
+      }
+    }
+  };
+
+  const endGame = async () => {
+    setPhase("completed");
+
+    if (!sessionIdRef.current || !user) return;
+
+    const pitchAccuracy = Math.round((correctNotes / totalNotes) * 100) || 0;
+
+    const metrics = {
+      pitch_accuracy: pitchAccuracy,
+      total_notes: totalNotes,
+      mistakes_count: mistakesLog.length,
+      contour_accuracy_on_mistakes: mistakesLog.filter(m => m.interval_direction_match).length,
+      mistakes_detail: mistakesLog.slice(0, 5)
+    };
+
+    await supabase.from("game_sessions").update({
+      completed_at: new Date().toISOString(),
+      final_score: pitchAccuracy,
+      difficulty_level_reached: MAX_ROUNDS,
+      metrics: metrics
+    }).eq("id", sessionIdRef.current);
+
+    const location = useLocation();
+    const query = new URLSearchParams(window.location.search);
+    const mode = query.get('mode');
+
+    if (mode === 'campaign') {
+      const prevScores = location.state?.previousScores || [];
+      navigate(`/assessment/dispatcher?mode=campaign`, {
+        state: {
+          score: pitchAccuracy,
+          previousScores: [...prevScores, { type: 'sonic_conservatory', score: pitchAccuracy }]
+        }
+      });
+    } else {
+      navigate(`/assessment/result?session=${sessionIdRef.current}`, {
+        state: {
+          score: pitchAccuracy,
+          type: 'sonic_conservatory',
+          mistakes: mistakesLog
+        }
+      });
+    }
+  };
+
+  const handleStart = async () => {
+    await createSession();
+    initAudio();
+    setTotalNotes(0);
+    setCorrectNotes(0);
+    setMistakesLog([]);
+    startRound(1);
+  };
+
+  // Helper to render an Octave
+  const renderOctave = (octave: number, startIndex: number, label?: string) => {
+    const octaveNotes = NOTES.slice(startIndex, startIndex + 12);
+    const whiteKeys = octaveNotes.filter(n => n.type === 'white');
+    const blackKeys = octaveNotes.filter(n => n.type === 'black');
+
+    return (
+      <div className="relative w-full md:flex-1 h-32 md:h-48 select-none">
+        {/* Label (Mobile Only) */}
+        {label && <div className="text-xs text-slate-500 mb-1 pl-1 md:hidden">{label}</div>}
+
+        <div className="relative flex h-full">
+          {/* White Keys Layer */}
+          {whiteKeys.map((n, i) => {
+            const originalIndex = startIndex + octaveNotes.findIndex(on => on.note === n.note);
+            return (
+              <PianoKey
+                key={n.note}
+                note={n.note}
+                isBlack={false}
+                isActive={activeKey === originalIndex}
+                isPressed={pressedKey === originalIndex}
+                status={pressedKey === originalIndex ? keyStatus : null}
+                onClick={() => handleKeyPress(originalIndex)}
+                disabled={phase !== "playing"}
+                className="flex-1 w-auto border-r border-slate-300 last:border-r-0 md:last:border-r"
+              />
+            );
+          })}
+
+          {/* Black Keys Layer */}
+          {blackKeys.map((n) => {
+            const originalIndex = startIndex + octaveNotes.findIndex(on => on.note === n.note);
+            const leftPercent = (n.pos || 0) * 14.2857;
+
+            return (
+              <PianoKey
+                key={n.note}
+                note={n.note}
+                isBlack={true}
+                isActive={activeKey === originalIndex}
+                isPressed={pressedKey === originalIndex}
+                status={pressedKey === originalIndex ? keyStatus : null}
+                onClick={() => handleKeyPress(originalIndex)}
+                disabled={phase !== "playing"}
+                style={{
+                  left: `${leftPercent}%`,
+                  transform: 'translateX(-50%)',
+                  width: '8%', // Slightly narrower than pure half
+                  height: '60%'
+                }}
+                className="absolute top-0"
+              />
+            )
+          })}
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-900">
-      {/* Flash overlay */}
-      <AnimatePresence>
-        {showFlash && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.3 }}
-            exit={{ opacity: 0 }}
-            className={cn(
-              "fixed inset-0 z-50 pointer-events-none",
-              showFlash === "success" ? "bg-emerald-500" : "bg-red-500"
-            )}
-          />
-        )}
-      </AnimatePresence>
+    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
 
-      {/* Reverse Mode Warning */}
-      <AnimatePresence>
-        {showReverseWarning && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
-          >
-            <motion.div
-              animate={{
-                opacity: [1, 0.5, 1],
-                scale: [1, 1.05, 1]
-              }}
-              transition={{ repeat: 2, duration: 0.5 }}
-              className="text-center p-6 rounded-2xl bg-gradient-to-br from-orange-600 to-red-600 shadow-2xl"
-            >
-              <RotateCcw className="w-12 h-12 mx-auto mb-3 text-white" />
-              <h2 className="text-2xl font-bold text-white mb-2">
-                {gameState.mode === "distraction"
-                  ? "CHẾ ĐỘ NHIỄU LOẠN"
-                  : "CHẾ ĐỘ ĐẢO NGƯỢC"}
-              </h2>
-              <p className="text-white/90 text-lg">
-                {gameState.mode === "distraction"
-                  ? "Bỏ qua đèn không có tiếng!"
-                  : "Nhấn theo thứ tự NGƯỢC LẠI!"}
-              </p>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-brand-gradient mb-3 shadow-lg shadow-primary/30">
-            <Brain className="w-7 h-7 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-white mb-1">Sequence Master Pro</h1>
-          <p className="text-slate-400 text-sm">Trí nhớ làm việc & Thao tác thông tin</p>
+      {/* TOP BAR */}
+      <div className="w-full max-w-4xl flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            <Music className="text-teal-400" />
+            The Sonic Conservatory
+          </h1>
+          <p className="text-slate-400 text-sm">Advanced Musical Aptitude Test</p>
         </div>
 
-        {/* Ready State */}
-        {gamePhase === "ready" && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center"
-          >
-            <Card className="bg-slate-800/50 border-slate-700 p-6 mb-6">
-              <Zap className="w-12 h-12 mx-auto text-secondary mb-4" />
-              <h2 className="text-lg font-semibold text-white mb-2">Cách chơi</h2>
-              <div className="text-slate-400 text-sm mb-4 space-y-2 text-left">
-                <p className="flex items-start gap-2">
-                  <span className="text-emerald-400 font-bold">1-4:</span>
-                  <span>Nhấn đúng thứ tự bạn thấy</span>
-                </p>
-                <p className="flex items-start gap-2">
-                  <span className="text-orange-400 font-bold">5-8:</span>
-                  <span>Nhấn theo thứ tự <strong className="text-orange-400">NGƯỢC LẠI</strong></span>
-                </p>
-                <p className="flex items-start gap-2">
-                  <span className="text-red-400 font-bold">9+:</span>
-                  <span>Ngược lại + <strong className="text-red-400">Bỏ qua đèn không có tiếng</strong></span>
-                </p>
-              </div>
-              <div className="flex items-center justify-center gap-4 text-sm text-slate-300">
-                <span className="flex items-center gap-1">
-                  <Heart className="w-4 h-4 text-red-400" /> 3 mạng
-                </span>
-              </div>
-            </Card>
-
-            <Button
-              size="lg"
-              className="w-full bg-brand-gradient hover:opacity-90 text-lg text-white"
-              onClick={startGame}
-            >
-              <Play className="w-5 h-5 mr-2" />
-              Bắt đầu
-            </Button>
-          </motion.div>
+        {phase !== "intro" && phase !== "completed" && (
+          <div className="flex gap-4">
+            <Badge variant="outline" className="border-teal-500/50 text-teal-400">
+              Round {round}/{MAX_ROUNDS}
+            </Badge>
+            <Badge variant="secondary" className="bg-slate-800 text-slate-300">
+              Accuracy: {totalNotes > 0 ? Math.round((correctNotes / totalNotes) * 100) : 100}%
+            </Badge>
+          </div>
         )}
+      </div>
 
-        {/* Game State */}
-        {gamePhase !== "ready" && (
-          <>
-            {/* Progress Bar */}
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-slate-400">
-                  Level {gameState.level}
-                </span>
-                <Badge
-                  variant="outline"
-                  className={cn(
-                    "text-xs",
-                    gameState.mode === "forward" && "border-emerald-500 text-emerald-400",
-                    gameState.mode === "reverse" && "border-orange-500 text-orange-400",
-                    gameState.mode === "distraction" && "border-red-500 text-red-400"
-                  )}
-                >
-                  {gameState.mode === "forward" && "Forward"}
-                  {gameState.mode === "reverse" && "Reverse"}
-                  {gameState.mode === "distraction" && "Distraction"}
-                </Badge>
+      {/* MAIN AREA */}
+      <div className="w-full max-w-5xl">
+        {phase === "intro" ? (
+          <Card className="bg-slate-900/80 border-slate-800 p-12 text-center max-w-2xl mx-auto backdrop-blur-md">
+            <div className="w-20 h-20 bg-teal-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Volume2 className="w-10 h-10 text-teal-400" />
+            </div>
+            <h2 className="text-2xl text-white font-semibold mb-4">Assessment Protocol</h2>
+            <p className="text-slate-400 mb-8 leading-relaxed">
+              This evaluates your auditory processing and melodic memory.
+              <br />
+              <b>Instructions:</b> Listen to the melody, then play it back.
+              <br />
+              <span className="text-teal-400 text-sm mt-2 block">
+                *Mistakes are allowed. Continue playing until the sequence is finished.
+              </span>
+            </p>
+            <Button onClick={handleStart} size="lg" className="bg-teal-600 hover:bg-teal-500 text-white shadow-lg shadow-teal-500/20">
+              Begin Assessment <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </Card>
+        ) : (
+          <div className="space-y-8 w-full">
+            {/* VISUAL FEEDBACK */}
+            <div className="h-24 bg-slate-900 border-y border-slate-800 flex items-center justify-center gap-2 overflow-hidden relative">
+              {/* Progress Dots */}
+              <div className="flex gap-3">
+                {Array.from({ length: sequence.length || 0 }).map((_, i) => {
+                  const status = i < userInputs.length
+                    ? (userInputs[i] === sequence[i] ? "correct" : "wrong")
+                    : "pending";
+
+                  return (
+                    <motion.div
+                      key={i}
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className={cn(
+                        "w-4 h-4 rounded-full transition-colors",
+                        status === "pending" && "bg-slate-700",
+                        status === "correct" && "bg-lime-500 shadow-[0_0_10px_rgba(132,204,22,0.5)]",
+                        status === "wrong" && "bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]",
+                        i === userInputs.length && phase === "playing" && "ring-2 ring-white ring-offset-2 ring-offset-slate-900"
+                      )}
+                    />
+                  )
+                })}
               </div>
-              <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
-                <motion.div
-                  className={cn("h-full rounded-full", getProgressColor())}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${progressPercent}%` }}
-                />
+              <div className="absolute top-2 right-4 text-xs font-mono uppercase tracking-widest text-slate-500">
+                STATUS: {phase === "watching" ? "LISTENING..." : "RECORDING..."}
               </div>
             </div>
 
-            {/* Status Bar */}
-            <div className="flex items-center justify-between mb-4">
-              <Badge variant="outline" className="border-slate-600 text-slate-300 px-3 py-1">
-                Chuỗi: <span className="font-bold text-white ml-1">{gameState.currentSpan}</span>
-              </Badge>
+            {/* PIANO ROLL - RESPONSIVE LAYOUT */}
+            <div className="w-full max-w-4xl mx-auto flex flex-col md:flex-row gap-6 md:gap-0 md:bg-white md:p-1 md:rounded-lg">
+              {/* Octave 3 (Low) */}
+              {renderOctave(3, 0, "Low Octave (C3-B3)")}
 
-              <div className="flex items-center gap-1">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <Heart
-                    key={i}
-                    className={cn(
-                      "w-5 h-5 transition-all",
-                      i < gameState.lives ? "text-red-500 fill-red-500" : "text-slate-700"
-                    )}
-                  />
-                ))}
-              </div>
+              {/* Octave 4 (High) */}
+              {renderOctave(4, 12, "High Octave (C4-B4)")}
             </div>
 
-            {/* Mode Warning Badge */}
-            {(gameState.mode === "reverse" || gameState.mode === "distraction") && gamePhase === "playing" && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-4"
-              >
-                <Badge
-                  className={cn(
-                    "w-full justify-center py-2 text-sm",
-                    gameState.mode === "distraction"
-                      ? "bg-red-500/20 text-red-400 border-red-500/50"
-                      : "bg-orange-500/20 text-orange-400 border-orange-500/50"
-                  )}
-                >
-                  <AlertTriangle className="w-4 h-4 mr-2" />
-                  {gameState.mode === "distraction"
-                    ? "NGƯỢC + BỎ QUA ĐÈN KHÔNG TIẾNG"
-                    : "REVERSE: Nhấn NGƯỢC thứ tự!"}
-                </Badge>
-              </motion.div>
-            )}
-
-            {/* Phase indicator */}
-            <AnimatePresence mode="wait">
-              {gamePhase === "watching" && !showReverseWarning && (
-                <motion.div
-                  key="watching"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="text-center mb-4"
-                >
-                  <Badge className="bg-primary/20 text-primary border-primary/50">
-                    👀 Quan sát...
-                  </Badge>
-                </motion.div>
-              )}
-              {gamePhase === "playing" && (
-                <motion.div
-                  key="playing"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="text-center mb-4"
-                >
-                  <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/50">
-                    🎯 Đến lượt bạn!
-                  </Badge>
-                </motion.div>
-              )}
-              {gamePhase === "success" && (
-                <motion.div
-                  key="success"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="text-center mb-4"
-                >
-                  <Badge className="bg-emerald-500 text-white text-lg py-1 px-4">
-                    ✨ Tuyệt vời!
-                  </Badge>
-                </motion.div>
-              )}
-              {gamePhase === "fail" && (
-                <motion.div
-                  key="fail"
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: [0, -5, 5, -5, 5, 0] }}
-                  exit={{ opacity: 0 }}
-                  className="text-center mb-4"
-                >
-                  <Badge className="bg-red-500/20 text-red-400 border-red-500/50">
-                    ❌ Sai rồi! Thử lại...
-                  </Badge>
-                </motion.div>
-              )}
-              {gamePhase === "gameover" && (
-                <motion.div
-                  key="gameover"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="text-center mb-4"
-                >
-                  <Badge className="bg-slate-700 text-white text-lg py-2 px-6">
-                    🏆 Forward: {gameState.maxForwardSpan} | Reverse: {gameState.maxReverseSpan}
-                  </Badge>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* The Grid */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{
-                opacity: 1,
-                scale: 1,
-                x: showFlash === "fail" ? [0, -5, 5, -5, 5, 0] : 0
-              }}
-              className={cn(
-                "grid grid-cols-3 gap-3 p-4 rounded-2xl bg-slate-800/50 border border-slate-700",
-                gamePhase === "watching" && "pointer-events-none"
-              )}
-            >
-              {Array.from({ length: 9 }).map((_, index) => {
-                const isActive = gameState.activePad === index;
-                const isPhantom = gameState.phantomActivePad === index;
-                const color = PAD_COLORS[index];
-
-                return (
-                  <motion.button
-                    key={index}
-                    onClick={() => handlePadClick(index)}
-                    disabled={gamePhase !== "playing"}
-                    className={cn(
-                      "aspect-square rounded-xl border-2 transition-all duration-150",
-                      "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900",
-                      isActive
-                        ? `${color.active} border-white shadow-lg ${color.glow} ${color.ring}`
-                        : isPhantom
-                          ? `${color.active} border-slate-500 opacity-30` // Phantom: faint, no glow
-                          : `${color.base} border-slate-600 hover:border-slate-500`,
-                      gamePhase === "watching" && "cursor-not-allowed",
-                      gamePhase !== "playing" && gamePhase !== "watching" && "opacity-50"
-                    )}
-                    whileTap={gamePhase === "playing" ? { scale: 0.95 } : undefined}
-                    animate={isActive ? { scale: 1.05 } : { scale: 1 }}
-                  >
-                    {isActive && (
-                      <motion.div
-                        className="w-full h-full rounded-lg flex items-center justify-center"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                      >
-                        <div className="w-3 h-3 rounded-full bg-white shadow-lg" />
-                      </motion.div>
-                    )}
-                  </motion.button>
-                );
-              })}
-            </motion.div>
-
-            {/* Stats hint */}
-            {(gameState.maxForwardSpan > 0 || gameState.maxReverseSpan > 0) && gamePhase !== "gameover" && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="text-center text-sm text-slate-500 mt-4 space-x-4"
-              >
-                <span>Forward Max: {gameState.maxForwardSpan}</span>
-                <span>Reverse Max: {gameState.maxReverseSpan}</span>
-              </motion.div>
-            )}
-          </>
+            {/* INSTRUCTION TEXT */}
+            <div className="text-center text-slate-500 text-sm min-h-[20px]">
+              {phase === "watching" && "Listen carefully..."}
+              {phase === "playing" && "Replay the melody..."}
+              {phase === "round_summary" && <span className="text-teal-400 flex items-center justify-center gap-2"><CheckCircle2 className="w-4 h-4" /> Sequence Complete</span>}
+            </div>
+          </div>
         )}
       </div>
     </div>

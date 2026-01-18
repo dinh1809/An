@@ -1,156 +1,164 @@
 import { useNavigate } from "react-router-dom";
-import { BrainCircuit, Gamepad2, Target, Trophy, Eye, Brain, Lightbulb, Zap } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { motion } from "framer-motion";
+import { ScanEye, Music, Radio, ArrowRight, BrainCircuit, ShieldCheck, Zap } from "lucide-react";
+import { Card, CardContent, CardActionArea } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 
 const AssessmentHome = () => {
   const navigate = useNavigate();
 
+  const jobs = [
+    {
+      id: "visual-analyst",
+      title: "Visual Pattern Analyst",
+      subtitle: "IQ Logic Focus",
+      icon: ScanEye,
+      path: "/assessment/matrix",
+      color: "text-teal-400",
+      bgGradient: "from-teal-500/10 to-transparent",
+      border: "border-teal-500/50",
+      glow: "group-hover:shadow-[0_0_30px_rgba(45,212,191,0.3)]",
+      desc: "Analyze visual data patterns. Detect anomalies in production lines."
+    },
+    {
+      id: "sonic-architect",
+      title: "Sonic Architecture Intern",
+      subtitle: "Musical Intelligence",
+      icon: Music,
+      path: "/assessment/piano",
+      color: "text-pink-400",
+      bgGradient: "from-pink-500/10 to-transparent",
+      border: "border-pink-500/50",
+      glow: "group-hover:shadow-[0_0_30px_rgba(232,121,249,0.3)]",
+      desc: "Reconstruct auditory sequences. Pitch perfect sensitivity required."
+    },
+    {
+      id: "logistics-officer",
+      title: "Logistics Dispatch Officer",
+      subtitle: "Working Memory",
+      icon: Radio,
+      path: "/assessment/dispatcher",
+      color: "text-amber-400",
+      bgGradient: "from-amber-500/10 to-transparent",
+      border: "border-amber-500/50",
+      glow: "group-hover:shadow-[0_0_30px_rgba(245,158,11,0.3)]",
+      desc: "High-speed code entry under pressure. Zero latency tolerance."
+    }
+  ];
+
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { y: 20, opacity: 0 },
+    show: { y: 0, opacity: 1 }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-background">
-      <div className="w-full max-w-2xl">
-        {/* Header */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-brand-gradient mb-4 shadow-lg">
-            <BrainCircuit className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-3xl font-bold text-foreground mb-2 font-heading">
-            An Career
-          </h1>
-          <p className="text-muted-foreground">
-            Khám phá tiềm năng qua trò chơi khoa học
-          </p>
-        </div>
+    <div className="min-h-screen bg-[#020617] text-slate-100 p-6 md:p-12 font-sans selection:bg-teal-500/30">
+      <div className="max-w-7xl mx-auto space-y-12">
 
-        {/* Progress Overview */}
-        <Card className="mb-6 border-primary/20 bg-card">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg flex items-center gap-2 font-heading">
-              <Target className="w-5 h-5 text-primary" />
-              Tiến độ của bạn
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground font-sans">Hoàn thành</span>
-                <span className="font-medium text-foreground">0 / 5 bài</span>
+        {/* HEADER */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-slate-800 pb-8">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-indigo-500/10 rounded-lg">
+                <BrainCircuit className="w-8 h-8 text-indigo-400" />
               </div>
-              <Progress value={0} className="h-2" />
+              <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
+                An Career <span className="text-slate-600 font-light">Hub</span>
+              </h1>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Games Grid */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold flex items-center gap-2 font-heading">
-            <Gamepad2 className="w-5 h-5 text-primary" />
-            Các bài đánh giá
-          </h2>
-
-          <div className="grid gap-4">
-            {/* Game 1 - Detail Spotter */}
-            <Card
-              className="cursor-pointer hover:shadow-md transition-all border-l-4 border-l-primary hover:scale-[1.02] bg-card"
-              onClick={() => navigate("/assessment/detail-spotter")}
+            <p className="text-slate-400 max-w-lg text-lg">
+              Select a specialized role simulation to begin your cognitive evaluation.
+            </p>
+            <Button
+              size="lg"
+              onClick={() => navigate('/assessment/matrix?mode=campaign')}
+              className="bg-indigo-600 hover:bg-indigo-500 text-white shadow-[0_0_20px_rgba(79,70,229,0.3)] border border-indigo-500/50"
             >
-              <CardHeader className="py-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Eye className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-base font-heading">Detail Spotter</CardTitle>
-                      <CardDescription className="font-sans">Đánh giá khả năng quan sát chi tiết</CardDescription>
-                    </div>
-                  </div>
-                  <Button size="sm" className="bg-primary hover:bg-primary/90 text-white font-heading">
-                    Chơi ngay
-                  </Button>
-                </div>
-              </CardHeader>
-            </Card>
+              <Zap className="w-4 h-4 mr-2 fill-current" />
+              Initialize Full Campaign
+            </Button>
+          </div>
 
-            {/* Game 2 - Stroop Chaos */}
-            <Card
-              className="cursor-pointer hover:shadow-md transition-all border-l-4 border-l-secondary hover:scale-[1.02] bg-card"
-              onClick={() => navigate("/assessment/rule-switcher/tutorial")}
-            >
-              <CardHeader className="py-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center">
-                      <Brain className="w-5 h-5 text-secondary" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-base font-heading">Stroop Chaos</CardTitle>
-                      <CardDescription className="font-sans">Đánh giá khả năng kiềm chế xung động</CardDescription>
-                    </div>
-                  </div>
-                  <Button size="sm" className="bg-secondary hover:bg-secondary/90 text-white font-heading">
-                    Chơi ngay
-                  </Button>
-                </div>
-              </CardHeader>
-            </Card>
-
-            {/* Game 3 - Sequence Memory */}
-            <Card
-              className="cursor-pointer hover:shadow-md transition-all border-l-4 border-l-primary/60 hover:scale-[1.02] bg-card"
-              onClick={() => navigate("/assessment/sequence-memory")}
-            >
-              <CardHeader className="py-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Lightbulb className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-base font-heading">Sequence Master</CardTitle>
-                      <CardDescription className="font-sans">Đánh giá trí nhớ tuần tự</CardDescription>
-                    </div>
-                  </div>
-                  <Button size="sm" className="bg-primary/80 hover:bg-primary text-white font-heading">
-                    Chơi ngay
-                  </Button>
-                </div>
-              </CardHeader>
-            </Card>
-
-            {/* Matrix Mode - Special */}
-            <Card
-              className="cursor-pointer hover:shadow-md transition-all border-2 border-dashed border-primary/30 hover:border-primary hover:scale-[1.02] bg-card"
-              onClick={() => navigate("/assessment/matrix")}
-            >
-              <CardHeader className="py-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-brand-gradient flex items-center justify-center">
-                      <Zap className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-base font-heading">Matrix Mode</CardTitle>
-                      <CardDescription className="font-sans">Đánh giá Cognitive Agility tổng hợp</CardDescription>
-                    </div>
-                  </div>
-                  <Button size="sm" className="bg-brand-gradient hover:opacity-90 text-white font-heading border-0">
-                    Thử ngay
-                  </Button>
-                </div>
-              </CardHeader>
-            </Card>
+          <div className="flex items-center gap-4 bg-slate-900/50 px-4 py-2 rounded-full border border-slate-800">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-sm font-medium text-emerald-400 tracking-wide uppercase">System Operational</span>
           </div>
         </div>
 
-        {/* Achievement hint */}
-        <div className="mt-8 p-4 bg-muted/20 rounded-xl text-center">
-          <Trophy className="w-6 h-6 text-primary mx-auto mb-2" />
-          <p className="text-sm text-muted-foreground font-sans">
-            Hoàn thành tất cả bài đánh giá để nhận báo cáo chi tiết
-          </p>
+        {/* JOB GRID */}
+        <motion.div
+          variants={container}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+        >
+          {jobs.map((job) => (
+            <motion.div key={job.id} variants={item}>
+              <Card
+                className={`group relative overflow-hidden bg-slate-900 border ${job.border} h-full transition-all duration-300 hover:scale-[1.02] ${job.glow} cursor-pointer`}
+                onClick={() => navigate(job.path)}
+              >
+                {/* Background Gradient */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${job.bgGradient} opacity-50 group-hover:opacity-100 transition-opacity duration-500`} />
+
+                <CardContent className="p-8 relative z-10 flex flex-col h-full">
+
+                  {/* Icon & Badge */}
+                  <div className="flex justify-between items-start mb-6">
+                    <div className={`p-4 rounded-2xl bg-slate-950/50 border border-slate-800 backdrop-blur-sm group-hover:bg-slate-950/80 transition-colors`}>
+                      <job.icon className={`w-8 h-8 ${job.color}`} />
+                    </div>
+                    <Badge variant="outline" className="bg-slate-950/50 backdrop-blur-md border-slate-700 text-slate-400">
+                      OPEN POSITION
+                    </Badge>
+                  </div>
+
+                  {/* Title & Subtitle */}
+                  <div className="mb-4">
+                    <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-white/90">
+                      {job.title}
+                    </h3>
+                    <p className={`text-sm font-medium ${job.color} uppercase tracking-wider`}>
+                      {job.subtitle}
+                    </p>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-slate-400 leading-relaxed mb-8 flex-grow">
+                    {job.desc}
+                  </p>
+
+                  {/* Action */}
+                  <div className="flex items-center gap-2 text-sm font-semibold text-white group-hover:translate-x-1 transition-transform duration-300">
+                    Apply Now <ArrowRight className="w-4 h-4" />
+                  </div>
+
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* FOOTER STATUS */}
+        <div className="flex justify-center pt-12 opacity-50">
+          <div className="flex flex-col items-center gap-2 text-xs text-slate-600 font-mono text-center">
+            <ShieldCheck className="w-5 h-5 mb-1" />
+            <p>SECURE CONNECTION ESTABLISHED</p>
+            <p>ID: AN-CB-2026-X9</p>
+          </div>
         </div>
+
       </div>
     </div>
   );
