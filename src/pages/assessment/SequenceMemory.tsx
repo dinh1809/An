@@ -216,14 +216,19 @@ const SequenceMemory = () => {
       total_notes: totalNotes,
       mistakes_count: mistakesLog.length,
       contour_accuracy_on_mistakes: mistakesLog.filter(m => m.interval_direction_match).length,
-      mistakes_detail: mistakesLog.slice(0, 5)
-    };
+      mistakes_detail: mistakesLog.slice(0, 5).map(m => ({
+        round: m.round,
+        expected: m.expected,
+        actual: m.actual,
+        interval_direction_match: m.interval_direction_match
+      }))
+    } as unknown as Record<string, never>;
 
     await supabase.from("game_sessions").update({
       completed_at: new Date().toISOString(),
       final_score: pitchAccuracy,
       difficulty_level_reached: MAX_ROUNDS,
-      metrics: metrics
+      metrics: metrics as unknown as typeof metrics
     }).eq("id", sessionIdRef.current);
 
     const location = useLocation();
