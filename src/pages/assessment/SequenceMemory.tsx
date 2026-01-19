@@ -58,6 +58,7 @@ interface MistakeLog {
 
 const SequenceMemory = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { triggerHaptic } = useGameSoundContext();
   const { initAudio, playTone } = useAudioSynth();
@@ -231,7 +232,6 @@ const SequenceMemory = () => {
       metrics: metrics as unknown as typeof metrics
     }).eq("id", sessionIdRef.current);
 
-    const location = useLocation();
     const query = new URLSearchParams(window.location.search);
     const mode = query.get('mode');
 

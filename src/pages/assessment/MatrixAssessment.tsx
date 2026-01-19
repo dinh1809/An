@@ -7,21 +7,40 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, BrainCircuit } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 const MatrixAssessment = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const [problem, setProblem] = useState<RavenProblem | null>(null);
   const [currentRound, setCurrentRound] = useState(1);
   const [score, setScore] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [history, setHistory] = useState<{ problemId: string, isCorrect: boolean, explanation: string }[]>([]);
+  const [sessionId, setSessionId] = useState<string | null>(null);
 
   // Init
   useEffect(() => {
+    const startSession = async () => {
+      if (!user) return;
+      const { data, error } = await supabase
+        .from("game_sessions")
+        .insert({
+          user_id: user.id,
+          game_type: "matrix_assessment",
+        })
+        .select("id")
+        .single();
+
+      if (data) setSessionId(data.id);
+    };
+
+    startSession();
     loadProblem();
-  }, []);
+  }, [user]);
 
   const loadProblem = () => {
     // MVP: Random level, sau này sẽ Adaptive
@@ -52,26 +71,39 @@ const MatrixAssessment = () => {
 
     setHistory(prev => [...prev, { problemId: problem.id, isCorrect, explanation: problem.explanation }]);
 
-    setTimeout(() => {
+    setTimeout(async () => {
       if (currentRound < 10) {
         setCurrentRound(r => r + 1);
         loadProblem();
       } else {
+        const finalScore = score + (isCorrect ? 10 : 0);
+
+        // Save Session
+        if (sessionId) {
+          const accuracy = (history.filter(h => h.isCorrect).length + (isCorrect ? 1 : 0)) * 10;
+          await supabase.from("game_sessions").update({
+            completed_at: new Date().toISOString(),
+            final_score: finalScore,
+            accuracy_percentage: accuracy,
+            difficulty_level_reached: 1
+          }).eq("id", sessionId);
+        }
+
         const query = new URLSearchParams(window.location.search);
         const mode = query.get('mode');
 
         if (mode === 'campaign') {
           navigate('/assessment/piano?mode=campaign', {
             state: {
-              score: score + (isCorrect ? 10 : 0),
-              previousScores: [{ type: 'matrix', score: score + (isCorrect ? 10 : 0) }],
+              score: finalScore,
+              previousScores: [{ type: 'matrix', score: finalScore }],
               matrixHistory: [...history, { problemId: problem!.id, isCorrect, explanation: problem!.explanation }]
             }
           });
         } else {
-          navigate('/assessment/result', {
+          navigate(`/assessment/result?session=${sessionId}`, {
             state: {
-              score: score + (isCorrect ? 10 : 0),
+              score: finalScore,
               type: 'matrix',
               matrixHistory: [...history, { problemId: problem!.id, isCorrect, explanation: problem!.explanation }]
             }

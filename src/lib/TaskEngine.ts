@@ -41,7 +41,9 @@ export class TaskEngine {
             }
 
             if (!data || data.length === 0) {
-                return null; // NO TASKS AVAILABLE
+                // Return null so the UI can decide to use mock or show "All caught up"
+                // But for the sake of the demo, let's return a mock task if user is administrator or if we want to ensure interaction
+                return null;
             }
 
             const task = data[0];
@@ -96,8 +98,22 @@ export class TaskEngine {
             {
                 type: "image_labeling",
                 payload: {
-                    image_url: "https://images.unsplash.com/photo-1542831371-29b0f74f9713",
-                    question: "Is there valid code displayed on this screen?"
+                    image_url: "https://images.unsplash.com/photo-1517336714731-489689fd1ca4?auto=format&fit=crop&q=80&w=1000",
+                    question: "Is there a laptop in this image?"
+                }
+            },
+            {
+                type: "image_labeling",
+                payload: {
+                    image_url: "https://images.unsplash.com/photo-1511389026070-a14ce610a541?auto=format&fit=crop&q=80&w=1000",
+                    question: "Is there a person in this image?"
+                }
+            },
+            {
+                type: "image_labeling",
+                payload: {
+                    image_url: "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&q=80&w=1000",
+                    question: "Is this a landscape/mountain photo?"
                 }
             },
             {
@@ -110,8 +126,8 @@ export class TaskEngine {
             {
                 type: "data_entry",
                 payload: {
-                    image_url: "https://images.unsplash.com/photo-1554224155-1696413565d3",
-                    question: "Identify the document type: [Invoice | Receipt | Contract]"
+                    image_url: "https://images.unsplash.com/photo-1554224155-1696413565d3?auto=format&fit=crop&q=80&w=1000",
+                    question: "Is this a business document or receipt?"
                 }
             }
         ];
@@ -120,11 +136,11 @@ export class TaskEngine {
         const selected = types[roll];
 
         return {
-            id: "mock-" + Date.now(),
-            projectId: "Nexus AI Corp",
+            id: "mock-" + Math.floor(Math.random() * 100000),
+            projectId: "An. Digital Factory",
             type: selected.type as any,
             payload: selected.payload,
-            isGold: Math.random() < 0.1
+            isGold: Math.random() < 0.2
         };
     }
 }

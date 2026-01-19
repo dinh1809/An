@@ -1,12 +1,14 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
     Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer
 } from 'recharts';
 import {
     BrainCircuit, Save, RotateCcw, ShieldCheck,
-    Target, Zap, Clock, ChevronRight, Loader2, CheckCircle2, XCircle
+    Target, Zap, Clock, ChevronRight, Loader2, CheckCircle2, XCircle, Triangle
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,10 +20,12 @@ import { AiVocationalService } from '@/lib/AiVocationalService';
 import { findTopMatches, UserMetrics } from '@/lib/CareerEngine';
 
 interface LocationState {
-    score: number;
-    type: string;
+    score?: number;
+    type?: string;
     mistakes?: string[];
     timePerQuestion?: number[];
+    isCampaign?: boolean;
+    previousScores?: any[];
 }
 
 const AssessmentResult = () => {
@@ -36,6 +40,7 @@ const AssessmentResult = () => {
     const [realMetrics, setRealMetrics] = useState<UserMetrics | null>(null);
     const [zScoreData, setZScoreData] = useState<{ zScore: number, percentile: number } | null>(null);
     const [isLoadingMetrics, setIsLoadingMetrics] = useState(true);
+    const [currentScore, setCurrentScore] = useState(0);
 
     const [aiAnalysis, setAiAnalysis] = useState<string>("");
     const [isLoadingAI, setIsLoadingAI] = useState(true);
@@ -60,51 +65,100 @@ const AssessmentResult = () => {
             }
 
             try {
-                // 1. Fetch Session Data
-                const { data: session, error } = await supabase
-                    .from('game_sessions')
-                    .select('*')
-                    .eq('id', sessionId)
-                    .single();
-
-                if (error || !session) throw error;
-
-                // 2. Fetch Global Stats for Z-Score
-                const { data: globalStats } = await supabase
-                    .from('global_stats_view')
-                    .select('*')
-                    .eq('game_type', session.game_type)
-                    .single();
-
-                // 3. Calculate Z-Score
-                if (globalStats && session.avg_reaction_time_ms) {
-                    const z = (session.avg_reaction_time_ms - globalStats.global_mean_latency) / globalStats.global_std_latency;
-                    // Invert Z because lower latency is better. 
-                    // If Z is negative (faster), we want it to look "Positive" for the user.
-                    // Actually, let's just display raw Z-Score and interpret it.
-                    // A Z-Score of -1.5 means "Fast". 
-
-                    // Simple Percentile Estimate
-                    const percentile = Math.round((0.5 * (1 + (z > 0 ? -1 : 1) * Math.sqrt(1 - Math.exp(-2 * z * z / Math.PI)))) * 100);
-
-                    setZScoreData({
-                        zScore: parseFloat(z.toFixed(2)),
-                        percentile: z < 0 ? Math.max(percentile, 50) : Math.min(percentile, 50) // Crude approximation logic fix
-                    });
+                // 1. Get User
+                const userResponse = await supabase.auth.getUser();
+                const user = userResponse.data.user;
+                if (!user) {
+                    setIsLoadingMetrics(false);
+                    return;
                 }
 
-                // 4. Map to Radar Metrics
-                const score = session.final_score || 0;
+                // 2. Fetch Latest Session for EACH game type to link scores
+                const { data: allSessions, error: sessionError } = await supabase
+                    .from('game_sessions')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('completed_at', { ascending: false });
+
+                if (sessionError) throw sessionError;
+
+                // Group by type to get the latest
+                const latestByType: Record<string, any> = {};
+                allSessions?.forEach(s => {
+                    if (!latestByType[s.game_type]) {
+                        latestByType[s.game_type] = s;
+                    }
+                });
+
+                // Find the one that was JUST completed (if sessionId exists)
+                const foundSelf = allSessions?.find(s => s.id === sessionId);
+                const currentSession = (sessionId && foundSelf) ? latestByType[foundSelf.game_type] : allSessions?.[0];
+
+                if (currentSession) {
+                    setCurrentScore(currentSession.final_score || 0);
+                }
+
+                // 3. Fetch Global Stats for Z-Score (of the current game)
+                if (currentSession) {
+                    const { data: globalStats } = await supabase
+                        .from('global_stats_view')
+                        .select('*')
+                        .eq('game_type', currentSession.game_type)
+                        .maybeSingle();
+
+                    if (globalStats && currentSession.avg_reaction_time_ms) {
+                        const z = (currentSession.avg_reaction_time_ms - globalStats.global_mean_latency) / globalStats.global_std_latency;
+                        const percentile = Math.round((0.5 * (1 + (z > 0 ? -1 : 1) * Math.sqrt(1 - Math.exp(-2 * z * z / Math.PI)))) * 100);
+                        setZScoreData({
+                            zScore: parseFloat(z.toFixed(2)),
+                            percentile: z < 0 ? Math.max(percentile, 50) : Math.min(percentile, 50)
+                        });
+                    }
+                }
+
+                // 4. Map to Radar Metrics (Aggregated Linkage)
+                // We use weights from different games
+                // Mapping logic with safety defaults
+                const getScore = (type: string) => latestByType[type]?.final_score || 0;
+                const getAccuracy = (type: string) => latestByType[type]?.accuracy_percentage || 70;
+                const getSpeed = (type: string) => {
+                    const rt = latestByType[type]?.avg_reaction_time_ms;
+                    return rt ? Math.min(100, Math.max(0, 100 - (rt / 20))) : 0;
+                };
+
+                // Logic: Matrix + Core Rules
+                const logic = (getScore('matrix_assessment') / 25 + getScore('stroop_chaos') / 30) / 2 ||
+                    getScore('matrix_assessment') / 25 ||
+                    getScore('stroop_chaos') / 30 || 50;
+
+                // Visual: Detail Spotter + Logic Matrix
+                const visual = (getScore('detail_spotter') / 20 + getScore('matrix_assessment') / 30) / 2 ||
+                    getScore('detail_spotter') / 20 || 50;
+
+                // Memory: Piano (Sonic) + Dispatcher (Inhibition)
+                const memory = (getAccuracy('sonic_conservatory') + getAccuracy('dispatcher_console')) / 2 ||
+                    getAccuracy('sonic_conservatory') ||
+                    getAccuracy('dispatcher_console') || 50;
+
+                // Speed: Detail Spotter (Speed) + Dispatcher (Response)
+                const speed = (getSpeed('detail_spotter') + getSpeed('dispatcher_console')) / 2 ||
+                    getSpeed('detail_spotter') ||
+                    getSpeed('dispatcher_console') || 50;
+
+                // Focus: Overall consistency across high-engagement games
+                const focus = (getAccuracy('detail_spotter') + getAccuracy('stroop_chaos') + getAccuracy('dispatcher_console')) / 3 || 75;
+
                 setRealMetrics({
-                    visual: Math.min(100, (score / 20)), // Heuristic mapping
-                    logic: Math.min(100, (score / 25)),
-                    memory: Math.min(100, (session.accuracy_percentage || 0)),
-                    speed: Math.max(0, 100 - (session.avg_reaction_time_ms / 20)), // 1000ms = 50 score
-                    focus: Math.min(100, (session.accuracy_percentage || 0) + 10)
+                    visual: Math.min(100, Math.max(30, visual)),
+                    logic: Math.min(100, Math.max(30, logic)),
+                    memory: Math.min(100, Math.max(30, memory)),
+                    speed: Math.min(100, Math.max(30, speed)),
+                    focus: Math.min(100, Math.max(30, focus))
                 });
 
             } catch (e) {
-                console.error("Failed to fetch session metrics", e);
+                console.error("Critical error in calculateScience:", e);
+                setIsLoadingMetrics(false);
             } finally {
                 setIsLoadingMetrics(false);
             }
@@ -130,47 +184,66 @@ const AssessmentResult = () => {
     // Safety Data Check
     if (!realMetrics && !state?.score) {
         return (
-            <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center text-slate-400 gap-4">
-                <AlertTriangle className="w-10 h-10 text-yellow-500" />
-                <p>No assessment data found. Please complete an assessment first.</p>
-                <Button onClick={() => navigate('/assessment')} variant="outline">Return to Hub</Button>
+            <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center p-6 text-center">
+                <div className="max-w-md space-y-6">
+                    <div className="w-20 h-20 rounded-full bg-slate-900 flex items-center justify-center mx-auto border border-slate-800">
+                        <Triangle className="w-10 h-10 text-yellow-500/50 fill-yellow-500/10" />
+                    </div>
+                    <div className="space-y-2">
+                        <h2 className="text-xl font-bold text-white">No Diagnostic Data</h2>
+                        <p className="text-slate-400 text-sm leading-relaxed">
+                            We couldn't retrieve your latest assessment session. This usually happens if the session was interrupted or didn't sync correctly.
+                        </p>
+                    </div>
+                    <div className="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
+                        <Button onClick={() => navigate('/assessment')} variant="outline" className="border-slate-800">
+                            Return to Hub
+                        </Button>
+                        <Button onClick={() => window.location.reload()} className="bg-teal-600">
+                            Retry Sync
+                        </Button>
+                    </div>
+                </div>
             </div>
         );
     }
 
     // 3. Radar Data Formatting
     const radarData = useMemo(() => {
-        if (location.state?.isCampaign && location.state?.previousScores) {
+        const state = location.state as LocationState;
+        if (state?.isCampaign && state?.previousScores) {
             // Aggregate from campaign
-            const scores = location.state.previousScores;
+            const scores = state.previousScores;
             // Default base
             let matrixScore = 0;
             let pianoScore = 0;
             let dispatcherScore = 0;
 
-            scores.forEach((s: any) => {
-                if (s.type === 'matrix') matrixScore = s.score;
-                if (s.type === 'sonic_conservatory') pianoScore = s.score;
-                if (s.type === 'dispatcher_console') dispatcherScore = s.score;
+            (scores || []).forEach((s: any) => {
+                const sScore = Number(s?.score) || 0;
+                if (s?.type === 'matrix') matrixScore = sScore;
+                if (s?.type === 'sonic_conservatory') pianoScore = sScore;
+                if (s?.type === 'dispatcher_console') dispatcherScore = sScore;
             });
 
             return [
-                { subject: 'Logic', A: matrixScore, fullMark: 100 },
-                { subject: 'Visual', A: Math.min(100, matrixScore + 10), fullMark: 100 },
-                { subject: 'Memory', A: dispatcherScore, fullMark: 100 },
-                { subject: 'Speed', A: Math.min(100, dispatcherScore + 5), fullMark: 100 }, // Dispatcher implies speed
-                { subject: 'Music', A: pianoScore, fullMark: 100 }, // New Dimension
-                { subject: 'Focus', A: (matrixScore + dispatcherScore + pianoScore) / 3, fullMark: 100 },
+                { subject: 'Logic', A: matrixScore || 50, fullMark: 100 },
+                { subject: 'Visual', A: Math.min(100, matrixScore + 10) || 50, fullMark: 100 },
+                { subject: 'Memory', A: dispatcherScore || 50, fullMark: 100 },
+                { subject: 'Speed', A: Math.min(100, dispatcherScore + 5) || 50, fullMark: 100 },
+                { subject: 'Music', A: pianoScore || 50, fullMark: 100 },
+                { subject: 'Focus', A: (matrixScore + dispatcherScore + pianoScore) / 3 || 50, fullMark: 100 },
             ];
         }
 
         // Single Game Fallback
+        const metrics = userMetrics || { visual: 50, logic: 50, memory: 50, speed: 50, focus: 50 };
         return [
-            { subject: 'Logic', A: userMetrics.logic, fullMark: 100 },
-            { subject: 'Visual', A: userMetrics.visual, fullMark: 100 },
-            { subject: 'Memory', A: userMetrics.memory, fullMark: 100 },
-            { subject: 'Speed', A: userMetrics.speed, fullMark: 100 },
-            { subject: 'Focus', A: userMetrics.focus, fullMark: 100 },
+            { subject: 'Logic', A: Number(metrics.logic) || 50, fullMark: 100 },
+            { subject: 'Visual', A: Number(metrics.visual) || 50, fullMark: 100 },
+            { subject: 'Memory', A: Number(metrics.memory) || 50, fullMark: 100 },
+            { subject: 'Speed', A: Number(metrics.speed) || 50, fullMark: 100 },
+            { subject: 'Focus', A: Number(metrics.focus) || 50, fullMark: 100 },
         ];
     }, [userMetrics, location.state]);
 
@@ -186,8 +259,8 @@ const AssessmentResult = () => {
     }, [userMetrics]);
 
     return (
-        <div className="min-h-screen bg-[#020617] text-slate-100 font-sans p-6 md:p-12">
-            <div className="max-w-7xl mx-auto space-y-8">
+        <div className="min-h-screen bg-[#020617] text-slate-100 font-sans p-6 md:p-12 overflow-y-auto">
+            <div className="max-w-7xl mx-auto space-y-8 pb-12">
 
                 {/* 1. HEADER LOG */}
                 <header className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-6 gap-4">
@@ -257,7 +330,7 @@ const AssessmentResult = () => {
                                 </ResponsiveContainer>
 
                                 <div className="absolute bottom-4 right-4 bg-slate-950/80 p-3 rounded border border-slate-800 text-xs text-slate-400 font-mono text-right">
-                                    <div>AVG SCORE: {Math.round(score)}</div>
+                                    <div>LATEST SCORE: {Math.round(currentScore)}</div>
                                     {zScoreData && (
                                         <>
                                             <div className="text-teal-400 font-bold mt-1">
@@ -363,7 +436,7 @@ const AssessmentResult = () => {
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-4">
-                                    {((location.state as any).matrixHistory).map((item: any, idx: number) => (
+                                    {((location.state as any)?.matrixHistory || []).map((item: any, idx: number) => (
                                         <div key={idx} className="flex items-start gap-4 p-4 rounded-lg bg-slate-950/50 border border-slate-800">
                                             <div className="mt-1">
                                                 {item.isCorrect ? (
