@@ -78,15 +78,22 @@ const TaskBoard = () => {
 
             {/* TASK CARD */}
             <Card className="w-full max-w-2xl bg-slate-800 border-slate-700 shadow-2xl overflow-hidden">
-                <div className="relative aspect-video bg-black flex items-center justify-center">
+                <div className="relative aspect-video bg-black flex items-center justify-center p-4">
                     {task.payload.image_url ? (
                         <img
                             src={task.payload.image_url}
                             alt="Task"
                             className="object-contain w-full h-full"
+                            onError={(e) => {
+                                (e.target as HTMLImageElement).src = "https://placehold.co/600x400/1e293b/FFF?text=Image+Load+Error";
+                            }}
                         />
                     ) : (
-                        <div className="text-slate-500">Text Task: {JSON.stringify(task.payload)}</div>
+                        <div className="w-full h-full flex flex-col items-center justify-center text-center space-y-4">
+                            <div className="bg-slate-900 border border-slate-700 p-8 rounded-xl max-w-lg w-full font-mono text-emerald-400">
+                                {task.payload.text || "No text data provided"}
+                            </div>
+                        </div>
                     )}
                 </div>
 

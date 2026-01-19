@@ -101,8 +101,10 @@ const App = () => (
                 <Route path="/assessment/dispatcher" element={<DispatcherAssessment />} />
                 <Route path="/assessment/matrix" element={<MatrixAssessment />} />
                 <Route path="/assessment/result" element={<AssessmentResult />} />
+              </Route>
 
-                {/* --- WORKSPACE MODE (Digital Factory) --- */}
+              {/* --- WORKSPACE MODE (Digital Factory) --- */}
+              <Route element={<ProtectedRoute allowedRole="parent"><FocusLayout /></ProtectedRoute>}>
                 <Route path="/workspace/task" element={<TaskBoard />} />
               </Route>
 

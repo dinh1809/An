@@ -1,163 +1,195 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ScanEye, Music, Radio, ArrowRight, BrainCircuit, ShieldCheck, Zap } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  ScanEye, Music, Radio, ArrowRight, BrainCircuit,
+  ShieldCheck, Zap, Briefcase, GraduationCap, Target, ChevronRight
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 const AssessmentHome = () => {
   const navigate = useNavigate();
 
-  const jobs = [
+  const trainingModules = [
     {
-      id: "visual-analyst",
-      title: "Visual Pattern Analyst",
-      subtitle: "IQ Logic Focus",
+      id: "detail-spotter",
+      title: "Detail Spotter",
       icon: ScanEye,
+      path: "/assessment/detail-spotter",
+      color: "text-emerald-400",
+      desc: "Visual search & pattern recognition."
+    },
+    {
+      id: "stroop-chaos",
+      title: "Stroop Chaos",
+      icon: Target,
+      path: "/assessment/rule-switcher/tutorial",
+      color: "text-sky-400",
+      desc: "Cognitive flexibility & inhibition."
+    },
+    {
+      id: "seq-memory",
+      title: "Sequence Master",
+      icon: BrainCircuit,
+      path: "/assessment/sequence-memory",
+      color: "text-purple-400",
+      desc: "Working memory capacity test."
+    },
+    {
+      id: "visual-logic",
+      title: "Visual Logic",
+      icon: Zap,
       path: "/assessment/matrix",
-      color: "text-teal-400",
-      bgGradient: "from-teal-500/10 to-transparent",
-      border: "border-teal-500/50",
-      glow: "group-hover:shadow-[0_0_30px_rgba(45,212,191,0.3)]",
-      desc: "Analyze visual data patterns. Detect anomalies in production lines."
+      color: "text-amber-400",
+      desc: "Raven's Progressive Matrices analysis."
     },
     {
-      id: "sonic-architect",
-      title: "Sonic Architecture Intern",
-      subtitle: "Musical Intelligence",
-      icon: Music,
-      path: "/assessment/piano",
-      color: "text-pink-400",
-      bgGradient: "from-pink-500/10 to-transparent",
-      border: "border-pink-500/50",
-      glow: "group-hover:shadow-[0_0_30px_rgba(232,121,249,0.3)]",
-      desc: "Reconstruct auditory sequences. Pitch perfect sensitivity required."
-    },
-    {
-      id: "logistics-officer",
-      title: "Logistics Dispatch Officer",
-      subtitle: "Working Memory",
+      id: "dispatcher",
+      title: "Dispatcher Console",
       icon: Radio,
       path: "/assessment/dispatcher",
-      color: "text-amber-400",
-      bgGradient: "from-amber-500/10 to-transparent",
-      border: "border-amber-500/50",
-      glow: "group-hover:shadow-[0_0_30px_rgba(245,158,11,0.3)]",
-      desc: "High-speed code entry under pressure. Zero latency tolerance."
+      color: "text-rose-400",
+      desc: "Multi-tasking & cognitive endurance."
+    },
+    {
+      id: "piano-sonic",
+      title: "Sonic Conservatory",
+      icon: Music,
+      path: "/assessment/piano",
+      color: "text-indigo-400",
+      desc: "Auditory processing & melodic memory."
     }
   ];
 
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const item = {
-    hidden: { y: 20, opacity: 0 },
-    show: { y: 0, opacity: 1 }
-  };
-
   return (
-    <div className="min-h-screen bg-[#020617] text-slate-100 p-6 md:p-12 font-sans selection:bg-teal-500/30">
-      <div className="max-w-7xl mx-auto space-y-12">
+    <div className="min-h-screen bg-[#020617] text-slate-100 font-sans selection:bg-indigo-500/30">
+      <div className="max-w-7xl mx-auto p-6 md:p-12 space-y-12">
 
         {/* HEADER */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-slate-800 pb-8">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-slate-800 pb-10">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-indigo-500/10 rounded-lg">
                 <BrainCircuit className="w-8 h-8 text-indigo-400" />
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
-                An Career <span className="text-slate-600 font-light">Hub</span>
+              <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-white font-heading">
+                Career <span className="text-indigo-500">Gateway</span>
               </h1>
             </div>
-            <p className="text-slate-400 max-w-lg text-lg">
-              Select a specialized role simulation to begin your cognitive evaluation.
+            <p className="text-slate-400 max-w-xl text-lg leading-relaxed">
+              Duy trì phong độ não bộ qua tập luyện và bắt đầu kiếm thu nhập tại Nhà máy số.
             </p>
+          </div>
+          <Badge variant="outline" className="px-4 py-1.5 border-slate-700 bg-slate-900/50 text-slate-400 font-mono">
+            VPI STATUS: CALIBRATED
+          </Badge>
+        </header>
+
+        {/* MAIN GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+          {/* COLUMN 1: TRAINING CENTER */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 mb-2">
+              <GraduationCap className="w-6 h-6 text-indigo-400" />
+              <h2 className="text-xl font-bold text-white uppercase tracking-wider">Trung tâm Đào tạo</h2>
+            </div>
+
+            <div className="grid gap-4">
+              {trainingModules.map((module) => (
+                <Card
+                  key={module.id}
+                  className="bg-slate-900/40 border-slate-800 hover:border-indigo-500/50 transition-all cursor-pointer group"
+                  onClick={() => navigate(module.path)}
+                >
+                  <CardContent className="p-6 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className={`p-3 rounded-xl bg-slate-950/50 border border-slate-800 group-hover:scale-110 transition-transform`}>
+                        <module.icon className={`w-6 h-6 ${module.color}`} />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-slate-200 group-hover:text-white transition-colors">
+                          {module.title}
+                        </h3>
+                        <p className="text-xs text-slate-500">{module.desc}</p>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-slate-600 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
             <Button
-              size="lg"
+              variant="outline"
+              className="w-full border-indigo-500/20 bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-400 h-14 text-base"
               onClick={() => navigate('/assessment/matrix?mode=campaign')}
-              className="bg-indigo-600 hover:bg-indigo-500 text-white shadow-[0_0_20px_rgba(79,70,229,0.3)] border border-indigo-500/50"
             >
-              <Zap className="w-4 h-4 mr-2 fill-current" />
-              Initialize Full Campaign
+              <Zap className="w-4 h-4 mr-2 text-indigo-400 fill-indigo-400" />
+              Bắt đầu Chiến dịch Đánh giá Toàn diện
             </Button>
           </div>
 
-          <div className="flex items-center gap-4 bg-slate-900/50 px-4 py-2 rounded-full border border-slate-800">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-sm font-medium text-emerald-400 tracking-wide uppercase">System Operational</span>
+          {/* COLUMN 2: DIGITAL FACTORY */}
+          <div className="space-y-6">
+            <div className="flex items-center gap-3 mb-2">
+              <Briefcase className="w-6 h-6 text-emerald-400" />
+              <h2 className="text-xl font-bold text-white uppercase tracking-wider">Nhà máy số (Work)</h2>
+            </div>
+
+            <Card className="bg-gradient-to-br from-indigo-900/20 to-slate-900/40 border-slate-700/50 h-full relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                <Briefcase className="w-48 h-48 -mr-12 -mt-12 text-indigo-500" />
+              </div>
+
+              <CardHeader className="p-8 pb-4 relative z-10">
+                <Badge className="w-fit bg-emerald-500/20 text-emerald-400 border-emerald-500/30 mb-4 animate-pulse">
+                  SYSTEM ACTIVE
+                </Badge>
+                <CardTitle className="text-3xl font-bold text-white mb-2">Neuro-Inclusive Digital Factory</CardTitle>
+                <CardDescription className="text-slate-400 text-lg leading-relaxed">
+                  Tận dụng khả năng tập trung cao độ của bạn để xử lý dữ liệu thực tế cho các đối tác AI. Kiếm thu nhập dựa trên độ chính xác.
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent className="p-8 pt-4 relative z-10 space-y-8">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
+                    <p className="text-xs text-slate-500 uppercase font-mono mb-1">Available Tasks</p>
+                    <p className="text-2xl font-bold text-white">450+</p>
+                  </div>
+                  <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800">
+                    <p className="text-xs text-slate-500 uppercase font-mono mb-1">Avg Pay/Task</p>
+                    <p className="text-2xl font-bold text-white">2.5 AN</p>
+                  </div>
+                </div>
+
+                <Button
+                  size="lg"
+                  className="w-full h-16 text-xl bg-indigo-600 hover:bg-indigo-500 text-white shadow-[0_0_30px_rgba(79,70,229,0.3)] group-hover:scale-[1.02] transition-transform"
+                  onClick={() => navigate('/workspace/task')}
+                >
+                  VÀO LÀM VIỆC NGAY
+                  <ArrowRight className="w-6 h-6 ml-2 group-hover:translate-x-2 transition-transform" />
+                </Button>
+
+                <p className="text-center text-xs text-slate-600 font-mono pt-4">
+                  SECURE WORKSPACE PROTOCOLO v4.1 ACTIVATED
+                </p>
+              </CardContent>
+            </Card>
           </div>
+
         </div>
 
-        {/* JOB GRID */}
-        <motion.div
-          variants={container}
-          initial="hidden"
-          animate="show"
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
-        >
-          {jobs.map((job) => (
-            <motion.div key={job.id} variants={item}>
-              <Card
-                className={`group relative overflow-hidden bg-slate-900 border ${job.border} h-full transition-all duration-300 hover:scale-[1.02] ${job.glow} cursor-pointer`}
-                onClick={() => navigate(job.path)}
-              >
-                {/* Background Gradient */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${job.bgGradient} opacity-50 group-hover:opacity-100 transition-opacity duration-500`} />
-
-                <CardContent className="p-8 relative z-10 flex flex-col h-full">
-
-                  {/* Icon & Badge */}
-                  <div className="flex justify-between items-start mb-6">
-                    <div className={`p-4 rounded-2xl bg-slate-950/50 border border-slate-800 backdrop-blur-sm group-hover:bg-slate-950/80 transition-colors`}>
-                      <job.icon className={`w-8 h-8 ${job.color}`} />
-                    </div>
-                    <Badge variant="outline" className="bg-slate-950/50 backdrop-blur-md border-slate-700 text-slate-400">
-                      OPEN POSITION
-                    </Badge>
-                  </div>
-
-                  {/* Title & Subtitle */}
-                  <div className="mb-4">
-                    <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-white/90">
-                      {job.title}
-                    </h3>
-                    <p className={`text-sm font-medium ${job.color} uppercase tracking-wider`}>
-                      {job.subtitle}
-                    </p>
-                  </div>
-
-                  {/* Description */}
-                  <p className="text-slate-400 leading-relaxed mb-8 flex-grow">
-                    {job.desc}
-                  </p>
-
-                  {/* Action */}
-                  <div className="flex items-center gap-2 text-sm font-semibold text-white group-hover:translate-x-1 transition-transform duration-300">
-                    Apply Now <ArrowRight className="w-4 h-4" />
-                  </div>
-
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* FOOTER STATUS */}
-        <div className="flex justify-center pt-12 opacity-50">
-          <div className="flex flex-col items-center gap-2 text-xs text-slate-600 font-mono text-center">
-            <ShieldCheck className="w-5 h-5 mb-1" />
-            <p>SECURE CONNECTION ESTABLISHED</p>
-            <p>ID: AN-CB-2026-X9</p>
-          </div>
-        </div>
+        {/* FOOTER */}
+        <footer className="pt-12 flex flex-col items-center gap-4 opacity-30">
+          <ShieldCheck className="w-6 h-6 text-slate-400" />
+          <p className="text-xs font-mono text-slate-500 tracking-widest text-center">
+            CORE BRAIN: AN-AI-v4 • NODE: HANOI_01 • ENCRYPTION: AES-256
+          </p>
+        </footer>
 
       </div>
     </div>

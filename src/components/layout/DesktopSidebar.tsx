@@ -1,20 +1,33 @@
-import { Home, Activity, BarChart3, User, LogOut, MapPin, Shuffle, Briefcase } from "lucide-react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { Home, Activity, BarChart3, User, LogOut, MapPin, Shuffle, Briefcase, LayoutDashboard, Wallet } from "lucide-react";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.jfif";
 
-const navItems = [
-  { to: "/parent/home", icon: Home, label: "Home" },
-  { to: "/parent/track", icon: Activity, label: "Track" },
-  { to: "/parent/map", icon: MapPin, label: "Find Therapist" },
-  { to: "/parent/analyze", icon: BarChart3, label: "Analyze" },
-  { to: "/parent/profile", icon: User, label: "Profile" },
-];
-
 export function DesktopSidebar() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isParentJourney = location.pathname.startsWith("/parent");
+  const isWorkerJourney = location.pathname.startsWith("/assessment") || location.pathname.startsWith("/workspace");
+
+  const parentNavItems = [
+    { to: "/parent/home", icon: Home, label: "Home" },
+    { to: "/parent/track", icon: Activity, label: "Track" },
+    { to: "/parent/map", icon: MapPin, label: "Find Therapist" },
+    { to: "/parent/analyze", icon: BarChart3, label: "Analyze" },
+    { to: "/parent/profile", icon: User, label: "Profile" },
+  ];
+
+  const workerNavItems = [
+    { to: "/assessment", icon: LayoutDashboard, label: "Career Hub" },
+    { to: "/workspace/task", icon: Briefcase, label: "My Workspace" },
+    { to: "/workspace/earnings", icon: Wallet, label: "Earnings" },
+    { to: "/parent/profile", icon: User, label: "Profile" },
+  ];
+
+  const currentNavItems = isParentJourney ? parentNavItems : isWorkerJourney ? workerNavItems : [];
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -40,11 +53,11 @@ export function DesktopSidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2">
-        {navItems.map((item) => (
+        {currentNavItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
-            end={item.to === "/parent/home"}
+            end={item.to === "/parent/home" || item.to === "/assessment"}
             className={({ isActive }) =>
               cn(
                 "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200",

@@ -16,17 +16,12 @@ export class TaskEngine {
      */
     static async getNextTask(userId: string): Promise<MicroTask | null> {
         // 1. Roll for Gold Question (10% chance)
-        const isGoldCheck = Math.random() < 0.1;
-
-        if (isGoldCheck) {
-            // Attempt to fetch a 'golden' task
-            // In a real system, we'd query: select * from micro_tasks where golden_answer IS NOT NULL order by random() limit 1
-            // For now, let's try to get ANY unassigned task and treat it as normal if we can't find a gold one
-        }
+        // In this simplified version, we just focus on getting ANY task first.
 
         try {
             // 2. Fetch standard task
             // Logic: Get a task assigned to me, OR an unassigned task
+            // We use .select() with limit(1) instead of .single() to avoid 406/JSON errors on empty
             const { data, error } = await supabase
                 .from('micro_tasks')
                 .select(`
@@ -37,31 +32,31 @@ export class TaskEngine {
                 `)
                 .or(`assigned_user_id.eq.${userId},assigned_user_id.is.null`)
                 .eq('status', 'pending')
-                .limit(1)
-                .single();
+                .limit(1);
 
             if (error) {
-                console.warn("TaskEngine: Database fetch failed, using fallback.", error);
-                return this.getMockTask(); // Fallback for demo if DB migration failed
+                console.warn("TaskEngine: Database fetch failed (Auth or Network).", error);
+                // Only use mock if it's a network/auth error, not just "empty"
+                return null;
             }
 
-            if (!data) return null;
+            if (!data || data.length === 0) {
+                return null; // NO TASKS AVAILABLE
+            }
 
-            // Claim the task if it was unassigned
-            // Note: In strict concurrency, this should be an RPC. For MVP, we do optimistic locking or just update.
-            // But we can just return it and let the UI 'accept' it.
+            const task = data[0];
 
             return {
-                id: data.id,
-                projectId: (data.projects as any)?.client_name || "Unknown Client",
-                type: (data.projects as any)?.task_type || "image_labeling",
-                payload: data.payload,
-                isGold: !!data.golden_answer
+                id: task.id,
+                projectId: (task.projects as any)?.client_name || "Unknown Client",
+                type: (task.projects as any)?.task_type || "image_labeling",
+                payload: task.payload,
+                isGold: !!task.golden_answer
             };
 
         } catch (e) {
             console.error("TaskEngine error:", e);
-            return this.getMockTask();
+            return null;
         }
     }
 
@@ -97,14 +92,38 @@ export class TaskEngine {
 
     // --- MOCK DATA FOR DEMO (If DB is empty) ---
     static getMockTask(): MicroTask {
+        const types = [
+            {
+                type: "image_labeling",
+                payload: {
+                    image_url: "https://images.unsplash.com/photo-1542831371-29b0f74f9713",
+                    question: "Is there valid code displayed on this screen?"
+                }
+            },
+            {
+                type: "text_verification",
+                payload: {
+                    text: "Total Amount: $45.99 | Tax: $4.00 | Paid: $49.99",
+                    question: "Does the math sum up correctly?"
+                }
+            },
+            {
+                type: "data_entry",
+                payload: {
+                    image_url: "https://images.unsplash.com/photo-1554224155-1696413565d3",
+                    question: "Identify the document type: [Invoice | Receipt | Contract]"
+                }
+            }
+        ];
+
+        const roll = Math.floor(Math.random() * types.length);
+        const selected = types[roll];
+
         return {
             id: "mock-" + Date.now(),
             projectId: "Nexus AI Corp",
-            type: "image_labeling",
-            payload: {
-                image_url: "https://images.unsplash.com/photo-1517336714731-489689fd1ca4",
-                question: "Is there a laptop in this image?"
-            },
+            type: selected.type as any,
+            payload: selected.payload,
             isGold: Math.random() < 0.1
         };
     }

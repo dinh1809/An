@@ -28,29 +28,115 @@ const AssessmentResult = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const state = location.state as LocationState;
+    // NEW: Get session from URL
+    const searchParams = new URLSearchParams(location.search);
+    const sessionId = searchParams.get('session');
+
+    // State for real data
+    const [realMetrics, setRealMetrics] = useState<UserMetrics | null>(null);
+    const [zScoreData, setZScoreData] = useState<{ zScore: number, percentile: number } | null>(null);
+    const [isLoadingMetrics, setIsLoadingMetrics] = useState(true);
 
     const [aiAnalysis, setAiAnalysis] = useState<string>("");
     const [isLoadingAI, setIsLoadingAI] = useState(true);
 
-    const score = state?.score || 0;
+    // Fetch Session & Calculate Metrics
+    useEffect(() => {
+        const calculateScience = async () => {
+            if (!sessionId) {
+                // Fallback to legacy state if no session ID
+                if (state?.score) {
+                    const base = Math.min(100, (state.score / 100) * 100);
+                    setRealMetrics({
+                        visual: Math.min(100, base + 15),
+                        logic: base,
+                        memory: 65,
+                        speed: 75,
+                        focus: 85
+                    });
+                }
+                setIsLoadingMetrics(false);
+                return;
+            }
 
-    // 1. Calculate Core Metrics based on game playback
-    const userMetrics: UserMetrics = useMemo(() => {
-        // Logic to derive 0-100 metrics from game results
-        // For Matrix/Raven: Focus on Logic and Visual
-        const base = Math.min(100, (score / 100) * 100); // Assuming 100 is max raw score
+            try {
+                // 1. Fetch Session Data
+                const { data: session, error } = await supabase
+                    .from('game_sessions')
+                    .select('*')
+                    .eq('id', sessionId)
+                    .single();
 
-        return {
-            visual: Math.min(100, base + 15), // Raven assessment is high visual
-            logic: base,
-            memory: 65, // Baseline
-            speed: 75,  // Baseline
-            focus: 85   // Baseline
+                if (error || !session) throw error;
+
+                // 2. Fetch Global Stats for Z-Score
+                const { data: globalStats } = await supabase
+                    .from('global_stats_view')
+                    .select('*')
+                    .eq('game_type', session.game_type)
+                    .single();
+
+                // 3. Calculate Z-Score
+                if (globalStats && session.avg_reaction_time_ms) {
+                    const z = (session.avg_reaction_time_ms - globalStats.global_mean_latency) / globalStats.global_std_latency;
+                    // Invert Z because lower latency is better. 
+                    // If Z is negative (faster), we want it to look "Positive" for the user.
+                    // Actually, let's just display raw Z-Score and interpret it.
+                    // A Z-Score of -1.5 means "Fast". 
+
+                    // Simple Percentile Estimate
+                    const percentile = Math.round((0.5 * (1 + (z > 0 ? -1 : 1) * Math.sqrt(1 - Math.exp(-2 * z * z / Math.PI)))) * 100);
+
+                    setZScoreData({
+                        zScore: parseFloat(z.toFixed(2)),
+                        percentile: z < 0 ? Math.max(percentile, 50) : Math.min(percentile, 50) // Crude approximation logic fix
+                    });
+                }
+
+                // 4. Map to Radar Metrics
+                const score = session.final_score || 0;
+                setRealMetrics({
+                    visual: Math.min(100, (score / 20)), // Heuristic mapping
+                    logic: Math.min(100, (score / 25)),
+                    memory: Math.min(100, (session.accuracy_percentage || 0)),
+                    speed: Math.max(0, 100 - (session.avg_reaction_time_ms / 20)), // 1000ms = 50 score
+                    focus: Math.min(100, (session.accuracy_percentage || 0) + 10)
+                });
+
+            } catch (e) {
+                console.error("Failed to fetch session metrics", e);
+            } finally {
+                setIsLoadingMetrics(false);
+            }
         };
-    }, [score]);
+
+        calculateScience();
+    }, [sessionId, state]);
+
+    const userMetrics = realMetrics || { visual: 0, logic: 0, memory: 0, speed: 0, focus: 0 };
 
     // 2. Fetch Job Matches
     const recommendedJobs = useMemo(() => findTopMatches(userMetrics), [userMetrics]);
+
+    // Safety Loading Check
+    if (isLoadingMetrics) {
+        return (
+            <div className="min-h-screen bg-[#020617] flex items-center justify-center text-teal-500">
+                <Loader2 className="w-10 h-10 animate-spin" />
+            </div>
+        );
+    }
+
+    // Safety Data Check
+    if (!realMetrics && !state?.score) {
+        return (
+            <div className="min-h-screen bg-[#020617] flex flex-col items-center justify-center text-slate-400 gap-4">
+                <AlertTriangle className="w-10 h-10 text-yellow-500" />
+                <p>No assessment data found. Please complete an assessment first.</p>
+                <Button onClick={() => navigate('/assessment')} variant="outline">Return to Hub</Button>
+            </div>
+        );
+    }
 
     // 3. Radar Data Formatting
     const radarData = useMemo(() => {
@@ -170,8 +256,18 @@ const AssessmentResult = () => {
                                     </RadarChart>
                                 </ResponsiveContainer>
 
-                                <div className="absolute bottom-4 right-4 bg-slate-950/80 p-2 rounded border border-slate-800 text-xs text-slate-400 font-mono">
-                                    AVG SCORE: {Math.round(score)}
+                                <div className="absolute bottom-4 right-4 bg-slate-950/80 p-3 rounded border border-slate-800 text-xs text-slate-400 font-mono text-right">
+                                    <div>AVG SCORE: {Math.round(score)}</div>
+                                    {zScoreData && (
+                                        <>
+                                            <div className="text-teal-400 font-bold mt-1">
+                                                Z-SCORE: {zScoreData.zScore > 0 ? '+' : ''}{zScoreData.zScore}
+                                            </div>
+                                            <div className="text-indigo-400">
+                                                TOP {100 - zScoreData.percentile}%
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             </CardContent>
                         </Card>
@@ -256,7 +352,7 @@ const AssessmentResult = () => {
                     </div>
                 </main>
                 {/* 6. LOGIC BREAKDOWN (For Matrix) */}
-                {state.type === 'matrix' && (location.state as any)?.matrixHistory && (
+                {state?.type === 'matrix' && (location.state as any)?.matrixHistory && (
                     <div className="lg:col-span-3">
                         <Card className="bg-slate-900/40 border-slate-800">
                             <CardHeader>
