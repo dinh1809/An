@@ -50,6 +50,16 @@ export function MatrixSequenceMemory({ difficulty, durationSeconds, onComplete }
   const roundsCompleted = useRef(0);
   const isGameOver = useRef(false);
 
+  const isMounted = useRef(true);
+  const timeoutsRef = useRef<number[]>([]);
+
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+      timeoutsRef.current.forEach(clearTimeout);
+    };
+  }, []);
+
   // Initialize audio
   const initAudio = useCallback(() => {
     if (!audioContextRef.current) {
@@ -94,23 +104,41 @@ export function MatrixSequenceMemory({ difficulty, durationSeconds, onComplete }
 
   // Play sequence to user
   const playSequence = useCallback(async (seq: number[]) => {
+    if (!isMounted.current) return;
     setPhase("watching");
 
     for (let i = 0; i < seq.length; i++) {
-      await new Promise(resolve => setTimeout(resolve, 400));
+      await new Promise(resolve => {
+        const t = setTimeout(resolve, 400);
+        timeoutsRef.current.push(t);
+      });
+      if (!isMounted.current) return;
+
       const padIndex = seq[i];
       setActivePad(padIndex);
       playNote(padIndex);
-      await new Promise(resolve => setTimeout(resolve, 500));
+
+      await new Promise(resolve => {
+        const t = setTimeout(resolve, 500);
+        timeoutsRef.current.push(t);
+      });
+      if (!isMounted.current) return;
+
       setActivePad(null);
     }
 
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise(resolve => {
+      const t = setTimeout(resolve, 300);
+      timeoutsRef.current.push(t);
+    });
+    if (!isMounted.current) return;
+
     setPhase("playing");
   }, [playNote]);
 
   // Start round
   const startRound = useCallback((span: number) => {
+    if (!isMounted.current) return;
     const newSeq = generateSequence(span);
     setSequence(newSeq);
     setUserSequence([]);
@@ -123,7 +151,10 @@ export function MatrixSequenceMemory({ difficulty, durationSeconds, onComplete }
 
     playNote(padIndex);
     setActivePad(padIndex);
-    setTimeout(() => setActivePad(null), 150);
+    const padTimeout = setTimeout(() => {
+      if (isMounted.current) setActivePad(null);
+    }, 150);
+    timeoutsRef.current.push(padTimeout);
 
     const newUserSeq = [...userSequence, padIndex];
     const currentIdx = newUserSeq.length - 1;
@@ -140,9 +171,15 @@ export function MatrixSequenceMemory({ difficulty, durationSeconds, onComplete }
         const accuracy = roundsCompleted.current > 0
           ? (roundsCompleted.current / (roundsCompleted.current + 1)) * 100
           : 0;
-        setTimeout(() => onComplete({ score, accuracy, completed: true }), 800);
+        const completeTimeout = setTimeout(() => {
+          if (isMounted.current) onComplete({ score, accuracy, completed: true });
+        }, 800);
+        timeoutsRef.current.push(completeTimeout);
       } else {
-        setTimeout(() => startRound(currentSpan), 1000);
+        const retryTimeout = setTimeout(() => {
+          if (isMounted.current) startRound(currentSpan);
+        }, 1000);
+        timeoutsRef.current.push(retryTimeout);
       }
       return;
     }
@@ -155,10 +192,13 @@ export function MatrixSequenceMemory({ difficulty, durationSeconds, onComplete }
       roundsCompleted.current += 1;
       setScore(s => s + currentSpan * 20);
 
-      setTimeout(() => {
-        setCurrentSpan(s => s + 1);
-        startRound(currentSpan + 1);
+      const nextRoundTimeout = setTimeout(() => {
+        if (isMounted.current) {
+          setCurrentSpan(s => s + 1);
+          startRound(currentSpan + 1);
+        }
       }, 800);
+      timeoutsRef.current.push(nextRoundTimeout);
     }
   };
 

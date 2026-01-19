@@ -20,7 +20,7 @@ export default function RoleSelection() {
     if (error) {
       toast({
         title: "Error",
-        description: "Failed to set role. Please try again.",
+        description: error.message || "Failed to set role. Please try again.",
         variant: "destructive",
       });
       setLoading(false);

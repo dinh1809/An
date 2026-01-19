@@ -110,7 +110,25 @@ const RuleSwitcher = () => {
   const [perseverativeErrors, setPerseverativeErrors] = useState(0);
   const justSwitched = useRef<boolean>(false);
   const previousRule = useRef<RuleType>("color");
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isMounted = useRef(true);
+  const timeoutsRef = useRef<number[]>([]);
+
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+      timeoutsRef.current.forEach(clearTimeout);
+    };
+  }, []);
+
+  const addTimeout = (fn: () => void, delay: number) => {
+    const timeout = setTimeout(() => {
+      if (isMounted.current) fn();
+    }, delay);
+    timeoutsRef.current.push(timeout as unknown as number);
+    return timeout;
+  };
+
+  const timeoutRef = useRef<number | null>(null);
 
   // Session Data
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -171,11 +189,11 @@ const RuleSwitcher = () => {
 
     // Flash white effect
     setFlashWhite(true);
-    setTimeout(() => setFlashWhite(false), 200);
+    addTimeout(() => setFlashWhite(false), 200);
 
     // Show rule change notification
     setShowRuleChange(true);
-    setTimeout(() => setShowRuleChange(false), 1500);
+    addTimeout(() => setShowRuleChange(false), 1500);
 
     // Set new random interval
     setTurnsUntilSwitch(getRandomSwitchInterval());
@@ -356,7 +374,7 @@ const RuleSwitcher = () => {
     };
     setTrials(t => [...t, newTrial]);
 
-    setTimeout(() => {
+    addTimeout(() => {
       setShowTimeout(false);
       nextCard();
     }, 800);
@@ -405,7 +423,7 @@ const RuleSwitcher = () => {
       if (newTurns <= 0) {
         // Time to switch! Play level up sound
         playSound("levelUp");
-        setTimeout(() => {
+        addTimeout(() => {
           switchToNewRule();
         }, 200);
       } else {
@@ -413,7 +431,7 @@ const RuleSwitcher = () => {
       }
 
       // Next card
-      setTimeout(() => {
+      addTimeout(() => {
         setShowSuccess(false);
         nextCard();
       }, 250);
@@ -433,7 +451,7 @@ const RuleSwitcher = () => {
         }
       }
 
-      setTimeout(() => {
+      addTimeout(() => {
         setShakeScreen(false);
       }, 500);
     }

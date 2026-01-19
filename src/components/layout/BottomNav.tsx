@@ -1,10 +1,11 @@
-import { Home, Activity, BarChart3, User, Shuffle } from "lucide-react";
+import { Home, Activity, BarChart3, User, Shuffle, Briefcase } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { to: "/parent/home", icon: Home, label: "Home" },
   { to: "/parent/track", icon: Activity, label: "Track" },
+  { to: "/opportunities", icon: Briefcase, label: "Jobs" },
   { to: "/select-mode", icon: Shuffle, label: "Mode" },
   { to: "/parent/analyze", icon: BarChart3, label: "Analyze" },
   { to: "/parent/profile", icon: User, label: "Profile" },
@@ -31,7 +32,7 @@ export function BottomNav() {
             {({ isActive }) => (
               <>
                 <item.icon className={cn(
-                  "h-5 w-5", 
+                  "h-5 w-5",
                   isActive && "stroke-[2.5px]",
                   item.to === "/select-mode" && "text-violet-500"
                 )} />

@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Eye, 
-  Timer, 
-  Trophy, 
-  Play, 
+import {
+  Eye,
+  Timer,
+  Trophy,
+  Play,
   Sparkles,
   // Level 1-3: Oriented Search icons (Landolt C / Arrow logic)
   ChevronRight,
@@ -82,27 +82,45 @@ const DetailSpotter = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { playSound, triggerHaptic, initAudio } = useGameSoundContext();
-  
+
   // Game State
   const [phase, setPhase] = useState<GamePhase>("intro");
   const [countdown, setCountdown] = useState(3);
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
-  
+
   // Round State
   const [gridItems, setGridItems] = useState<GridItem[]>([]);
   const [gridSize, setGridSize] = useState(3);
   const [showSuccess, setShowSuccess] = useState(false);
   const [shakeGrid, setShakeGrid] = useState(false);
   const [clickedIndex, setClickedIndex] = useState<number | null>(null);
-  
+
   // Stats
   const roundStartTime = useRef<number>(0);
+  const isMounted = useRef(true);
+  const timeoutsRef = useRef<number[]>([]);
+
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+      timeoutsRef.current.forEach(clearTimeout);
+    };
+  }, []);
+
+  const addTimeout = (fn: () => void, delay: number) => {
+    const timeout = setTimeout(() => {
+      if (isMounted.current) fn();
+    }, delay);
+    timeoutsRef.current.push(timeout as unknown as number);
+    return timeout;
+  };
+
   const [reactionTimes, setReactionTimes] = useState<number[]>([]);
   const [correctCount, setCorrectCount] = useState(0);
   const [wrongCount, setWrongCount] = useState(0);
-  
+
   // Session Data
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [telemetryBuffer, setTelemetryBuffer] = useState<TelemetryData[]>([]);
@@ -150,16 +168,16 @@ const DetailSpotter = () => {
     const totalItems = size * size;
     const tier = getDifficultyTier(lvl);
     const oddIndex = Math.floor(Math.random() * totalItems);
-    
+
     let items: GridItem[];
-    
+
     switch (tier) {
       case "oriented": {
         // Level 1-3: Oriented Search (Landolt C Logic)
         // Distractors: All same rotation, Target: Different rotation
         const icon = ORIENTED_ICONS[Math.floor(Math.random() * ORIENTED_ICONS.length)];
         const { base, target } = getRotationOptions(lvl);
-        
+
         items = Array.from({ length: totalItems }, (_, i) => {
           const jitter = getJitter(lvl);
           return {
@@ -175,12 +193,12 @@ const DetailSpotter = () => {
         });
         break;
       }
-      
+
       case "mirror": {
         // Level 4-7: Mirror Logic (QC Check)
         // Distractors: Normal orientation, Target: Mirrored (scaleX: -1)
         const icon = MIRROR_ICONS[Math.floor(Math.random() * MIRROR_ICONS.length)];
-        
+
         items = Array.from({ length: totalItems }, (_, i) => {
           const jitter = getJitter(lvl);
           return {
@@ -196,17 +214,17 @@ const DetailSpotter = () => {
         });
         break;
       }
-      
+
       case "conjunction": {
         // Level 8+: Conjunction Search (Brain Burner)
         // Distractors: Mix of "Red Squares" and "Blue Circles"
         // Target: "Red Circle" (unique combination)
         const distractors = CONJUNCTION_COLORS.distractorCombos;
         const target = CONJUNCTION_COLORS.target;
-        
+
         items = Array.from({ length: totalItems }, (_, i) => {
           const jitter = getJitter(lvl);
-          
+
           if (i === oddIndex) {
             // Target: unique combination (Red Circle)
             return {
@@ -237,7 +255,7 @@ const DetailSpotter = () => {
         break;
       }
     }
-    
+
     setGridSize(size);
     setGridItems(items);
     roundStartTime.current = Date.now();
@@ -247,21 +265,21 @@ const DetailSpotter = () => {
   const calculateScore = (lvl: number, reactionTimeMs: number): number => {
     const tier = getDifficultyTier(lvl);
     let baseScore = 100;
-    
+
     // Tier bonus
     if (tier === "mirror") baseScore = 150;
     if (tier === "conjunction") baseScore = 200;
-    
+
     // Speed bonus (faster = more points)
     const speedBonus = Math.max(0, Math.floor((2000 - reactionTimeMs) / 100) * 5);
-    
+
     return baseScore + speedBonus;
   };
 
   // Start new game session
   const startSession = async () => {
     if (!user) return null;
-    
+
     const { data, error } = await supabase
       .from("game_sessions")
       .insert({
@@ -270,29 +288,29 @@ const DetailSpotter = () => {
       })
       .select("id")
       .single();
-    
+
     if (error) {
       console.error("Failed to create session:", error);
       toast.error("Không thể bắt đầu phiên đánh giá");
       return null;
     }
-    
+
     return data.id;
   };
 
   // Save telemetry data
   const saveTelemetry = async (sid: string, telemetry: TelemetryData[]) => {
     if (telemetry.length === 0) return;
-    
+
     const records = telemetry.map(t => ({
       session_id: sid,
       ...t
     }));
-    
+
     const { error } = await supabase
       .from("assessment_telemetry")
       .insert(records);
-    
+
     if (error) {
       console.error("Failed to save telemetry:", error);
     }
@@ -300,10 +318,10 @@ const DetailSpotter = () => {
 
   // Complete session with final scores
   const completeSession = async (
-    sid: string, 
-    finalScore: number, 
-    accuracy: number, 
-    avgReaction: number, 
+    sid: string,
+    finalScore: number,
+    accuracy: number,
+    avgReaction: number,
     maxLevel: number
   ) => {
     const { error } = await supabase
@@ -316,7 +334,7 @@ const DetailSpotter = () => {
         difficulty_level_reached: maxLevel,
       })
       .eq("id", sid);
-    
+
     if (error) {
       console.error("Failed to complete session:", error);
     }
@@ -325,10 +343,10 @@ const DetailSpotter = () => {
   // Start the game
   const handleStart = async () => {
     initAudio(); // Initialize sound context
-    
+
     const newSessionId = await startSession();
     if (!newSessionId) return;
-    
+
     setSessionId(newSessionId);
     setPhase("countdown");
     setCountdown(3);
@@ -344,10 +362,9 @@ const DetailSpotter = () => {
   // Countdown effect
   useEffect(() => {
     if (phase !== "countdown") return;
-    
+
     if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(c => c - 1), 1000);
-      return () => clearTimeout(timer);
+      addTimeout(() => setCountdown(c => c - 1), 1000);
     } else {
       setPhase("playing");
       generateGrid(1);
@@ -357,27 +374,26 @@ const DetailSpotter = () => {
   // Game timer
   useEffect(() => {
     if (phase !== "playing") return;
-    
+
     if (timeLeft <= 0) {
       finishGame();
       return;
     }
-    
-    const timer = setTimeout(() => setTimeLeft(t => t - 1), 1000);
-    return () => clearTimeout(timer);
+
+    addTimeout(() => setTimeLeft(t => t - 1), 1000);
   }, [phase, timeLeft]);
 
   // Handle grid cell click
   const handleCellClick = (index: number) => {
     if (phase !== "playing" || clickedIndex !== null) return;
-    
+
     const reactionTime = Date.now() - roundStartTime.current;
     const clickedItem = gridItems[index];
     const oddItem = gridItems.find(item => item.isOdd);
     const correct = clickedItem.isOdd;
-    
+
     setClickedIndex(index);
-    
+
     // Buffer telemetry
     setTelemetryBuffer(buf => [...buf, {
       target_position_index: oddItem?.id ?? 0,
@@ -385,26 +401,26 @@ const DetailSpotter = () => {
       is_correct: correct,
       reaction_time_ms: reactionTime,
     }]);
-    
+
     setReactionTimes(rt => [...rt, reactionTime]);
-    
+
     if (correct) {
       // Play success sound
       playSound("correct");
-      
+
       const pointsEarned = calculateScore(level, reactionTime);
       setCorrectCount(c => c + 1);
       setScore(s => s + pointsEarned);
       setTimeLeft(t => Math.min(t + 1, GAME_DURATION)); // +1 sec bonus
       setShowSuccess(true);
-      
+
       // Check for level up sound
       if ((level + 1) % 3 === 0) {
-        setTimeout(() => playSound("levelUp"), 200);
+        addTimeout(() => playSound("levelUp"), 200);
       }
-      
+
       // Next level
-      setTimeout(() => {
+      addTimeout(() => {
         setShowSuccess(false);
         setClickedIndex(null);
         setLevel(l => l + 1);
@@ -414,12 +430,12 @@ const DetailSpotter = () => {
       // Play wrong sound and haptic
       playSound("wrong");
       triggerHaptic(200);
-      
+
       setWrongCount(c => c + 1);
       setShakeGrid(true);
-      
+
       // Reset after shake
-      setTimeout(() => {
+      addTimeout(() => {
         setShakeGrid(false);
         setClickedIndex(null);
       }, 500);
@@ -429,16 +445,16 @@ const DetailSpotter = () => {
   // Finish the game
   const finishGame = async () => {
     if (!sessionId) return;
-    
+
     const totalAttempts = correctCount + wrongCount;
     const accuracy = totalAttempts > 0 ? (correctCount / totalAttempts) * 100 : 0;
-    const avgReaction = reactionTimes.length > 0 
+    const avgReaction = reactionTimes.length > 0
       ? Math.round(reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length)
       : 0;
-    
+
     await saveTelemetry(sessionId, telemetryBuffer);
     await completeSession(sessionId, score, accuracy, avgReaction, level);
-    
+
     // Redirect to result page with session ID
     navigate(`/assessment/result?session=${sessionId}`);
   };
@@ -462,14 +478,14 @@ const DetailSpotter = () => {
     const isClicked = clickedIndex === index;
     const showCorrectFeedback = isClicked && item.isOdd;
     const showWrongFeedback = isClicked && !item.isOdd;
-    
+
     // Calculate icon size based on grid size
-    const iconSizeClass = gridSize <= 4 
-      ? "w-8 h-8 sm:w-10 sm:h-10" 
-      : gridSize <= 6 
+    const iconSizeClass = gridSize <= 4
+      ? "w-8 h-8 sm:w-10 sm:h-10"
+      : gridSize <= 6
         ? "w-6 h-6 sm:w-8 sm:h-8"
         : "w-5 h-5 sm:w-6 sm:h-6";
-    
+
     return (
       <motion.button
         key={item.id}
@@ -492,19 +508,19 @@ const DetailSpotter = () => {
         }}
       >
         <motion.div
-          style={{ 
+          style={{
             rotate: item.rotation,
             scaleX: item.scaleX,
           }}
           animate={showCorrectFeedback ? { scale: [1, 1.2, 1] } : {}}
         >
-          <IconComponent 
+          <IconComponent
             className={iconSizeClass}
             style={{ color: item.color }}
             strokeWidth={2.5}
           />
         </motion.div>
-        
+
         {/* Success particles */}
         <AnimatePresence>
           {showCorrectFeedback && showSuccess && (
@@ -550,7 +566,7 @@ const DetailSpotter = () => {
             >
               <Card className="border-violet-200 dark:border-violet-800/50">
                 <CardHeader className="text-center pb-2">
-                  <motion.div 
+                  <motion.div
                     className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-violet-400 to-indigo-500 mx-auto mb-4 shadow-lg"
                     animate={{ scale: [1, 1.05, 1] }}
                     transition={{ repeat: Infinity, duration: 2 }}
@@ -587,7 +603,7 @@ const DetailSpotter = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Stats preview */}
                   <div className="grid grid-cols-2 gap-3 text-center text-sm">
                     <div className="p-3 rounded-xl bg-violet-50 dark:bg-violet-950/30">
@@ -599,9 +615,9 @@ const DetailSpotter = () => {
                       <div className="text-muted-foreground text-xs">Lưới tối đa</div>
                     </div>
                   </div>
-                  
-                  <Button 
-                    onClick={handleStart} 
+
+                  <Button
+                    onClick={handleStart}
                     className="w-full bg-gradient-to-r from-violet-500 to-indigo-500 hover:from-violet-600 hover:to-indigo-600 h-12 text-lg"
                     size="lg"
                   >
@@ -622,7 +638,7 @@ const DetailSpotter = () => {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 1.5 }}
             >
-              <motion.div 
+              <motion.div
                 className="text-9xl font-bold text-violet-500"
                 key={countdown}
                 initial={{ scale: 1.5, opacity: 0 }}
@@ -658,18 +674,23 @@ const DetailSpotter = () => {
                     {timeLeft}s
                   </span>
                 </div>
-                <Badge className="gap-1 bg-gradient-to-r from-violet-500 to-indigo-500 px-3 py-1">
-                  <Trophy className="w-3 h-3" />
-                  {score}
-                </Badge>
+                <div className="flex gap-2">
+                  <Badge variant="secondary" className="gap-1 px-2 py-1 font-mono text-xs">
+                    ⚡ {reactionTimes.length > 0 ? Math.round(reactionTimes[reactionTimes.length - 1]) : 0}ms
+                  </Badge>
+                  <Badge className="gap-1 bg-gradient-to-r from-violet-500 to-indigo-500 px-3 py-1">
+                    <Trophy className="w-3 h-3" />
+                    VPI: {score}
+                  </Badge>
+                </div>
               </div>
-              
+
               {/* Time Progress */}
-              <Progress 
-                value={(timeLeft / GAME_DURATION) * 100} 
+              <Progress
+                value={(timeLeft / GAME_DURATION) * 100}
                 className="h-2"
               />
-              
+
               {/* Difficulty indicator */}
               <div className="text-center">
                 <span className={cn("text-sm font-medium", tierInfo.color)}>
@@ -679,16 +700,16 @@ const DetailSpotter = () => {
                   Lưới {gridSize}×{gridSize}
                 </div>
               </div>
-              
+
               {/* Game Grid */}
               <motion.div
                 animate={shakeGrid ? { x: [-10, 10, -10, 10, 0] } : {}}
                 transition={{ duration: 0.4 }}
               >
                 <Card className="p-3 sm:p-4 bg-card">
-                  <div 
+                  <div
                     className="grid gap-1.5 sm:gap-2"
-                    style={{ 
+                    style={{
                       gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
                     }}
                   >
@@ -696,7 +717,7 @@ const DetailSpotter = () => {
                   </div>
                 </Card>
               </motion.div>
-              
+
               {/* Score feedback */}
               <AnimatePresence>
                 {showSuccess && (

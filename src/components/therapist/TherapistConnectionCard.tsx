@@ -15,13 +15,13 @@ export function TherapistConnectionCard({ therapistCode, therapistName }: Therap
   const [copied, setCopied] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
-  const connectionUrl = therapistCode 
-    ? `${window.location.origin}/connect?code=${therapistCode}` 
+  const connectionUrl = therapistCode
+    ? `${window.location.origin}/connect?code=${therapistCode}`
     : null;
 
   const handleCopyLink = async () => {
     if (!connectionUrl) return;
-    
+
     try {
       await navigator.clipboard.writeText(connectionUrl);
       setCopied(true);
@@ -41,10 +41,10 @@ export function TherapistConnectionCard({ therapistCode, therapistName }: Therap
 
   const handlePrint = () => {
     if (!printRef.current) return;
-    
+
     const printContent = printRef.current.innerHTML;
     const printWindow = window.open('', '', 'width=400,height=600');
-    
+
     if (printWindow) {
       printWindow.document.write(`
         <!DOCTYPE html>
@@ -100,7 +100,14 @@ export function TherapistConnectionCard({ therapistCode, therapistName }: Therap
             </style>
           </head>
           <body>
-            ${printContent}
+            <div class="card">
+              <div class="qr-container">
+                ${printRef.current.querySelector('.qr-container')?.innerHTML || ''}
+              </div>
+              <p class="title">${therapistName || "Therapist"}</p>
+              <div class="code">${therapistCode}</div>
+              <p class="instruction">Scan QR or visit the link to connect</p>
+            </div>
           </body>
         </html>
       `);
@@ -144,14 +151,14 @@ export function TherapistConnectionCard({ therapistCode, therapistName }: Therap
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Printable Card */}
-        <div 
+        <div
           ref={printRef}
           className="bg-card border-2 border-dashed border-border rounded-2xl p-6 text-center"
         >
           <div className="card">
             <div className="qr-container bg-white p-4 rounded-xl inline-block shadow-sm">
-              <QRCodeSVG 
-                value={connectionUrl || ""} 
+              <QRCodeSVG
+                value={connectionUrl || ""}
                 size={180}
                 level="H"
                 includeMargin={false}
@@ -171,9 +178,9 @@ export function TherapistConnectionCard({ therapistCode, therapistName }: Therap
 
         {/* Actions */}
         <div className="flex gap-3">
-          <Button 
-            onClick={handleCopyLink} 
-            variant="outline" 
+          <Button
+            onClick={handleCopyLink}
+            variant="outline"
             className="flex-1 gap-2 h-11 rounded-xl"
           >
             {copied ? (
@@ -188,9 +195,9 @@ export function TherapistConnectionCard({ therapistCode, therapistName }: Therap
               </>
             )}
           </Button>
-          <Button 
-            onClick={handlePrint} 
-            variant="outline" 
+          <Button
+            onClick={handlePrint}
+            variant="outline"
             className="flex-1 gap-2 h-11 rounded-xl"
           >
             <Printer className="h-4 w-4" />

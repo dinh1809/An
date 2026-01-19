@@ -87,19 +87,33 @@ serve(async (req) => {
         // Validate input
         if (!metrics || typeof metrics !== 'object') {
             return new Response(
-                JSON.stringify({ error: "Invalid request: 'metrics' object required" }),
+                JSON.stringify({ error: "Invalid request: 'metrics' object required", advice: null }),
                 { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
             );
         }
 
-        // Get API key from environment
+        // Get environment variables with validation
         const apiKey = Deno.env.get("OPENROUTER_API_KEY");
+        const apiUrl = Deno.env.get("OPENROUTER_URL") || OPENROUTER_URL;
+        const model = Deno.env.get("AI_MODEL") || "tngtech/tng-r1t-chimera:free";
+
         if (!apiKey) {
-            console.error("OPENROUTER_API_KEY not configured in Supabase secrets");
+            console.error("OPENROUTER_API_KEY is not set");
             return new Response(
                 JSON.stringify({
-                    error: "Server configuration error",
-                    advice: "**Lỗi cấu hình máy chủ:** Vui lòng liên hệ quản trị viên để thiết lập API key."
+                    error: "OPENROUTER_API_KEY is not configured",
+                    advice: "**Lỗi cấu hình:** Vui lòng thiết lập API key trong Supabase secrets."
+                }),
+                { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+        }
+
+        if (!apiUrl || !apiUrl.startsWith("http")) {
+            console.error("Invalid or missing OPENROUTER_URL");
+            return new Response(
+                JSON.stringify({
+                    error: "Invalid API URL configuration",
+                    advice: "**Lỗi hệ thống:** URL của AI API không hợp lệ."
                 }),
                 { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
             );
@@ -118,7 +132,7 @@ serve(async (req) => {
       `;
 
         // Call OpenRouter API
-        const response = await fetch(OPENROUTER_URL, {
+        const response = await fetch(apiUrl, {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${apiKey}`,
@@ -127,7 +141,7 @@ serve(async (req) => {
                 "X-Title": "An Career Passport",
             },
             body: JSON.stringify({
-                model: "openai/gpt-oss-120b:free",
+                model: model,
                 messages: [
                     { role: "system", content: SYSTEM_INSTRUCTION },
                     { role: "user", content: promptTemplate }
@@ -138,7 +152,7 @@ serve(async (req) => {
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error("OpenRouter API Error:", errorText);
+            console.error(`OpenRouter API Error (${response.status}):`, errorText);
 
             // Return user-friendly fallback
             return new Response(

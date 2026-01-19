@@ -1,4 +1,4 @@
-import { Home, Activity, BarChart3, User, LogOut, MapPin, Shuffle } from "lucide-react";
+import { Home, Activity, BarChart3, User, LogOut, MapPin, Shuffle, Briefcase } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,14 +26,14 @@ export function DesktopSidebar() {
   };
 
   return (
-    <aside className="hidden md:flex fixed left-0 top-0 h-full w-64 flex-col bg-card border-r border-border">
+    <aside className="hidden md:flex fixed left-0 top-0 h-full w-64 flex-col bg-white border-r border-slate-200">
       {/* Logo */}
-      <div className="p-6 border-b border-border">
+      <div className="p-6 border-b border-slate-100">
         <div className="flex items-center gap-3">
           <img src={logo} alt="An. Logo" className="h-10 w-10 rounded-lg object-cover" />
           <div>
-            <h1 className="text-xl font-bold text-gradient-brand">An.</h1>
-            <p className="text-xs text-muted-foreground">Healthcare Platform</p>
+            <h1 className="text-xl font-bold text-indigo-700">An.</h1>
+            <p className="text-xs text-slate-500">Healthcare Platform</p>
           </div>
         </div>
       </div>
@@ -49,8 +49,8 @@ export function DesktopSidebar() {
               cn(
                 "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200",
                 isActive
-                  ? "bg-primary text-primary-foreground shadow-soft"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                  ? "bg-indigo-50 text-indigo-700 shadow-sm"
+                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
               )
             }
           >

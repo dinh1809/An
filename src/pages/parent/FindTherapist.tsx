@@ -51,7 +51,7 @@ export default function FindTherapist() {
 
     const center = userLocation || DEFAULT_CENTER;
     const map = L.map(mapContainerRef.current).setView(center, DEFAULT_ZOOM);
-    
+
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
@@ -60,30 +60,41 @@ export default function FindTherapist() {
     therapists.forEach((therapist) => {
       const lat = Number(therapist.latitude);
       const lng = Number(therapist.longitude);
-      
+
       if (isNaN(lat) || isNaN(lng)) return;
-      
+
       const marker = L.marker([lat, lng]).addTo(map);
-      
+
       const popupContent = document.createElement("div");
       popupContent.className = "min-w-[200px] p-1";
-      popupContent.innerHTML = `
-        <h3 class="font-semibold text-base mb-1">${therapist.full_name || "Therapist"}</h3>
-        ${therapist.clinic_name ? `<div class="flex items-center gap-1.5 text-sm text-gray-600 mb-1">🏥 ${therapist.clinic_name}</div>` : ""}
-        ${therapist.clinic_address ? `<div class="flex items-start gap-1.5 text-sm text-gray-600 mb-3">📍 ${therapist.clinic_address}</div>` : ""}
-        <button class="connect-btn w-full px-3 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700" data-therapist-id="${therapist.user_id}">
-          Connect Now
-        </button>
-      `;
-      
+
+      const title = document.createElement("h3");
+      title.className = "font-semibold text-base mb-1";
+      title.textContent = therapist.full_name || "Therapist";
+      popupContent.appendChild(title);
+
+      if (therapist.clinic_name) {
+        const clinic = document.createElement("div");
+        clinic.className = "flex items-center gap-1.5 text-sm text-gray-600 mb-1";
+        clinic.textContent = `🏥 ${therapist.clinic_name}`;
+        popupContent.appendChild(clinic);
+      }
+
+      if (therapist.clinic_address) {
+        const address = document.createElement("div");
+        address.className = "flex items-start gap-1.5 text-sm text-gray-600 mb-3";
+        address.textContent = `📍 ${therapist.clinic_address}`;
+        popupContent.appendChild(address);
+      }
+
+      const connectBtn = document.createElement("button");
+      connectBtn.className = "connect-btn w-full px-3 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700";
+      connectBtn.textContent = "Connect Now";
+      connectBtn.onclick = () => handleConnect(therapist.user_id);
+      popupContent.appendChild(connectBtn);
+
       const popup = L.popup().setContent(popupContent);
       marker.bindPopup(popup);
-      
-      // Handle connect button click
-      popupContent.querySelector(".connect-btn")?.addEventListener("click", (e) => {
-        const id = (e.target as HTMLButtonElement).dataset.therapistId;
-        if (id) handleConnect(id);
-      });
     });
 
     mapRef.current = map;
@@ -121,7 +132,7 @@ export default function FindTherapist() {
 
   const fetchTherapists = async () => {
     setLoading(true);
-    
+
     // First get therapist user_ids from user_roles table
     const { data: therapistRoles, error: rolesError } = await supabase
       .from("user_roles")
@@ -169,9 +180,9 @@ export default function FindTherapist() {
       const validTherapists = (data || []).filter(
         (p) => p.latitude !== null && p.longitude !== null
       ) as TherapistProfile[];
-      
+
       setTherapists(validTherapists);
-      
+
       if (validTherapists.length === 0) {
         toast({
           title: "No therapists found",
@@ -197,7 +208,7 @@ export default function FindTherapist() {
     if (existing) {
       toast({
         title: existing.status === "accepted" ? "Already connected" : "Request pending",
-        description: existing.status === "accepted" 
+        description: existing.status === "accepted"
           ? "You're already connected with this therapist."
           : "Your connection request is pending approval.",
       });
@@ -317,8 +328,8 @@ export default function FindTherapist() {
             onKeyDown={handleSearchKeyDown}
             className="bg-card/95 backdrop-blur-sm shadow-lg border-border"
           />
-          <Button 
-            onClick={handleSearch} 
+          <Button
+            onClick={handleSearch}
             disabled={searching}
             className="shrink-0 shadow-lg"
           >

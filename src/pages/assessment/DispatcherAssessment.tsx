@@ -29,6 +29,13 @@ const DispatcherAssessment = () => {
     const location = useLocation();
     const { playSound, triggerHaptic } = useGameSoundContext();
     const sessionIdRef = useRef<string | null>(null);
+    const timeoutsRef = useRef<number[]>([]);
+
+    useEffect(() => {
+        return () => {
+            timeoutsRef.current.forEach(clearTimeout);
+        };
+    }, []);
 
     // --------------------------------------------------------------------
     // STATE
@@ -85,10 +92,11 @@ const DispatcherAssessment = () => {
         const displayTime = LEVELS[lvl - 1].time;
         playTone(800, 0.1, "square"); // Beep
 
-        setTimeout(() => {
+        const timeout = setTimeout(() => {
             setPhase("input");
             setStartTime(Date.now());
         }, displayTime);
+        timeoutsRef.current.push(timeout);
     }, [generateCode]);
 
     const handleInput = (char: string) => {
@@ -123,17 +131,20 @@ const DispatcherAssessment = () => {
             setResult("authorized");
             setLevelResults(prev => [...prev, { level, status: 'pass' }]);
             playTone(600, 0.1, "sine"); // Success chord logic would be better but keeping simple
-            setTimeout(() => playTone(800, 0.1, "sine"), 100);
+
+            const beepTimeout = setTimeout(() => playTone(800, 0.1, "sine"), 100);
+            timeoutsRef.current.push(beepTimeout);
 
             setMaxSpan(currentCode.length);
 
-            setTimeout(() => {
+            const nextLevelTimeout = setTimeout(() => {
                 if (level < 4) {
                     startLevel(level + 1);
                 } else {
                     finishGame();
                 }
             }, 1500);
+            timeoutsRef.current.push(nextLevelTimeout);
         } else {
             // Fail
             setResult("denied");
@@ -141,7 +152,7 @@ const DispatcherAssessment = () => {
             setTotalErrors(prev => prev + 1);
             playTone(150, 0.4, "sawtooth"); // Error buzz
 
-            setTimeout(() => {
+            const finishTimeout = setTimeout(() => {
                 // Retry same level but new code? Or Game Over?
                 // "Signal Lost" theme implies retry or degrade.
                 // Let's Retry same level once, then Game Over.
@@ -149,6 +160,7 @@ const DispatcherAssessment = () => {
                 // User req: "Sai: ACCESS DENIED -> Reset về chuỗi ngắn hơn hoặc Game Over."
                 finishGame();
             }, 2000);
+            timeoutsRef.current.push(finishTimeout);
         }
     };
 

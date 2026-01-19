@@ -54,35 +54,50 @@ interface UseGameSoundReturn {
 
 export function useGameSound(): UseGameSoundReturn {
   const audioContextRef = useRef<AudioContext | null>(null);
-  const [isMuted, setIsMuted] = useState(() => {
-    // Load mute preference from localStorage
-    const stored = localStorage.getItem("gameSoundMuted");
-    return stored === "true";
-  });
+  const [isMuted, setIsMuted] = useState(false);
+
+  // Load mute preference from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("gameSoundMuted");
+      if (stored === "true") {
+        setIsMuted(true);
+      }
+    }
+  }, []);
 
   // Initialize audio context (must be called after user interaction)
   const initAudio = useCallback(() => {
+    if (typeof window === "undefined") return;
+
     if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioContextClass) {
+        audioContextRef.current = new AudioContextClass();
+      }
     }
     // Resume if suspended (browsers require user interaction)
-    if (audioContextRef.current.state === "suspended") {
+    if (audioContextRef.current && audioContextRef.current.state === "suspended") {
       audioContextRef.current.resume();
     }
   }, []);
 
   // Persist mute preference
   useEffect(() => {
-    localStorage.setItem("gameSoundMuted", String(isMuted));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("gameSoundMuted", String(isMuted));
+    }
   }, [isMuted]);
 
   // Play a sound effect
   const playSound = useCallback((type: SoundType) => {
     if (isMuted) return;
+    if (typeof window === "undefined") return;
+
     if (!audioContextRef.current) {
       initAudio();
     }
-    
+
     const ctx = audioContextRef.current;
     if (!ctx) return;
 
@@ -98,17 +113,10 @@ export function useGameSound(): UseGameSoundReturn {
 
     // Handle frequency transitions for special sounds
     if (config.secondFrequency) {
-      if (config.ramp === "up") {
-        oscillator.frequency.linearRampToValueAtTime(
-          config.secondFrequency,
-          ctx.currentTime + config.duration * 0.8
-        );
-      } else {
-        oscillator.frequency.linearRampToValueAtTime(
-          config.secondFrequency,
-          ctx.currentTime + config.duration * 0.8
-        );
-      }
+      oscillator.frequency.linearRampToValueAtTime(
+        config.secondFrequency,
+        ctx.currentTime + config.duration * 0.8
+      );
     }
 
     // Volume envelope
@@ -122,7 +130,7 @@ export function useGameSound(): UseGameSoundReturn {
   // Trigger haptic feedback (mobile)
   const triggerHaptic = useCallback((duration: number = 50) => {
     if (isMuted) return;
-    if ("vibrate" in navigator) {
+    if (typeof window !== "undefined" && typeof navigator !== "undefined" && "vibrate" in navigator) {
       navigator.vibrate(duration);
     }
   }, [isMuted]);
@@ -143,13 +151,13 @@ export function useGameSound(): UseGameSoundReturn {
 // Export a context for global access
 import { createContext, useContext, ReactNode } from "react";
 
-interface GameSoundContextValue extends UseGameSoundReturn {}
+interface GameSoundContextValue extends UseGameSoundReturn { }
 
 const GameSoundContext = createContext<GameSoundContextValue | null>(null);
 
 export function GameSoundProvider({ children }: { children: ReactNode }) {
   const soundHook = useGameSound();
-  
+
   return (
     <GameSoundContext.Provider value={soundHook}>
       {children}

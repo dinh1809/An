@@ -12,12 +12,7 @@ export const searchLocation = async (query: string): Promise<GeocodingResult | n
 
   try {
     const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`,
-      {
-        headers: {
-          "User-Agent": "An-Healthcare-App/1.0",
-        },
-      }
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`
     );
 
     if (!response.ok) {
@@ -46,12 +41,7 @@ export const searchLocations = async (query: string, limit = 5): Promise<Geocodi
 
   try {
     const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=${limit}`,
-      {
-        headers: {
-          "User-Agent": "An-Healthcare-App/1.0",
-        },
-      }
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=${limit}`
     );
 
     if (!response.ok) {

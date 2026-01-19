@@ -23,6 +23,7 @@ import ParentAnalyze from "./pages/parent/ParentAnalyze";
 import ParentAdvise from "./pages/parent/ParentAdvise";
 import ParentProfile from "./pages/parent/ParentProfile";
 import FindTherapist from "./pages/parent/FindTherapist";
+import Opportunities from "./pages/Opportunities";
 
 // Therapist pages
 import TherapistDashboard from "./pages/therapist/TherapistDashboard";
@@ -41,6 +42,7 @@ import SequenceMemory from "./pages/assessment/SequenceMemory";
 import DispatcherAssessment from "./pages/assessment/DispatcherAssessment";
 import MatrixAssessment from "./pages/assessment/MatrixAssessment";
 import AssessmentResult from "./pages/assessment/AssessmentResult";
+import TaskBoard from "./pages/workspace/TaskBoard";
 
 // Shared pages
 import Connect from "./pages/Connect";
@@ -85,6 +87,7 @@ const App = () => (
                 <Route path="/parent/advise" element={<ParentAdvise />} />
                 <Route path="/parent/profile" element={<ParentProfile />} />
                 <Route path="/parent/map" element={<FindTherapist />} />
+                <Route path="/parent/map" element={<FindTherapist />} />
               </Route>
 
               {/* --- ASSESSMENT MODE --- */}
@@ -98,6 +101,9 @@ const App = () => (
                 <Route path="/assessment/dispatcher" element={<DispatcherAssessment />} />
                 <Route path="/assessment/matrix" element={<MatrixAssessment />} />
                 <Route path="/assessment/result" element={<AssessmentResult />} />
+
+                {/* --- WORKSPACE MODE (Digital Factory) --- */}
+                <Route path="/workspace/task" element={<TaskBoard />} />
               </Route>
 
               {/* Therapist Routes - Wrapped in TherapistLayout with ProtectedRoute */}

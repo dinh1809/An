@@ -30,11 +30,11 @@ const ModeSelection = () => {
       } else {
         navigate("/assessment");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating mode:", error);
       toast({
         title: "Lỗi",
-        description: "Không thể cập nhật chế độ. Vui lòng thử lại.",
+        description: error.message || "Không thể cập nhật chế độ. Vui lòng thử lại.",
         variant: "destructive",
       });
     } finally {

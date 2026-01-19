@@ -26,7 +26,7 @@ export function useUserRole() {
       if (error) {
         console.error("Error fetching role:", error);
       }
-      
+
       setRole((data?.role as AppRole) || "parent");
       setLoading(false);
     };
@@ -56,6 +56,8 @@ export function useUserRole() {
 
     if (!insertError) {
       setRole(newRole);
+    } else {
+      console.error("Role update failed:", { updateError, insertError });
     }
     return { error: insertError };
   };
