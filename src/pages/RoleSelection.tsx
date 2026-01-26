@@ -19,8 +19,8 @@ export default function RoleSelection() {
 
     if (error) {
       toast({
-        title: "Error",
-        description: error.message || "Failed to set role. Please try again.",
+        title: "Lỗi",
+        description: error.message || "Không thể đặt vai trò. Vui lòng thử lại.",
         variant: "destructive",
       });
       setLoading(false);
@@ -28,8 +28,8 @@ export default function RoleSelection() {
     }
 
     toast({
-      title: "Welcome!",
-      description: `You're now registered as a ${role}.`,
+      title: "Chào mừng!",
+      description: `Bạn đã đăng ký với vai trò ${role === 'therapist' ? 'Chuyên gia trị liệu' : 'Phụ huynh'}.`,
     });
 
     navigate(role === "therapist" ? "/therapist/dashboard" : "/select-mode");
@@ -45,9 +45,9 @@ export default function RoleSelection() {
             alt="An. Logo"
             className="h-16 w-16 rounded-2xl mx-auto mb-4"
           />
-          <h1 className="text-3xl font-bold text-gradient">Welcome to An.</h1>
+          <h1 className="text-3xl font-bold text-gradient">Chào mừng đến An.</h1>
           <p className="text-muted-foreground mt-2">
-            Please select your role to continue
+            Vui lòng chọn vai trò của bạn để tiếp tục
           </p>
         </div>
 
@@ -63,9 +63,9 @@ export default function RoleSelection() {
                   <Users className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg">I'm a Parent</h3>
+                  <h3 className="font-semibold text-lg">Tôi là Phụ huynh</h3>
                   <p className="text-sm text-muted-foreground">
-                    Track your child's progress and connect with therapists
+                    Theo dõi tiến trình của con và kết nối với chuyên gia
                   </p>
                 </div>
               </div>
@@ -82,9 +82,9 @@ export default function RoleSelection() {
                   <Stethoscope className="h-6 w-6 text-accent-foreground" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg">I'm a Therapist</h3>
+                  <h3 className="font-semibold text-lg">Tôi là Chuyên gia trị liệu</h3>
                   <p className="text-sm text-muted-foreground">
-                    Monitor assigned children and view their analytics
+                    Quản lý bệnh nhân và theo dõi phân tích tiến triển
                   </p>
                 </div>
               </div>
@@ -94,7 +94,7 @@ export default function RoleSelection() {
 
         {loading && (
           <p className="text-center text-muted-foreground animate-pulse">
-            Setting up your account...
+            Đang thiết lập tài khoản...
           </p>
         )}
       </div>

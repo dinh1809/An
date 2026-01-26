@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Patient Detail &amp; Therapy Plan</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#00695C", 
+                        "primary-light": "#E0F2F1", 
+                        "background-light": "#F9FAFB", 
+                        "background-dark": "#0f2321",
+                        "border-light": "#E5E7EB", 
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "md": "0.5rem", // 8px for buttons/inputs
+                        "lg": "0.5rem", 
+                        "xl": "0.75rem", // 12px for cards
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .no-shadow {
+            box-shadow: none !important;
+        }.scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-background-light text-slate-900 font-display">
+<div class="flex h-screen w-full overflow-hidden">
+<aside class="flex w-[260px] flex-col border-r border-border-light bg-white shrink-0">
+<div class="flex items-center gap-3 px-6 py-6">
+<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white">
+<span class="material-symbols-outlined text-[24px]">medical_services</span>
+</div>
+<h1 class="text-primary text-2xl font-bold leading-none tracking-tight">An. Clinical</h1>
+</div>
+<nav class="flex flex-1 flex-col gap-2 px-4 py-4">
+<a class="flex items-center gap-3 rounded-md bg-white px-4 py-3 text-slate-600 hover:bg-slate-50 transition-colors" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="text-sm font-medium">Tổng quan</span>
+</a>
+<a class="flex items-center gap-3 rounded-md bg-primary-light px-4 py-3 text-primary transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="text-sm font-medium">Bệnh nhân</span>
+</a>
+<a class="flex items-center gap-3 rounded-md bg-white px-4 py-3 text-slate-600 hover:bg-slate-50 transition-colors" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="text-sm font-medium">Lịch trị liệu</span>
+</a>
+<a class="flex items-center gap-3 rounded-md bg-white px-4 py-3 text-slate-600 hover:bg-slate-50 transition-colors" href="#">
+<span class="material-symbols-outlined">library_books</span>
+<span class="text-sm font-medium">Thư viện</span>
+</a>
+<a class="flex items-center gap-3 rounded-md bg-white px-4 py-3 text-slate-600 hover:bg-slate-50 transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-sm font-medium">Báo cáo</span>
+</a>
+</nav>
+<div class="border-t border-border-light p-4">
+<div class="flex items-center gap-3 rounded-xl p-2 hover:bg-slate-50 cursor-pointer transition-colors">
+<div class="h-10 w-10 overflow-hidden rounded-full bg-slate-200 bg-center bg-cover" data-alt="Portrait of Dr. Minh" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB9Ee6afiDHNd7wq8Dk1IGaRh3DbAXTNRb4ha4rItIX2Id-g-LdozXI0dksCEkVxU_Xn4yj4BfYicPOecrpzW9WfDaXIBPzarjqaPqkVbQ_kKmalnTegYkOlr1n49R_yRnKfACoJMAtNMz2Ybn3cDXXkDbFIM0Awj5UYWpfNEHGDJHB-3p9gnxANMsJ_TYuekre4O8uFaHRrVr_3W0GrCut3i5GM35RY27DK5cL8KKQcWTES4ElVviz1-vV-kvmDV1eeXSmAjG8qoVq');"></div>
+<div class="flex flex-col">
+<p class="text-sm font-semibold text-slate-900">Dr. Minh</p>
+<p class="text-xs text-slate-500">Trị liệu viên chính</p>
+</div>
+</div>
+</div>
+</aside>
+<div class="flex flex-1 flex-col h-full overflow-hidden">
+<header class="flex h-16 w-full items-center justify-between border-b border-border-light bg-white px-8 shrink-0">
+<div class="flex items-center gap-4">
+<button class="text-slate-400 hover:text-primary">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h2 class="text-xl font-bold text-slate-900">Hồ sơ: Bé Nam</h2>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative w-[300px]">
+<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+<span class="material-symbols-outlined text-slate-400">search</span>
+</div>
+<input class="block w-full rounded-md border-none bg-slate-100 py-2 pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-500 focus:ring-2 focus:ring-primary focus:bg-white transition-all" placeholder="Tìm kiếm trong hồ sơ..." type="text"/>
+</div>
+<button class="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100 transition-colors">
+<span class="material-symbols-outlined text-slate-600">notifications</span>
+<span class="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+</button>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto bg-background-light p-8">
+<div class="mx-auto flex max-w-[1200px] flex-col gap-6 h-full">
+<div class="rounded-xl border border-border-light bg-white p-6 shadow-sm no-shadow">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="flex items-center gap-5">
+<div class="h-20 w-20 rounded-full bg-slate-200 bg-cover bg-center border-2 border-white shadow-sm" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAeNuAIkCQO84SR9w6fq3Q9BdgDt-Dsvl5rVHc-g9mKVOSYiAK5vg1ha33tLyPEPujWbU9KymMEwNpSELC02IwP5A8ZA73NrP19fCi7JPYBT3rhg1HnRbHxoz9jGfjZr1vh1xktjDI_e1e1sSet1UbZKxcnlw3-ee5xP2zKKMVSkG2lEHT_SfTNJ8C9DMhdVN9jHHdYyqkJS9qyvIRv3Iv6uIgeZy6ebQ_bOsFlOgmtdwrZwH7o6qfhabE8f0NChvKa4xVwi25DZhzH');"></div>
+<div>
+<h3 class="text-2xl font-bold text-slate-900">Trần Văn Nam</h3>
+<div class="flex items-center gap-3 mt-2">
+<span class="inline-flex items-center rounded-md bg-blue-50 px-2.5 py-0.5 text-sm font-medium text-blue-700">
+                                            5 tuổi
+                                        </span>
+<span class="inline-flex items-center rounded-md bg-purple-50 px-2.5 py-0.5 text-sm font-medium text-purple-700">
+                                            ASD Level 2
+                                        </span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-2 w-full md:w-1/3">
+<div class="flex justify-between text-sm">
+<span class="font-medium text-slate-700">Giai đoạn 2: Giao tiếp</span>
+<span class="font-bold text-primary">45%</span>
+</div>
+<div class="h-2.5 w-full rounded-full bg-slate-100">
+<div class="h-2.5 rounded-full bg-primary" style="width: 45%"></div>
+</div>
+</div>
+</div>
+<div class="flex gap-8 mt-8 border-b border-border-light">
+<button class="pb-3 text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors border-b-2 border-transparent">
+                                Thông tin
+                            </button>
+<button class="pb-3 text-sm font-bold text-primary border-b-2 border-primary transition-colors">
+                                Kế hoạch
+                            </button>
+<button class="pb-3 text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors border-b-2 border-transparent">
+                                Lịch sử
+                            </button>
+</div>
+</div>
+<div class="flex flex-col lg:flex-row gap-6 h-full min-h-[500px]">
+<div class="w-full lg:w-[70%] flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<h4 class="text-lg font-bold text-slate-900">Lịch tuần này (21 - 27/10)</h4>
+<div class="flex gap-2">
+<button class="flex h-8 w-8 items-center justify-center rounded-md border border-border-light bg-white hover:bg-slate-50">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="flex h-8 w-8 items-center justify-center rounded-md border border-border-light bg-white hover:bg-slate-50">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-7 gap-2 bg-slate-100/50 p-2 rounded-xl border border-border-light">
+<div class="text-center text-xs font-semibold text-slate-500 py-2">Mon</div>
+<div class="text-center text-xs font-semibold text-slate-500 py-2">Tue</div>
+<div class="text-center text-xs font-semibold text-slate-500 py-2">Wed</div>
+<div class="text-center text-xs font-semibold text-slate-500 py-2">Thu</div>
+<div class="text-center text-xs font-semibold text-slate-500 py-2">Fri</div>
+<div class="text-center text-xs font-semibold text-slate-500 py-2">Sat</div>
+<div class="text-center text-xs font-semibold text-slate-500 py-2">Sun</div>
+<div class="min-h-[200px] rounded-lg bg-white/50 p-2 flex flex-col gap-2">
+<div class="flex flex-col gap-2 p-2 rounded-lg bg-white border border-border-light shadow-sm cursor-pointer hover:border-primary transition-colors relative overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-green-500"></div>
+<span class="text-xs font-bold text-slate-800 ml-1">Giao tiếp mắt</span>
+<span class="text-[10px] text-slate-500 ml-1">15 mins</span>
+</div>
+<div class="flex flex-col gap-2 p-2 rounded-lg bg-white border border-border-light shadow-sm cursor-pointer hover:border-primary transition-colors relative overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-green-500"></div>
+<span class="text-xs font-bold text-slate-800 ml-1">Nhận biết màu</span>
+<span class="text-[10px] text-slate-500 ml-1">10 mins</span>
+</div>
+</div>
+<div class="min-h-[200px] rounded-lg bg-white/50 p-2 flex flex-col gap-2">
+<div class="flex flex-col gap-2 p-2 rounded-lg bg-white border border-border-light shadow-sm cursor-pointer hover:border-primary transition-colors relative overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-green-500"></div>
+<span class="text-xs font-bold text-slate-800 ml-1">Vận động tinh</span>
+<span class="text-[10px] text-slate-500 ml-1">20 mins</span>
+</div>
+</div>
+<div class="min-h-[200px] rounded-lg bg-white/50 p-2 flex flex-col gap-2">
+<div class="flex flex-col gap-2 p-2 rounded-lg bg-white border border-border-light shadow-sm cursor-pointer hover:border-primary transition-colors relative overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-orange-400"></div>
+<span class="text-xs font-bold text-slate-800 ml-1">Phát âm cơ bản</span>
+<span class="text-[10px] text-slate-500 ml-1">30 mins</span>
+</div>
+<div class="flex flex-col gap-2 p-2 rounded-lg bg-white border border-border-light shadow-sm cursor-pointer hover:border-primary transition-colors relative overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-green-500"></div>
+<span class="text-xs font-bold text-slate-800 ml-1">Giao tiếp mắt</span>
+<span class="text-[10px] text-slate-500 ml-1">15 mins</span>
+</div>
+</div>
+<div class="min-h-[200px] rounded-lg bg-primary-light/30 border border-primary-light p-2 flex flex-col gap-2">
+<div class="flex flex-col gap-2 p-2 rounded-lg bg-white border border-border-light shadow-sm cursor-pointer hover:border-primary transition-colors relative overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-slate-300"></div>
+<span class="text-xs font-bold text-slate-800 ml-1">Ghép hình</span>
+<span class="text-[10px] text-slate-500 ml-1">20 mins</span>
+</div>
+</div>
+<div class="min-h-[200px] rounded-lg bg-white/50 p-2 flex flex-col gap-2"></div>
+<div class="min-h-[200px] rounded-lg bg-white/50 p-2 flex flex-col gap-2"></div>
+<div class="min-h-[200px] rounded-lg bg-white/50 p-2 flex flex-col gap-2"></div>
+</div>
+</div>
+<div class="w-full lg:w-[30%] flex flex-col rounded-xl border border-border-light bg-white h-full overflow-hidden">
+<div class="p-4 border-b border-border-light">
+<h3 class="font-bold text-slate-900 mb-3">Thư viện bài tập</h3>
+<div class="relative">
+<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+<span class="material-symbols-outlined text-slate-400 text-lg">search</span>
+</div>
+<input class="block w-full rounded-md border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-500 focus:ring-1 focus:ring-primary focus:border-primary transition-all" placeholder="Tìm bài tập..." type="text"/>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-3 space-y-3 scrollbar-hide">
+<div class="flex gap-3 p-2 rounded-lg border border-border-light bg-white hover:border-primary hover:shadow-sm cursor-grab active:cursor-grabbing transition-all group">
+<div class="h-12 w-12 rounded-lg bg-slate-100 bg-cover bg-center shrink-0" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAFzFEmer76Ddd4MCsK1m01OxU0JKJ3joEoNP6JChkcEOcoeuG2M0-oMXTWDXwJCWYCg_t0H8wkdhZoZ7QheYu9nRIWmsuRISVwYvdXOjlj6uHuGoQCfQn1qzjLBm0RYvowLwrP55ao0-tdtlQ724B_vCPyWvUHzw7bBTgCndDJ6L4MDTGHQpEE1mIOQW1c7MFWgYx_mY2IaV9mibu5MUDCH2210lhfsWH0dDH4gk9S1Tfq7KiHo3g4NaOyFrzze_4jbo_NIWsvXcQT');"></div>
+<div class="flex flex-col justify-center">
+<h5 class="text-sm font-semibold text-slate-900 group-hover:text-primary transition-colors">Giao tiếp mắt</h5>
+<p class="text-xs text-slate-500">Kỹ năng xã hội • 15p</p>
+</div>
+<div class="ml-auto self-center">
+<span class="material-symbols-outlined text-slate-300">drag_indicator</span>
+</div>
+</div>
+<div class="flex gap-3 p-2 rounded-lg border border-border-light bg-white hover:border-primary hover:shadow-sm cursor-grab active:cursor-grabbing transition-all group">
+<div class="h-12 w-12 rounded-lg bg-slate-100 bg-cover bg-center shrink-0" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBz5Lymi5WM_HCANgtEMimJw1y6PJm8gzmRl6sNLyHUK5vdAK1gs3H8PyRJBgQJv0vybWWPHjuTCpd8CPWCYWLcGhW0qqyLpZ_AH-jQDgvYYL1By-V1aW03cDAPuctFWJqyk18iDAActLQgoxabfmK5f6_L3KfvIx-DwtnP5z148OfJRBYiea7g70WOSTRImmcchSER5FPhgyUR9Gn7F5n5hxpiUC7wGxfylq6aaZkYx6Bx9ZUa_VnJSeslZq0ckn9hdlkUul6d0sSG');"></div>
+<div class="flex flex-col justify-center">
+<h5 class="text-sm font-semibold text-slate-900 group-hover:text-primary transition-colors">Nhận biết cảm xúc</h5>
+<p class="text-xs text-slate-500">Cảm xúc • 20p</p>
+</div>
+<div class="ml-auto self-center">
+<span class="material-symbols-outlined text-slate-300">drag_indicator</span>
+</div>
+</div>
+<div class="flex gap-3 p-2 rounded-lg border border-border-light bg-white hover:border-primary hover:shadow-sm cursor-grab active:cursor-grabbing transition-all group">
+<div class="h-12 w-12 rounded-lg bg-slate-100 bg-cover bg-center shrink-0" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC3YU_QB6el6iHgBMyHL8650Zw16iUP3_3vhoCdzvqYqrNwkEMJ8qXBcoNL15v3K1_HCialj1wHmChCKHYnDM-EXKt4FNgqjdBEGFWTqwhZKzITzN5XKdMW-5OPIX_DN2ITYSr3qapH4W7hxJB_cwvyZILyr4wpBaZrufEjJ03W2jpacRLg0i77B3XHNmFyk9YqEyJSxYJu-ZTO8bmqa0Bv5UrMca5ejoG7X1AlD0RwmsfMmCQSSLodJrLNIxKAA6DQ-LPwlR7egAFz');"></div>
+<div class="flex flex-col justify-center">
+<h5 class="text-sm font-semibold text-slate-900 group-hover:text-primary transition-colors">Xếp khối gỗ</h5>
+<p class="text-xs text-slate-500">Vận động tinh • 15p</p>
+</div>
+<div class="ml-auto self-center">
+<span class="material-symbols-outlined text-slate-300">drag_indicator</span>
+</div>
+</div>
+<div class="flex gap-3 p-2 rounded-lg border border-border-light bg-white hover:border-primary hover:shadow-sm cursor-grab active:cursor-grabbing transition-all group">
+<div class="h-12 w-12 rounded-lg bg-slate-100 bg-cover bg-center shrink-0" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBLxLBjc7syoojt6WI9H3HQCSurLwMWTPKMJCksJ-6I0BRyb2mqVXGIlAabNoqbi0xx07g278vsUwA1CiFWGbqTlO0OAUpui3rdZ89ky9kFd8gAjz8j-l3aagwgawpq_g1bvHJICCWqh0d8ey82ufIZ4LVJ1g0QBOst9-XyuajmpfaFJpxsqAl7d2Xd9zDPkchbIOE-WSdYgI5YKeRlsybPghtITSTCUFH1h_JKrC463xelgG8INSLY6LLgViPrFlAAvqEYg2FNhl5u');"></div>
+<div class="flex flex-col justify-center">
+<h5 class="text-sm font-semibold text-slate-900 group-hover:text-primary transition-colors">Vẽ theo mẫu</h5>
+<p class="text-xs text-slate-500">Tư duy • 25p</p>
+</div>
+<div class="ml-auto self-center">
+<span class="material-symbols-outlined text-slate-300">drag_indicator</span>
+</div>
+</div>
+<div class="flex gap-3 p-2 rounded-lg border border-border-light bg-white hover:border-primary hover:shadow-sm cursor-grab active:cursor-grabbing transition-all group">
+<div class="h-12 w-12 rounded-lg bg-slate-100 bg-cover bg-center shrink-0" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAp8wlWwoHrB6Twj5nY_WwCTjJpcsVUBUUeqe6Lc8YCKxAS1pPbzFJA8pxc1APtZxCmYGbMUo5OljaJETW1FgtN0Yr3uQyRzJmsxIE0eCXhEHyHgqj1dOYFzlE9uJsRA0JQBxRQyHB-JION3PnIiDzAaqhgDB_ujcMNyWmvQr0yXd7Wga3Ahb1SbJbWaSfnU26ME67p3mpRk6slrOgEdiK_-J9br_qLSIe1VBIlczDP_1KmN4kG9fUx-Vp4qlt1oPm8ZWlOOFMFeZPD');"></div>
+<div class="flex flex-col justify-center">
+<h5 class="text-sm font-semibold text-slate-900 group-hover:text-primary transition-colors">Hát theo nhạc</h5>
+<p class="text-xs text-slate-500">Ngôn ngữ • 10p</p>
+</div>
+<div class="ml-auto self-center">
+<span class="material-symbols-outlined text-slate-300">drag_indicator</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+
+</body></html>

@@ -16,8 +16,9 @@ import { Progress } from "@/components/ui/progress";
 import { MarkdownDisplay } from "@/components/ui/MarkdownDisplay";
 import { Badge } from "@/components/ui/badge";
 
-import { AiVocationalService } from '@/lib/AiVocationalService';
-import { findTopMatches, UserMetrics } from '@/lib/CareerEngine';
+// DEPRECATED: Career features moved to _deprecated folder but still used for assessment results
+import { AiVocationalService } from '@/_deprecated/career/lib/AiVocationalService';
+import { findTopMatches, UserMetrics } from '@/_deprecated/career/lib/CareerEngine';
 
 interface LocationState {
     score?: number;
@@ -34,7 +35,9 @@ const AssessmentResult = () => {
     const state = location.state as LocationState;
     // NEW: Get session from URL
     const searchParams = new URLSearchParams(location.search);
-    const sessionId = searchParams.get('session');
+    // NEW: Get session from URL with robust parsing
+    const rawSessionId = searchParams.get('session');
+    const sessionId = (rawSessionId && rawSessionId !== 'null' && rawSessionId !== 'undefined') ? rawSessionId : null;
 
     // State for real data
     const [realMetrics, setRealMetrics] = useState<UserMetrics | null>(null);
@@ -106,13 +109,16 @@ const AssessmentResult = () => {
                         .eq('game_type', currentSession.game_type)
                         .maybeSingle();
 
-                    if (globalStats && currentSession.avg_reaction_time_ms) {
+                    if (globalStats && currentSession.avg_reaction_time_ms && globalStats.global_std_latency > 0) {
                         const z = (currentSession.avg_reaction_time_ms - globalStats.global_mean_latency) / globalStats.global_std_latency;
-                        const percentile = Math.round((0.5 * (1 + (z > 0 ? -1 : 1) * Math.sqrt(1 - Math.exp(-2 * z * z / Math.PI)))) * 100);
-                        setZScoreData({
-                            zScore: parseFloat(z.toFixed(2)),
-                            percentile: z < 0 ? Math.max(percentile, 50) : Math.min(percentile, 50)
-                        });
+
+                        if (isFinite(z)) {
+                            const percentile = Math.round((0.5 * (1 + (z > 0 ? -1 : 1) * Math.sqrt(1 - Math.exp(-2 * z * z / Math.PI)))) * 100);
+                            setZScoreData({
+                                zScore: parseFloat(z.toFixed(2)),
+                                percentile: z < 0 ? Math.max(percentile, 50) : Math.min(percentile, 50)
+                            });
+                        }
                     }
                 }
 
@@ -148,13 +154,16 @@ const AssessmentResult = () => {
                 // Focus: Overall consistency across high-engagement games
                 const focus = (getAccuracy('detail_spotter') + getAccuracy('stroop_chaos') + getAccuracy('dispatcher_console')) / 3 || 75;
 
-                setRealMetrics({
+                const metrics = {
                     visual: Math.min(100, Math.max(30, visual)),
                     logic: Math.min(100, Math.max(30, logic)),
                     memory: Math.min(100, Math.max(30, memory)),
                     speed: Math.min(100, Math.max(30, speed)),
                     focus: Math.min(100, Math.max(30, focus))
-                });
+                };
+
+                setRealMetrics(metrics);
+                console.log("Diagnostic metrics calculated:", metrics);
 
             } catch (e) {
                 console.error("Critical error in calculateScience:", e);
@@ -227,12 +236,12 @@ const AssessmentResult = () => {
             });
 
             return [
-                { subject: 'Logic', A: matrixScore || 50, fullMark: 100 },
-                { subject: 'Visual', A: Math.min(100, matrixScore + 10) || 50, fullMark: 100 },
-                { subject: 'Memory', A: dispatcherScore || 50, fullMark: 100 },
-                { subject: 'Speed', A: Math.min(100, dispatcherScore + 5) || 50, fullMark: 100 },
-                { subject: 'Music', A: pianoScore || 50, fullMark: 100 },
-                { subject: 'Focus', A: (matrixScore + dispatcherScore + pianoScore) / 3 || 50, fullMark: 100 },
+                { subject: 'Logic', A: Number(matrixScore) || 50, fullMark: 100 },
+                { subject: 'Visual', A: Number(Math.min(100, matrixScore + 10)) || 50, fullMark: 100 },
+                { subject: 'Memory', A: Number(dispatcherScore) || 50, fullMark: 100 },
+                { subject: 'Speed', A: Number(Math.min(100, dispatcherScore + 5)) || 50, fullMark: 100 },
+                { subject: 'Music', A: Number(pianoScore) || 50, fullMark: 100 },
+                { subject: 'Focus', A: Number((matrixScore + dispatcherScore + pianoScore) / 3) || 50, fullMark: 100 },
             ];
         }
 
@@ -330,14 +339,14 @@ const AssessmentResult = () => {
                                 </ResponsiveContainer>
 
                                 <div className="absolute bottom-4 right-4 bg-slate-950/80 p-3 rounded border border-slate-800 text-xs text-slate-400 font-mono text-right">
-                                    <div>LATEST SCORE: {Math.round(currentScore)}</div>
-                                    {zScoreData && (
+                                    <div>LATEST SCORE: {Math.round(Number(currentScore) || 0)}</div>
+                                    {zScoreData && isFinite(zScoreData.zScore) && (
                                         <>
                                             <div className="text-teal-400 font-bold mt-1">
                                                 Z-SCORE: {zScoreData.zScore > 0 ? '+' : ''}{zScoreData.zScore}
                                             </div>
                                             <div className="text-indigo-400">
-                                                TOP {100 - zScoreData.percentile}%
+                                                TOP {Math.max(1, 100 - (Number(zScoreData.percentile) || 50))}%
                                             </div>
                                         </>
                                     )}
@@ -359,9 +368,13 @@ const AssessmentResult = () => {
                                         <Loader2 className="w-8 h-8 text-teal-500 animate-spin" />
                                         <p className="text-slate-500 font-mono text-xs animate-pulse">Consulting AN AI Vocational Brain...</p>
                                     </div>
-                                ) : (
+                                ) : aiAnalysis ? (
                                     <div className="prose prose-invert prose-sm max-w-none text-slate-300">
                                         <MarkdownDisplay content={aiAnalysis} />
+                                    </div>
+                                ) : (
+                                    <div className="text-slate-500 font-mono text-xs italic py-8 text-center bg-slate-900/20 rounded">
+                                        No specific insights generated for this profile yet.
                                     </div>
                                 )}
                             </CardContent>
@@ -383,24 +396,30 @@ const AssessmentResult = () => {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6">
-                                {recommendedJobs.map((match, idx) => (
-                                    <div key={idx} className="space-y-2 group cursor-pointer">
-                                        <div className="flex justify-between items-center">
-                                            <span className="font-medium text-slate-200 group-hover:text-teal-400 transition-colors">
-                                                {match.job.title}
-                                            </span>
-                                            <span className="font-mono text-sm text-teal-400">{match.matchScore}%</span>
+                                {recommendedJobs && recommendedJobs.length > 0 ? (
+                                    recommendedJobs.map((match, idx) => (
+                                        <div key={idx} className="space-y-2 group cursor-pointer">
+                                            <div className="flex justify-between items-center">
+                                                <span className="font-medium text-slate-200 group-hover:text-teal-400 transition-colors">
+                                                    {match.job.title}
+                                                </span>
+                                                <span className="font-mono text-sm text-teal-400">{match.matchScore}%</span>
+                                            </div>
+                                            <Progress value={match.matchScore} className="h-1.5 bg-slate-800" indicatorClassName="bg-gradient-to-r from-teal-500 to-indigo-500" />
+                                            <div className="flex flex-wrap gap-2 pt-1">
+                                                {match.job.tags.map(tag => (
+                                                    <Badge key={tag} variant="secondary" className="text-[10px] px-1.5 py-0 bg-slate-800 text-slate-400">
+                                                        {tag}
+                                                    </Badge>
+                                                ))}
+                                            </div>
                                         </div>
-                                        <Progress value={match.matchScore} className="h-1.5 bg-slate-800" indicatorClassName="bg-gradient-to-r from-teal-500 to-indigo-500" />
-                                        <div className="flex flex-wrap gap-2 pt-1">
-                                            {match.job.tags.map(tag => (
-                                                <Badge key={tag} variant="secondary" className="text-[10px] px-1.5 py-0 bg-slate-800 text-slate-400">
-                                                    {tag}
-                                                </Badge>
-                                            ))}
-                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="py-12 text-center">
+                                        <p className="text-slate-500 text-sm">No career matches found yet.</p>
                                     </div>
-                                ))}
+                                )}
                             </CardContent>
                         </Card>
 

@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.jfif";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export function DesktopSidebar() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export function DesktopSidebar() {
   const isWorkerJourney = location.pathname.startsWith("/assessment") || location.pathname.startsWith("/workspace");
 
   const parentNavItems = [
+    { to: "/parent/dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { to: "/parent/home", icon: Home, label: "Home" },
     { to: "/parent/track", icon: Activity, label: "Track" },
     { to: "/parent/map", icon: MapPin, label: "Find Therapist" },
@@ -45,7 +47,7 @@ export function DesktopSidebar() {
         <div className="flex items-center gap-3">
           <img src={logo} alt="An. Logo" className="h-10 w-10 rounded-lg object-cover" />
           <div>
-            <h1 className="text-xl font-bold text-indigo-700">An.</h1>
+            <h1 className="text-xl font-bold text-[#00695C]">An.</h1>
             <p className="text-xs text-slate-500">Healthcare Platform</p>
           </div>
         </div>
@@ -62,7 +64,7 @@ export function DesktopSidebar() {
               cn(
                 "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200",
                 isActive
-                  ? "bg-indigo-50 text-indigo-700 shadow-sm"
+                  ? "bg-[#E0F2F1] text-[#00695C] shadow-sm"
                   : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
               )
             }
@@ -83,6 +85,7 @@ export function DesktopSidebar() {
           <Shuffle className="h-5 w-5" />
           <span>Đổi chế độ</span>
         </Button>
+        <ThemeToggle variant="outline" size="default" className="w-full justify-start" />
         <Button
           variant="ghost"
           className="w-full justify-start gap-3 text-muted-foreground hover:text-destructive"

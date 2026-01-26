@@ -101,7 +101,8 @@ const MatrixAssessment = () => {
             }
           });
         } else {
-          navigate(`/assessment/result?session=${sessionId}`, {
+          const resultPath = sessionId ? `/assessment/result?session=${sessionId}` : `/assessment/result`;
+          navigate(resultPath, {
             state: {
               score: finalScore,
               type: 'matrix',

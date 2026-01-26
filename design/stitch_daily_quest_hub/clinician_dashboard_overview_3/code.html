@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Video Annotation Interface</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#00695C", 
+                        "primary-dark": "#004D40",
+                        "primary-light": "#E0F2F1", 
+                        "background-light": "#F9FAFB", 
+                        "background-dark": "#0f2321",
+                        "border-light": "#E5E7EB", 
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "md": "0.5rem", // 8px for buttons/inputs
+                        "lg": "0.5rem", 
+                        "xl": "0.75rem", // 12px for cards
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .no-shadow {
+            box-shadow: none !important;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+            margin-top: -4px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="bg-background-light text-slate-900 font-display">
+<div class="flex h-screen w-full overflow-hidden">
+<aside class="flex w-[80px] flex-col border-r border-border-light bg-white shrink-0 transition-all duration-300">
+<div class="flex items-center justify-center py-6">
+<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white">
+<span class="material-symbols-outlined text-[24px]">medical_services</span>
+</div>
+</div>
+<nav class="flex flex-1 flex-col gap-4 px-2 py-4 items-center">
+<a class="flex h-10 w-10 items-center justify-center rounded-md text-slate-500 hover:bg-slate-50 hover:text-primary transition-colors" href="#" title="Tổng quan">
+<span class="material-symbols-outlined">grid_view</span>
+</a>
+<a class="flex h-10 w-10 items-center justify-center rounded-md bg-primary-light text-primary transition-colors" href="#" title="Bệnh nhân">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">group</span>
+</a>
+<a class="flex h-10 w-10 items-center justify-center rounded-md text-slate-500 hover:bg-slate-50 hover:text-primary transition-colors" href="#" title="Lịch trị liệu">
+<span class="material-symbols-outlined">calendar_month</span>
+</a>
+<a class="flex h-10 w-10 items-center justify-center rounded-md text-slate-500 hover:bg-slate-50 hover:text-primary transition-colors" href="#" title="Thư viện">
+<span class="material-symbols-outlined">library_books</span>
+</a>
+<a class="flex h-10 w-10 items-center justify-center rounded-md text-slate-500 hover:bg-slate-50 hover:text-primary transition-colors" href="#" title="Báo cáo">
+<span class="material-symbols-outlined">analytics</span>
+</a>
+</nav>
+<div class="border-t border-border-light p-4 flex justify-center">
+<div class="h-10 w-10 overflow-hidden rounded-full bg-slate-200 bg-center bg-cover cursor-pointer hover:ring-2 hover:ring-primary hover:ring-offset-2 transition-all" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB9Ee6afiDHNd7wq8Dk1IGaRh3DbAXTNRb4ha4rItIX2Id-g-LdozXI0dksCEkVxU_Xn4yj4BfYicPOecrpzW9WfDaXIBPzarjqaPqkVbQ_kKmalnTegYkOlr1n49R_yRnKfACoJMAtNMz2Ybn3cDXXkDbFIM0Awj5UYWpfNEHGDJHB-3p9gnxANMsJ_TYuekre4O8uFaHRrVr_3W0GrCut3i5GM35RY27DK5cL8KKQcWTES4ElVviz1-vV-kvmDV1eeXSmAjG8qoVq');"></div>
+</div>
+</aside>
+<div class="flex flex-1 flex-col h-full overflow-hidden">
+<header class="flex h-16 w-full items-center justify-between border-b border-border-light bg-white px-6 shrink-0 z-20">
+<div class="flex items-center gap-4">
+<button class="text-slate-400 hover:text-primary">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h2 class="text-xl font-bold text-slate-900">Đánh giá phiên #42 - Bé Nam</h2>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative w-[300px]">
+<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+<span class="material-symbols-outlined text-slate-400">search</span>
+</div>
+<input class="block w-full rounded-md border-none bg-slate-100 py-2 pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-500 focus:ring-2 focus:ring-primary focus:bg-white transition-all" placeholder="Tìm kiếm phiên hoặc ghi chú..." type="text"/>
+</div>
+<button class="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-slate-100 transition-colors">
+<span class="material-symbols-outlined text-slate-600">notifications</span>
+<span class="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+</button>
+</div>
+</header>
+<main class="flex flex-1 flex-row overflow-hidden bg-black">
+<div class="relative flex h-full w-[70%] flex-col items-center justify-center bg-black group">
+<div class="absolute inset-0 flex items-center justify-center overflow-hidden bg-neutral-900">
+<div class="h-full w-full bg-contain bg-center bg-no-repeat opacity-90" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAeNuAIkCQO84SR9w6fq3Q9BdgDt-Dsvl5rVHc-g9mKVOSYiAK5vg1ha33tLyPEPujWbU9KymMEwNpSELC02IwP5A8ZA73NrP19fCi7JPYBT3rhg1HnRbHxoz9jGfjZr1vh1xktjDI_e1e1sSet1UbZKxcnlw3-ee5xP2zKKMVSkG2lEHT_SfTNJ8C9DMhdVN9jHHdYyqkJS9qyvIRv3Iv6uIgeZy6ebQ_bOsFlOgmtdwrZwH7o6qfhabE8f0NChvKa4xVwi25DZhzH'); background-size: cover;"></div>
+<button class="absolute z-10 flex h-16 w-16 items-center justify-center rounded-full bg-primary/90 text-white shadow-lg transition-transform hover:scale-110 active:scale-95">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+</div>
+<div class="absolute bottom-0 left-0 right-0 flex flex-col gap-2 bg-gradient-to-t from-black/90 via-black/60 to-transparent px-6 pb-6 pt-12">
+<div class="group/timeline relative flex h-6 w-full items-center cursor-pointer">
+<div class="h-1 w-full rounded-full bg-white/20"></div>
+<div class="absolute left-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-primary" style="width: 35%;"></div>
+<div class="absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-white shadow-md hover:scale-125 transition-transform" style="left: 35%;"></div>
+<div class="absolute top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-green-500 ring-2 ring-black/50 hover:scale-150 transition-transform cursor-pointer" style="left: 15%;" title="Giao tiếp mắt tốt"></div>
+<div class="absolute top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-red-500 ring-2 ring-black/50 hover:scale-150 transition-transform cursor-pointer" style="left: 42%;" title="Mất tập trung"></div>
+<div class="absolute top-1/2 h-2.5 w-2.5 -translate-y-1/2 rounded-full bg-green-500 ring-2 ring-black/50 hover:scale-150 transition-transform cursor-pointer" style="left: 68%;" title="Hoàn thành nhiệm vụ"></div>
+</div>
+<div class="flex items-center justify-between text-white">
+<div class="flex items-center gap-4">
+<button class="hover:text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<button class="hover:text-primary transition-colors">
+<span class="material-symbols-outlined">replay_10</span>
+</button>
+<span class="text-sm font-medium">04:12 / 12:45</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="hover:text-primary transition-colors">
+<span class="material-symbols-outlined">closed_caption</span>
+</button>
+<button class="hover:text-primary transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="hover:text-primary transition-colors">
+<span class="material-symbols-outlined">fullscreen</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="flex h-full w-[30%] min-w-[320px] flex-col border-l border-border-light bg-white">
+<div class="flex items-center justify-between border-b border-border-light px-5 py-4 shrink-0">
+<h3 class="text-[18px] font-bold text-slate-900">Ghi chú &amp; Sửa lỗi</h3>
+<button class="text-slate-400 hover:text-slate-600">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto p-5 space-y-6">
+<div class="flex flex-col gap-2 group">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<button class="flex items-center gap-1 rounded bg-teal-50 px-2 py-0.5 text-xs font-bold text-primary hover:bg-teal-100 transition-colors">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+                                        01:24
+                                    </button>
+<span class="text-sm font-bold text-slate-800">Dr. Minh</span>
+</div>
+<div class="h-2 w-2 rounded-full bg-green-500" title="Positive Feedback"></div>
+</div>
+<p class="text-sm text-slate-600 leading-relaxed">
+                                Giọng nói tốt! Bé đã bắt đầu biết điều chỉnh âm lượng khi trả lời câu hỏi của trị liệu viên.
+                            </p>
+</div>
+<div class="flex flex-col gap-2 group">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<button class="flex items-center gap-1 rounded bg-teal-50 px-2 py-0.5 text-xs font-bold text-primary hover:bg-teal-100 transition-colors">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+                                        04:12
+                                    </button>
+<span class="text-sm font-bold text-slate-800">Dr. Minh</span>
+</div>
+<div class="h-2 w-2 rounded-full bg-red-500" title="Correction Needed"></div>
+</div>
+<p class="text-sm text-slate-600 leading-relaxed">
+                                Bé mất tập trung ở đoạn này. Cần nhắc nhở bé nhìn vào mắt người đối diện khi giao tiếp.
+                            </p>
+<div class="ml-4 border-l-2 border-slate-100 pl-3">
+<p class="text-xs text-slate-400 italic">Đã thêm vào danh sách cần cải thiện.</p>
+</div>
+</div>
+<div class="flex flex-col gap-2 group">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<button class="flex items-center gap-1 rounded bg-teal-50 px-2 py-0.5 text-xs font-bold text-primary hover:bg-teal-100 transition-colors">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+                                        08:45
+                                    </button>
+<span class="text-sm font-bold text-slate-800">Therapist Lan</span>
+</div>
+<div class="h-2 w-2 rounded-full bg-green-500" title="Positive Feedback"></div>
+</div>
+<p class="text-sm text-slate-600 leading-relaxed">
+                                Phản xạ nhanh với các thẻ hình ảnh màu sắc.
+                            </p>
+</div>
+<div class="flex flex-col gap-2 group opacity-60">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<button class="flex items-center gap-1 rounded bg-teal-50 px-2 py-0.5 text-xs font-bold text-primary hover:bg-teal-100 transition-colors">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+                                        11:02
+                                    </button>
+<span class="text-sm font-bold text-slate-800">System</span>
+</div>
+<span class="material-symbols-outlined text-[14px] text-slate-400">auto_awesome</span>
+</div>
+<p class="text-sm text-slate-600 leading-relaxed">
+                                Phát hiện hành vi lặp lại (vẫy tay).
+                            </p>
+</div>
+</div>
+<div class="border-t border-border-light bg-slate-50 p-5 shrink-0">
+<div class="mb-3 flex items-center justify-between">
+<span class="text-xs font-semibold uppercase text-slate-500">Thêm ghi chú tại 04:12</span>
+<div class="flex gap-2">
+<button class="flex h-6 w-6 items-center justify-center rounded bg-green-100 text-green-700 hover:bg-green-200" title="Mark as Good">
+<span class="material-symbols-outlined text-[16px]">thumb_up</span>
+</button>
+<button class="flex h-6 w-6 items-center justify-center rounded bg-red-100 text-red-700 hover:bg-red-200" title="Mark as Issue">
+<span class="material-symbols-outlined text-[16px]">priority_high</span>
+</button>
+</div>
+</div>
+<div class="relative mb-4">
+<textarea class="block w-full rounded-md border-border-light bg-white p-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-primary focus:ring-1 focus:ring-primary shadow-sm resize-none" placeholder="Nhập ghi chú..." rows="3"></textarea>
+</div>
+<button class="w-full rounded-md bg-primary py-2.5 text-sm font-semibold text-white hover:bg-primary-dark transition-colors shadow-sm flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">send</span>
+                            Gửi báo cáo
+                        </button>
+</div>
+</div>
+</main>
+</div>
+</div>
+
+</body></html>

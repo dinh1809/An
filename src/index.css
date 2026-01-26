@@ -4,8 +4,8 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    /* Pure White */
+    --background: 0 0% 98%;
+    /* Slightly off-white for comfort */
     --foreground: 222.2 84% 4.9%;
     /* Slate 900 */
     --card: 0 0% 100%;
@@ -34,29 +34,7 @@
     --font-body: 'Inter', sans-serif;
   }
 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    /* Dark Slate */
-    --foreground: 210 40% 98%;
-    --card: 222 47% 10%;
-    /* Dark Card - NOT BROWN */
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 10%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 186 75% 38%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 88 56% 51%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 186 75% 38%;
-  }
+
 
   .theme-career {
     --primary: 217 91% 60%;
@@ -90,5 +68,16 @@
 
   .text-gradient-brand {
     @apply bg-clip-text text-transparent bg-brand-gradient;
+  }
+
+  /* Smooth theme transitions */
+  * {
+    @apply transition-colors duration-300;
+  }
+
+  /* Disable transitions for elements that shouldn't animate */
+  .no-transition,
+  .no-transition * {
+    transition: none !important;
   }
 }
