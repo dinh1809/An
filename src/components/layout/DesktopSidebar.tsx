@@ -14,12 +14,11 @@ export function DesktopSidebar() {
   const isWorkerJourney = location.pathname.startsWith("/assessment") || location.pathname.startsWith("/workspace");
 
   const parentNavItems = [
-    { to: "/parent/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-    { to: "/parent/home", icon: Home, label: "Home" },
-    { to: "/parent/track", icon: Activity, label: "Track" },
-    { to: "/parent/map", icon: MapPin, label: "Find Therapist" },
-    { to: "/parent/analyze", icon: BarChart3, label: "Analyze" },
-    { to: "/parent/profile", icon: User, label: "Profile" },
+    { to: "/parent/dashboard", icon: LayoutDashboard, label: "Trang chủ" },
+    { to: "/parent/track", icon: Activity, label: "Theo dõi" },
+    { to: "/parent/map", icon: MapPin, label: "Tìm chuyên gia" },
+    { to: "/parent/analyze", icon: BarChart3, label: "Phân tích" },
+    { to: "/parent/profile", icon: User, label: "Cá nhân" },
   ];
 
   const workerNavItems = [

@@ -1,14 +1,13 @@
-import { Home, Activity, BarChart3, User, Shuffle, MapPin } from "lucide-react";
+import { Home, Activity, BarChart3, User, MapPin } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { to: "/parent/home", icon: Home, label: "Home" },
-  { to: "/parent/track", icon: Activity, label: "Track" },
-  { to: "/parent/map", icon: MapPin, label: "Therapist" },
-  { to: "/select-mode", icon: Shuffle, label: "Mode" },
-  { to: "/parent/analyze", icon: BarChart3, label: "Analyze" },
-  { to: "/parent/profile", icon: User, label: "Profile" },
+  { to: "/parent/dashboard", icon: Home, label: "Trang chủ" },
+  { to: "/parent/track", icon: Activity, label: "Theo dõi" },
+  { to: "/parent/map", icon: MapPin, label: "Chuyên gia" },
+  { to: "/parent/analyze", icon: BarChart3, label: "Phân tích" },
+  { to: "/parent/profile", icon: User, label: "Cá nhân" },
 ];
 
 export function BottomNav() {
@@ -23,9 +22,8 @@ export function BottomNav() {
               cn(
                 "flex flex-col items-center justify-center gap-1 w-full h-full transition-colors",
                 isActive
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground",
-                item.to === "/select-mode" && "text-violet-500 hover:text-violet-600"
+                  ? "text-[#00695C] dark:text-[#13ecda]"
+                  : "text-gray-500 dark:text-gray-400 hover:text-[#00695C] dark:hover:text-[#13ecda]"
               )
             }
           >
@@ -33,13 +31,9 @@ export function BottomNav() {
               <>
                 <item.icon className={cn(
                   "h-5 w-5",
-                  isActive && "stroke-[2.5px]",
-                  item.to === "/select-mode" && "text-violet-500"
+                  isActive && "stroke-[2.5px]"
                 )} />
-                <span className={cn(
-                  "text-xs font-medium",
-                  item.to === "/select-mode" && "text-violet-500"
-                )}>{item.label}</span>
+                <span className="text-xs font-medium">{item.label}</span>
               </>
             )}
           </NavLink>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Trung tâm Thông báo - The Parent Action Hub</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#11d4c4",
+                        "background-light": "#f8fcfb",
+                        "background-dark": "#102220",
+                        "text-dark": "#0d1b1a",
+                        "text-secondary": "#4c9a93",
+                        "surface-highlight": "#e7f3f2",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-text-dark antialiased">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 w-full border-b border-surface-highlight bg-background-light/95 backdrop-blur-sm px-6 py-3 dark:bg-background-dark/95 dark:border-white/10">
+<div class="mx-auto flex max-w-[1200px] items-center justify-between whitespace-nowrap">
+<div class="flex items-center gap-4">
+<div class="size-8 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M24 4C25.7818 14.2173 33.7827 22.2182 44 24C33.7827 25.7818 25.7818 33.7827 24 44C22.2182 33.7827 14.2173 25.7818 4 24C14.2173 22.2182 22.2182 14.2173 24 4Z" fill="currentColor"></path>
+</svg>
+</div>
+<h2 class="text-text-dark dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">The Parent Action Hub</h2>
+</div>
+<div class="hidden md:flex flex-1 justify-end items-center gap-8">
+<nav class="flex items-center gap-9">
+<a class="text-text-dark dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">Dashboard</a>
+<a class="text-text-dark dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">Thực hành</a>
+<a class="text-text-dark dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">Đánh giá</a>
+<a class="text-text-dark dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium leading-normal" href="#">Cộng đồng</a>
+</nav>
+<div class="flex items-center gap-3">
+<button class="flex items-center justify-center rounded-lg size-10 bg-surface-highlight hover:bg-primary/20 transition-colors text-text-dark dark:bg-white/10 dark:text-white dark:hover:bg-white/20">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-surface-highlight cursor-pointer" data-alt="User profile avatar showing a smiling parent" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBcN3GfembbuEKiiZ4bmlYoqrqVeU_2RlUNteWT8O7B01fhCOKv2nbxfwKavuVnI7gWbMBfy0j9WLtSRpGglyAhnyayu8lAGGsOrGobvq6NI3Eptkjmi_Do_zx0IwRz5jTO3LAi8COvd94T-TLQ5uex4a-JkD0B-2Zkgrv9FC2xuEh8kMi_SHU3QftiM7-Nb-NsSoAi3QQzm7LQ5c92TCsTW73wapdoI2LVG104P4Fwf4ZfgGOWaBJFy-XnLy6v4dc2f1aAWKN85QU");'></div>
+</div>
+</div>
+<!-- Mobile Menu Button -->
+<button class="md:hidden flex items-center justify-center size-10 text-text-dark dark:text-white">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex flex-1 justify-center py-8 px-4 sm:px-6 lg:px-8">
+<div class="flex flex-col w-full max-w-[960px] flex-1 gap-6">
+<!-- Page Heading & Actions -->
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2">
+<h1 class="text-text-dark dark:text-white text-3xl sm:text-4xl font-black leading-tight tracking-[-0.033em]">Thông báo</h1>
+<button class="group flex items-center justify-center rounded-lg h-10 px-5 bg-surface-highlight hover:bg-primary hover:text-white transition-all duration-200 text-text-dark dark:bg-white/10 dark:text-white dark:hover:bg-primary">
+<span class="material-symbols-outlined text-sm mr-2 group-hover:animate-pulse">done_all</span>
+<span class="text-sm font-bold leading-normal tracking-[0.015em] truncate">Đánh dấu đã đọc tất cả</span>
+</button>
+</div>
+<!-- Filters / Tabs -->
+<div class="sticky top-[72px] z-40 bg-background-light dark:bg-background-dark pt-2 pb-1">
+<div class="flex overflow-x-auto no-scrollbar border-b border-[#cfe7e5] dark:border-white/10 gap-8">
+<a class="flex flex-col items-center justify-center border-b-[3px] border-b-primary text-text-dark dark:text-white pb-[13px] pt-2 min-w-fit px-2" href="#">
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">Tất cả</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-[3px] border-b-transparent text-text-secondary hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors pb-[13px] pt-2 min-w-fit px-2" href="#">
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">Lịch hẹn</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-[3px] border-b-transparent text-text-secondary hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors pb-[13px] pt-2 min-w-fit px-2" href="#">
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">Bài tập/Video</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-[3px] border-b-transparent text-text-secondary hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors pb-[13px] pt-2 min-w-fit px-2" href="#">
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">Cộng đồng</p>
+</a>
+<a class="flex flex-col items-center justify-center border-b-[3px] border-b-transparent text-text-secondary hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors pb-[13px] pt-2 min-w-fit px-2" href="#">
+<p class="text-sm font-bold leading-normal tracking-[0.015em]">Hệ thống</p>
+</a>
+</div>
+</div>
+<!-- Notification List -->
+<div class="flex flex-col gap-3">
+<!-- Item 1: Appointment (Unread) -->
+<div class="relative flex flex-col sm:flex-row gap-4 bg-white dark:bg-white/5 p-5 rounded-xl border border-[#e7f3f2] dark:border-white/5 shadow-sm hover:shadow-md transition-shadow group">
+<!-- Unread Indicator -->
+<div class="absolute top-5 right-5 sm:top-6 sm:left-4 sm:right-auto size-2.5 rounded-full bg-primary animate-pulse"></div>
+<div class="flex items-start gap-4 sm:pl-6">
+<div class="flex items-center justify-center rounded-xl bg-[#e0f2f1] dark:bg-primary/20 text-[#00695c] dark:text-primary shrink-0 size-12">
+<span class="material-symbols-outlined text-[24px]">calendar_month</span>
+</div>
+<div class="flex flex-1 flex-col justify-center gap-1">
+<div class="flex flex-wrap items-center gap-2">
+<h3 class="text-text-dark dark:text-white text-base font-bold leading-normal">Lịch hẹn đánh giá định kỳ</h3>
+<span class="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10 dark:bg-blue-900/30 dark:text-blue-200">Mới</span>
+</div>
+<p class="text-text-secondary dark:text-gray-300 text-sm font-normal leading-relaxed">Bác sĩ Minh đã xác nhận lịch hẹn vào <span class="font-medium text-text-dark dark:text-white">9:00 AM ngày mai</span> tại phòng khám số 2.</p>
+<p class="text-text-secondary/70 dark:text-gray-500 text-xs font-medium mt-1">2 giờ trước</p>
+</div>
+</div>
+<div class="mt-2 sm:mt-0 sm:ml-auto shrink-0 flex items-center pl-[64px] sm:pl-0">
+<button class="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-primary text-white hover:bg-primary/90 transition-colors text-sm font-bold leading-normal w-fit shadow-sm">
+<span class="truncate">Xem chi tiết</span>
+</button>
+</div>
+</div>
+<!-- Item 2: Exercise (Unread) -->
+<div class="relative flex flex-col sm:flex-row gap-4 bg-white dark:bg-white/5 p-5 rounded-xl border border-[#e7f3f2] dark:border-white/5 shadow-sm hover:shadow-md transition-shadow group">
+<!-- Unread Indicator -->
+<div class="absolute top-5 right-5 sm:top-6 sm:left-4 sm:right-auto size-2.5 rounded-full bg-primary"></div>
+<div class="flex items-start gap-4 sm:pl-6">
+<div class="flex items-center justify-center rounded-xl bg-[#e0f2f1] dark:bg-primary/20 text-[#00695c] dark:text-primary shrink-0 size-12">
+<span class="material-symbols-outlined text-[24px] fill-1">play_circle</span>
+</div>
+<div class="flex flex-1 flex-col justify-center gap-1">
+<h3 class="text-text-dark dark:text-white text-base font-bold leading-normal">Phản hồi mới về bài tập</h3>
+<p class="text-text-secondary dark:text-gray-300 text-sm font-normal leading-relaxed">Chuyên gia Lan Anh đã nhận xét về video <span class="font-medium text-text-dark dark:text-white">'Giao tiếp mắt'</span> của bé.</p>
+<p class="text-text-secondary/70 dark:text-gray-500 text-xs font-medium mt-1">5 giờ trước</p>
+</div>
+</div>
+<div class="mt-2 sm:mt-0 sm:ml-auto shrink-0 flex items-center pl-[64px] sm:pl-0">
+<button class="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-surface-highlight text-text-dark hover:bg-surface-highlight/80 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 transition-colors text-sm font-bold leading-normal w-fit">
+<span class="truncate">Xem phản hồi</span>
+</button>
+</div>
+</div>
+<!-- Item 3: Community (Read) -->
+<div class="relative flex flex-col sm:flex-row gap-4 bg-white dark:bg-white/5 p-5 rounded-xl border border-[#e7f3f2] dark:border-white/5 shadow-sm hover:bg-gray-50 dark:hover:bg-white/10 transition-colors group opacity-90">
+<div class="flex items-start gap-4 sm:pl-6">
+<div class="flex items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 shrink-0 size-12">
+<span class="material-symbols-outlined text-[24px]">forum</span>
+</div>
+<div class="flex flex-1 flex-col justify-center gap-1">
+<h3 class="text-text-dark dark:text-gray-200 text-base font-medium leading-normal">Bình luận mới trong bài viết</h3>
+<p class="text-text-secondary dark:text-gray-400 text-sm font-normal leading-relaxed">Mẹ Bé Bi đã trả lời câu hỏi của bạn về <span class="font-medium text-text-dark dark:text-gray-300">"Chế độ dinh dưỡng GFCF"</span>.</p>
+<p class="text-text-secondary/70 dark:text-gray-500 text-xs font-medium mt-1">Hôm qua</p>
+</div>
+</div>
+<div class="mt-2 sm:mt-0 sm:ml-auto shrink-0 flex items-center pl-[64px] sm:pl-0">
+<button class="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-transparent border border-surface-highlight text-text-dark hover:bg-surface-highlight dark:border-white/20 dark:text-gray-300 dark:hover:bg-white/10 transition-colors text-sm font-medium leading-normal w-fit">
+<span class="truncate">Xem thảo luận</span>
+</button>
+</div>
+</div>
+<!-- Item 4: System (Read) -->
+<div class="relative flex flex-col sm:flex-row gap-4 bg-white dark:bg-white/5 p-5 rounded-xl border border-[#e7f3f2] dark:border-white/5 shadow-sm hover:bg-gray-50 dark:hover:bg-white/10 transition-colors group opacity-80">
+<div class="flex items-start gap-4 sm:pl-6">
+<div class="flex items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 shrink-0 size-12">
+<span class="material-symbols-outlined text-[24px]">info</span>
+</div>
+<div class="flex flex-1 flex-col justify-center gap-1">
+<h3 class="text-text-dark dark:text-gray-200 text-base font-medium leading-normal">Cập nhật hệ thống</h3>
+<p class="text-text-secondary dark:text-gray-400 text-sm font-normal leading-relaxed">Chúng tôi đã thêm tính năng mới cho phép theo dõi biểu đồ tiến bộ chi tiết hơn.</p>
+<p class="text-text-secondary/70 dark:text-gray-500 text-xs font-medium mt-1">2 ngày trước</p>
+</div>
+</div>
+<!-- No button for this system notification -->
+</div>
+<!-- Item 5: Reminder (Unread) -->
+<div class="relative flex flex-col sm:flex-row gap-4 bg-white dark:bg-white/5 p-5 rounded-xl border border-[#e7f3f2] dark:border-white/5 shadow-sm hover:shadow-md transition-shadow group">
+<!-- Unread Indicator -->
+<div class="absolute top-5 right-5 sm:top-6 sm:left-4 sm:right-auto size-2.5 rounded-full bg-primary"></div>
+<div class="flex items-start gap-4 sm:pl-6">
+<div class="flex items-center justify-center rounded-xl bg-[#e0f2f1] dark:bg-primary/20 text-[#00695c] dark:text-primary shrink-0 size-12">
+<span class="material-symbols-outlined text-[24px]">assignment</span>
+</div>
+<div class="flex flex-1 flex-col justify-center gap-1">
+<h3 class="text-text-dark dark:text-white text-base font-bold leading-normal">Đến hạn nộp báo cáo tuần</h3>
+<p class="text-text-secondary dark:text-gray-300 text-sm font-normal leading-relaxed">Hãy cập nhật tiến độ của bé tuần này để bác sĩ có thể đánh giá chính xác nhất.</p>
+<p class="text-text-secondary/70 dark:text-gray-500 text-xs font-medium mt-1">3 ngày trước</p>
+</div>
+</div>
+<div class="mt-2 sm:mt-0 sm:ml-auto shrink-0 flex items-center pl-[64px] sm:pl-0">
+<button class="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-surface-highlight text-text-dark hover:bg-surface-highlight/80 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 transition-colors text-sm font-bold leading-normal w-fit">
+<span class="truncate">Làm báo cáo ngay</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Loading / End of list -->
+<div class="flex justify-center py-6">
+<button class="text-text-secondary hover:text-primary dark:text-gray-400 dark:hover:text-primary text-sm font-medium transition-colors flex items-center gap-2">
+<span>Tải thêm thông báo cũ hơn</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

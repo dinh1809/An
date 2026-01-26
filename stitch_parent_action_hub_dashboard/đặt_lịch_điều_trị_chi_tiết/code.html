@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Đặt lịch điều trị chi tiết - The Parent Action Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#00695C", // Deep Teal as requested
+                        "primary-light": "#4DB6AC",
+                        "primary-dark": "#004D40",
+                        "background-light": "#F8FAFC",
+                        "background-dark": "#102220",
+                        "surface-light": "#FFFFFF",
+                        "surface-dark": "#1A2E2C",
+                        "success": "#2E7D32", // Success Green
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "sans": ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen text-slate-800 dark:text-slate-100 flex flex-col font-display">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 w-full bg-surface-light dark:bg-surface-dark border-b border-slate-200 dark:border-slate-800">
+<div class="max-w-[1440px] mx-auto px-6 h-16 flex items-center justify-between">
+<!-- Logo Section -->
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined">family_restroom</span>
+</div>
+<h1 class="text-slate-900 dark:text-white text-lg font-bold tracking-tight hidden sm:block">The Parent Action Hub</h1>
+</div>
+<!-- Nav Links -->
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary-light text-sm font-medium transition-colors" href="#">Dashboard</a>
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary-light text-sm font-medium transition-colors" href="#">Thực hành</a>
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary-light text-sm font-medium transition-colors" href="#">Đánh giá</a>
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary-light text-sm font-medium transition-colors" href="#">Cộng đồng</a>
+</nav>
+<!-- User Actions -->
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+<span class="material-symbols-outlined text-[24px]">settings</span>
+</button>
+<div class="h-9 w-9 rounded-full bg-gray-200 bg-cover bg-center ring-2 ring-white dark:ring-slate-700 cursor-pointer" data-alt="Portrait of a user" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDW1aCT5U7wKyZ9gwHKkpFd-yse7rrIXz-fhJZasraAzM5Qr_3lVpmxpO7WpexwcGPc2HeRhVoVozbAlrzcoj0aqg_vj0Vq8_YvYGP_2z-E2os4Z1DSo8gj9KP80VxeYw2BGCRNGKqwofXCED7sZK9bNwXtOVjdOs0uPkcPn8Uw9g66HWBVh6-ls7YQZyS9_JfgHSt4vT22HtNYC-No5HwKMz_cc_nqj28YDxs5WDPYV4v6JTd1h0RjduYWAJIKyd0Fjj9kouLT8d0');">
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-[1280px] mx-auto p-6 md:p-8 lg:p-10">
+<!-- Page Heading -->
+<div class="mb-8">
+<h2 class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Đặt lịch điều trị</h2>
+<p class="text-slate-500 dark:text-slate-400 text-base">Chọn chuyên gia và thời gian phù hợp nhất cho bé Minh Anh.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Selection (Therapist & Date) -->
+<div class="lg:col-span-5 flex flex-col gap-6">
+<!-- 1. Therapist Selection -->
+<section class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+<div class="p-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+<h3 class="font-semibold text-lg text-slate-900 dark:text-white">Chọn chuyên gia</h3>
+<a class="text-sm text-primary font-medium hover:underline" href="#">Xem tất cả</a>
+</div>
+<div class="p-4 flex flex-col gap-3">
+<!-- Therapist Item: Selected -->
+<div class="relative group cursor-pointer">
+<input checked="" class="peer sr-only" id="t1" name="therapist" type="radio"/>
+<label class="flex items-center gap-4 p-3 rounded-lg border-2 border-primary bg-primary/5 dark:bg-primary/10 transition-all hover:bg-primary/10" for="t1">
+<div class="relative">
+<div class="h-14 w-14 rounded-full bg-cover bg-center" data-alt="Portrait of Dr. Nguyen Van A" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCoMdb3WvoNRYcYcJr48B-q9fpxHqYecOEWLOX-3uQ7mJAY00jnhg_hxSyVWy_dtKV3feHUq0oeInaBxFjMlFo0BtPBDHYUf771sfeItqFfTXe-HGR2IJ-EP-yL9vEZxXbLUVGX3y7KHE28rAVK-YZWcUOx7JxbTG2Ll2lm2_1J6bTs81PNef3X8AfOIvm62CK2yhffjpQZjvSXahiaOY6uXjrSaGKYQUjUGTiOuWjPYSBELRK7S4Gm9-oLY7DSrFXcIGarNWmOppY');"></div>
+<div class="absolute -bottom-1 -right-1 bg-white dark:bg-slate-800 rounded-full p-0.5 shadow-sm">
+<span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="font-bold text-slate-900 dark:text-white truncate">Dr. Nguyen Van A</h4>
+<p class="text-slate-500 dark:text-slate-400 text-sm truncate">Chuyên gia Ngôn ngữ trị liệu</p>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-yellow-400 text-[16px] fill-current">star</span>
+<span class="text-xs font-medium text-slate-700 dark:text-slate-300">4.9</span>
+<span class="text-xs text-slate-400">(120 đánh giá)</span>
+</div>
+</div>
+</label>
+</div>
+<!-- Therapist Item: Default -->
+<div class="relative group cursor-pointer">
+<input class="peer sr-only" id="t2" name="therapist" type="radio"/>
+<label class="flex items-center gap-4 p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-transparent transition-all hover:border-primary/50 hover:bg-slate-50 dark:hover:bg-slate-800 peer-checked:border-primary peer-checked:bg-primary/5" for="t2">
+<div class="h-14 w-14 rounded-full bg-cover bg-center filter grayscale group-hover:grayscale-0 transition-all" data-alt="Portrait of Dr. Le Thi B" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC18TpTHT2mvXxOeoGcWFJW-C8zKiI0FVoSH5vxlssbIIdHuEWbYl1f75h1HCbOfMNYqGh253d4rx9ZHdnuz0fkERb8wv7iZiRcSJSaoGDgLPQ45Ao3LtRmjzWcAvEB8N72VBpGoU-QVsVbLaeCiqsh-kbZo6ClzI2pGbFeNcZr-T7Nm9YT5qgJ23SE8ZG8YDCHhqYpbv9-THlEr_TW8uCFrtig4HijUie8_258TMJU0H2a_cpupwPC6HRUoEwhPIYD0punYQJRiMk');"></div>
+<div class="flex-1 min-w-0">
+<h4 class="font-bold text-slate-900 dark:text-white truncate">Dr. Le Thi B</h4>
+<p class="text-slate-500 dark:text-slate-400 text-sm truncate">Chuyên gia Tâm lý lâm sàng</p>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-yellow-400 text-[16px]">star</span>
+<span class="text-xs font-medium text-slate-700 dark:text-slate-300">4.8</span>
+<span class="text-xs text-slate-400">(98 đánh giá)</span>
+</div>
+</div>
+</label>
+</div>
+<!-- Therapist Item: Default -->
+<div class="relative group cursor-pointer">
+<input class="peer sr-only" id="t3" name="therapist" type="radio"/>
+<label class="flex items-center gap-4 p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-transparent transition-all hover:border-primary/50 hover:bg-slate-50 dark:hover:bg-slate-800 peer-checked:border-primary peer-checked:bg-primary/5" for="t3">
+<div class="h-14 w-14 rounded-full bg-cover bg-center filter grayscale group-hover:grayscale-0 transition-all" data-alt="Portrait of Dr. Tran Van C" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDczUfIiM675or8lTyspHBZGCEvRFTaYfO4JrwJn7puscH6ox8WAj8g-fZ0vclnY2ReaO7Zs1XOi_GYwHp5SK6hCxYxCXLdNxaptOcYUu-91nu1-Wln1FhhpbtHOOqJak9uQnyy_eFLTGXqyHS9BD-_-_qqLipnIIZVy2E-xRirqXyfBKuJ4H83ke4vrxDJMTCxNtT0oDoIZYKcg5ztFF90oiJ-FmYIWUQn6wfL3LO8vY950rg9f1pJWJyb_ftbHHsQaniag83fDpE');"></div>
+<div class="flex-1 min-w-0">
+<h4 class="font-bold text-slate-900 dark:text-white truncate">Dr. Tran Van C</h4>
+<p class="text-slate-500 dark:text-slate-400 text-sm truncate">Chuyên gia Hành vi</p>
+<div class="flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-yellow-400 text-[16px]">star</span>
+<span class="text-xs font-medium text-slate-700 dark:text-slate-300">5.0</span>
+<span class="text-xs text-slate-400">(45 đánh giá)</span>
+</div>
+</div>
+</label>
+</div>
+</div>
+</section>
+<!-- 2. Interactive Calendar -->
+<section class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-5">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-semibold text-lg text-slate-900 dark:text-white">Tháng 10, 2023</h3>
+<div class="flex gap-2">
+<button class="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-slate-600 dark:text-slate-400">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Calendar Grid -->
+<div class="grid grid-cols-7 gap-1 text-center text-sm mb-2">
+<span class="text-slate-400 py-2">T2</span>
+<span class="text-slate-400 py-2">T3</span>
+<span class="text-slate-400 py-2">T4</span>
+<span class="text-slate-400 py-2">T5</span>
+<span class="text-slate-400 py-2">T6</span>
+<span class="text-slate-400 py-2">T7</span>
+<span class="text-slate-400 py-2">CN</span>
+</div>
+<div class="grid grid-cols-7 gap-1 text-sm font-medium">
+<!-- Previous Month -->
+<button class="h-10 w-10 mx-auto rounded-full text-slate-300 dark:text-slate-600" disabled="">25</button>
+<button class="h-10 w-10 mx-auto rounded-full text-slate-300 dark:text-slate-600" disabled="">26</button>
+<button class="h-10 w-10 mx-auto rounded-full text-slate-300 dark:text-slate-600" disabled="">27</button>
+<button class="h-10 w-10 mx-auto rounded-full text-slate-300 dark:text-slate-600" disabled="">28</button>
+<button class="h-10 w-10 mx-auto rounded-full text-slate-300 dark:text-slate-600" disabled="">29</button>
+<button class="h-10 w-10 mx-auto rounded-full text-slate-300 dark:text-slate-600" disabled="">30</button>
+<!-- Current Month -->
+<button class="h-10 w-10 mx-auto rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">1</button>
+<button class="h-10 w-10 mx-auto rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">2</button>
+<button class="h-10 w-10 mx-auto rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">3</button>
+<button class="h-10 w-10 mx-auto rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">4</button>
+<button class="h-10 w-10 mx-auto rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">5</button>
+<button class="h-10 w-10 mx-auto rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">6</button>
+<button class="h-10 w-10 mx-auto rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">7</button>
+<button class="h-10 w-10 mx-auto rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">8</button>
+<button class="h-10 w-10 mx-auto rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">9</button>
+<button class="h-10 w-10 mx-auto rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">10</button>
+<button class="h-10 w-10 mx-auto rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">11</button>
+<button class="h-10 w-10 mx-auto rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">12</button>
+<button class="h-10 w-10 mx-auto rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 relative">
+                            13
+                            <span class="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full"></span>
+</button>
+<button class="h-10 w-10 mx-auto rounded-full bg-primary text-white shadow-md shadow-primary/30">14</button>
+<button class="h-10 w-10 mx-auto rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 relative">
+                            15
+                            <span class="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-success rounded-full"></span>
+</button>
+<button class="h-10 w-10 mx-auto rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 relative">
+                             16
+                             <span class="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-success rounded-full"></span>
+</button>
+<button class="h-10 w-10 mx-auto rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300">17</button>
+<!-- ... rest of month implied ... -->
+</div>
+<div class="mt-4 flex items-center gap-4 text-xs text-slate-500 justify-center">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-primary"></span> Đang chọn
+                        </div>
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-success"></span> Còn trống
+                        </div>
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-slate-300"></span> Đã kín
+                        </div>
+</div>
+</section>
+</div>
+<!-- Right Column: Time Slots & Confirmation -->
+<div class="lg:col-span-7 flex flex-col gap-6">
+<!-- 3. Time Slots Grid -->
+<section class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-semibold text-lg text-slate-900 dark:text-white">Chọn khung giờ - 14/10/2023</h3>
+<span class="text-xs font-medium px-2.5 py-1 rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">Còn 5 chỗ trống</span>
+</div>
+<div class="space-y-6">
+<!-- Morning -->
+<div>
+<h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-base">wb_sunny</span> Buổi Sáng
+                            </h4>
+<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+<button class="py-2 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-400 bg-slate-50 dark:bg-slate-800/50 cursor-not-allowed" disabled="">08:00</button>
+<button class="py-2 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-300 hover:border-primary hover:text-primary transition-colors bg-white dark:bg-transparent">09:00</button>
+<button class="py-2 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-400 bg-slate-50 dark:bg-slate-800/50 cursor-not-allowed" disabled="">10:00</button>
+<button class="py-2 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-300 hover:border-primary hover:text-primary transition-colors bg-white dark:bg-transparent">11:00</button>
+</div>
+</div>
+<!-- Afternoon -->
+<div>
+<h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-base">partly_cloudy_day</span> Buổi Chiều
+                            </h4>
+<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+<button class="py-2 px-3 rounded-lg bg-primary text-white shadow-md shadow-primary/20 text-sm font-semibold ring-2 ring-primary ring-offset-2 ring-offset-white dark:ring-offset-slate-900">13:30</button>
+<button class="py-2 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-300 hover:border-primary hover:text-primary transition-colors bg-white dark:bg-transparent">14:30</button>
+<button class="py-2 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-300 hover:border-primary hover:text-primary transition-colors bg-white dark:bg-transparent">15:30</button>
+<button class="py-2 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-400 bg-slate-50 dark:bg-slate-800/50 cursor-not-allowed" disabled="">16:30</button>
+</div>
+</div>
+<!-- Evening -->
+<div>
+<h4 class="text-xs uppercase tracking-wider text-slate-500 font-semibold mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-base">bedtime</span> Buổi Tối
+                            </h4>
+<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+<button class="py-2 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-700 dark:text-slate-300 hover:border-primary hover:text-primary transition-colors bg-white dark:bg-transparent">18:00</button>
+<button class="py-2 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-400 bg-slate-50 dark:bg-slate-800/50 cursor-not-allowed" disabled="">19:00</button>
+</div>
+</div>
+</div>
+</section>
+<!-- 4. Booking Summary & Notes -->
+<section class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col md:flex-row">
+<!-- Summary Info -->
+<div class="p-6 md:w-1/2 flex flex-col gap-4 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-800">
+<h3 class="font-semibold text-lg text-slate-900 dark:text-white mb-1">Thông tin phiên hẹn</h3>
+<div class="flex items-start gap-3">
+<div class="p-2 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300">
+<span class="material-symbols-outlined">child_care</span>
+</div>
+<div>
+<p class="text-xs text-slate-500 uppercase font-semibold tracking-wide">Bệnh nhân nhí</p>
+<p class="text-slate-900 dark:text-white font-medium">Bé Nguyễn Minh Anh</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<div class="p-2 rounded-lg bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-300">
+<span class="material-symbols-outlined">stethoscope</span>
+</div>
+<div>
+<p class="text-xs text-slate-500 uppercase font-semibold tracking-wide">Chuyên gia</p>
+<p class="text-slate-900 dark:text-white font-medium">Dr. Nguyen Van A</p>
+<p class="text-slate-500 text-sm">Ngôn ngữ trị liệu</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<div class="p-2 rounded-lg bg-primary/10 text-primary">
+<span class="material-symbols-outlined">calendar_month</span>
+</div>
+<div>
+<p class="text-xs text-slate-500 uppercase font-semibold tracking-wide">Thời gian</p>
+<p class="text-slate-900 dark:text-white font-medium text-lg">13:30 - 14:30</p>
+<p class="text-slate-500 text-sm">Thứ 7, 14 Tháng 10, 2023</p>
+</div>
+</div>
+</div>
+<!-- Notes Form -->
+<div class="p-6 md:w-1/2 bg-slate-50/50 dark:bg-slate-800/20 flex flex-col h-full">
+<label class="font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2" for="notes">
+<span class="material-symbols-outlined text-slate-400">edit_note</span>
+                            Ghi chú cho chuyên gia
+                        </label>
+<textarea class="w-full flex-grow rounded-lg border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm p-3 focus:ring-primary focus:border-primary min-h-[140px]" id="notes" placeholder="Nhập ghi chú về tình trạng của bé hoặc những điều cần lưu ý cho buổi trị liệu này..."></textarea>
+</div>
+</section>
+<!-- 5. Action Button -->
+<div class="flex justify-end pt-2">
+<button class="w-full sm:w-auto bg-primary hover:bg-primary-dark text-white font-bold text-lg py-3.5 px-10 rounded-xl shadow-lg shadow-primary/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2">
+                        Xác nhận đặt lịch
+                        <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+<p class="text-center text-xs text-slate-400">
+                    Bằng cách xác nhận, bạn đồng ý với <a class="underline hover:text-primary" href="#">Điều khoản dịch vụ</a> và <a class="underline hover:text-primary" href="#">Chính sách hủy lịch</a> của chúng tôi.
+                </p>
+</div>
+</div>
+</main>
+<footer class="mt-12 py-8 bg-surface-light dark:bg-surface-dark border-t border-slate-200 dark:border-slate-800">
+<div class="max-w-[1440px] mx-auto px-6 text-center text-slate-500 text-sm">
+            © 2023 The Parent Action Hub. All rights reserved.
+        </div>
+</footer>
+</body></html>

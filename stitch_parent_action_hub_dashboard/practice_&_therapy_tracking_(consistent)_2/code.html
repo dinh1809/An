@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Analysis &amp; Progress Evaluation</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#00695C", // Deep Teal
+                        "primary-dark": "#004D40",
+                        "primary-light": "#B2DFDB",
+                        "accent": "#FFAB00",
+                        "background-light": "#F5F8F8",
+                        "background-dark": "#0F2321",
+                        "surface-light": "#FFFFFF",
+                        "surface-dark": "#162E2B",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#0c1d1b] dark:text-gray-100 flex flex-col min-h-screen overflow-x-hidden selection:bg-primary/30">
+<header class="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e6f4f3] dark:border-b-primary/20 bg-surface-light dark:bg-surface-dark px-6 py-3 shadow-sm">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-9 flex items-center justify-center bg-primary rounded-lg text-white shadow-sm">
+<span class="material-symbols-outlined text-2xl">family_star</span>
+</div>
+<h2 class="text-[#0c1d1b] dark:text-white text-lg font-extrabold leading-tight tracking-[-0.015em]">Parent Action Hub</h2>
+</div>
+<div class="flex flex-1 justify-center hidden lg:flex">
+<nav class="flex items-center gap-1 p-1.5 bg-background-light dark:bg-background-dark rounded-full border border-[#e6f4f3] dark:border-primary/20">
+<a class="flex items-center gap-2 px-5 py-2 rounded-full text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-white/60 dark:hover:bg-surface-dark/60 text-sm font-medium transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+                    Tổng quan
+                </a>
+<a class="flex items-center gap-2 px-5 py-2 rounded-full text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-white/60 dark:hover:bg-surface-dark/60 text-sm font-medium transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">self_improvement</span>
+                    Thực hành
+                </a>
+<a class="flex items-center gap-2 px-5 py-2 rounded-full bg-white dark:bg-surface-dark text-primary shadow-sm text-sm font-bold transition-all ring-1 ring-black/5 dark:ring-white/10" href="#">
+<span class="material-symbols-outlined text-[20px] filled">assignment</span>
+                    Đánh giá
+                </a>
+<a class="flex items-center gap-2 px-5 py-2 rounded-full text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-white/60 dark:hover:bg-surface-dark/60 text-sm font-medium transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">groups</span>
+                    Cộng đồng
+                </a>
+</nav>
+</div>
+<div class="flex items-center gap-3 justify-end">
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-gray-100 dark:hover:bg-surface-dark text-gray-600 dark:text-gray-300 transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="flex items-center justify-center size-10 rounded-full hover:bg-gray-100 dark:hover:bg-surface-dark text-gray-600 dark:text-gray-300 transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2.5 right-2.5 size-2 bg-red-500 rounded-full border border-white dark:border-surface-dark"></span>
+</button>
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-10 border-2 border-white dark:border-primary/30 shadow-sm cursor-pointer ml-1" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBOww4bTyYZqW23d68WXFbWh1Yh_qDX3LriWU2F5e8xWYuwc4agtUrjJCrpIhc2KeuFiKMIj5rX4PoDUopuJugVAAhFLaBhAS6zQnafq9pcGI7yRZbTqof66okMJQe3ZpcobgX6EAhJtPsZU-53e9V2Jl0CSEVKi17ZhV_Huhp60M2FgW6neiMGl44v97wiLwY0P7g_p6BU5w8i4cFITF3JwUVZqpbYb4lygweubMOSES16NM1x6amFdN9-AhuplMZEiimJT9Mr5gc");'></div>
+</div>
+</header>
+<main class="layout-container flex flex-col h-full grow px-4 sm:px-6 lg:px-8 py-8 w-full max-w-[1600px] mx-auto gap-8">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div>
+<h1 class="text-2xl font-extrabold text-[#0c1d1b] dark:text-white tracking-tight">Phân tích &amp; Đánh giá tiến triển</h1>
+<p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Dữ liệu tổng hợp từ 30 ngày gần nhất cho bé <span class="font-bold text-primary">Minh Anh</span></p>
+</div>
+<button class="flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all transform active:scale-95">
+<span class="material-symbols-outlined text-[20px]">picture_as_pdf</span>
+                Xuất báo cáo PDF
+            </button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-white dark:bg-surface-dark p-6 rounded-2xl shadow-sm border border-[#e6f4f3] dark:border-gray-700 flex items-center gap-4 group hover:border-primary/30 transition-all">
+<div class="size-14 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-3xl">schedule</span>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-500 dark:text-gray-400">Tổng thời gian thực hành</p>
+<div class="flex items-baseline gap-2">
+<h3 class="text-2xl font-extrabold text-[#0c1d1b] dark:text-white">42 giờ</h3>
+<span class="text-xs font-bold text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded-full">+4h tuần này</span>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-surface-dark p-6 rounded-2xl shadow-sm border border-[#e6f4f3] dark:border-gray-700 flex items-center gap-4 group hover:border-primary/30 transition-all">
+<div class="size-14 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-3xl">trending_up</span>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-500 dark:text-gray-400">Chỉ số tiến bộ</p>
+<div class="flex items-baseline gap-2">
+<h3 class="text-2xl font-extrabold text-[#0c1d1b] dark:text-white">85/100</h3>
+<span class="text-xs font-bold text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">arrow_upward</span> 15%
+                        </span>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-surface-dark p-6 rounded-2xl shadow-sm border border-[#e6f4f3] dark:border-gray-700 flex items-center gap-4 group hover:border-primary/30 transition-all">
+<div class="size-14 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center group-hover:bg-orange-600 group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-3xl">flag</span>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-500 dark:text-gray-400">Mục tiêu hoàn thành</p>
+<div class="flex items-baseline gap-2">
+<h3 class="text-2xl font-extrabold text-[#0c1d1b] dark:text-white">12/15</h3>
+<span class="text-xs font-medium text-gray-500">mục tiêu tháng</span>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<div class="lg:col-span-8 bg-white dark:bg-surface-dark p-6 rounded-2xl shadow-sm border border-[#e6f4f3] dark:border-gray-700">
+<div class="flex items-center justify-between mb-6">
+<div>
+<h3 class="text-lg font-bold text-[#0c1d1b] dark:text-white">Biểu đồ phát triển kỹ năng</h3>
+<p class="text-xs text-gray-500">Theo dõi 3 nhóm kỹ năng chính trong 30 ngày qua</p>
+</div>
+<div class="flex items-center gap-3 text-xs font-bold">
+<div class="flex items-center gap-1.5"><span class="size-2.5 rounded-full bg-primary"></span> Giao tiếp</div>
+<div class="flex items-center gap-1.5"><span class="size-2.5 rounded-full bg-orange-400"></span> Vận động</div>
+<div class="flex items-center gap-1.5"><span class="size-2.5 rounded-full bg-blue-400"></span> Hành vi</div>
+</div>
+</div>
+<div class="relative w-full aspect-[2/1] lg:aspect-[2.5/1] bg-gray-50 dark:bg-gray-800/30 rounded-xl overflow-hidden p-4">
+<div class="absolute left-4 top-4 bottom-8 flex flex-col justify-between text-[10px] text-gray-400 font-bold z-10">
+<span>100</span>
+<span>75</span>
+<span>50</span>
+<span>25</span>
+<span>0</span>
+</div>
+<div class="absolute inset-0 left-10 right-4 top-4 bottom-8">
+<div class="w-full h-full flex flex-col justify-between border-l border-gray-200 dark:border-gray-700">
+<div class="w-full h-px bg-gray-200 dark:bg-gray-700/50 border-t border-dashed border-gray-300 dark:border-gray-600"></div>
+<div class="w-full h-px bg-gray-200 dark:bg-gray-700/50 border-t border-dashed border-gray-300 dark:border-gray-600"></div>
+<div class="w-full h-px bg-gray-200 dark:bg-gray-700/50 border-t border-dashed border-gray-300 dark:border-gray-600"></div>
+<div class="w-full h-px bg-gray-200 dark:bg-gray-700/50 border-t border-dashed border-gray-300 dark:border-gray-600"></div>
+<div class="w-full h-px bg-gray-300 dark:bg-gray-600"></div> 
+</div>
+<svg class="absolute inset-0 w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
+<path d="M0,70 Q10,65 20,60 T40,50 T60,35 T80,25 T100,20" fill="none" stroke="#00695C" stroke-linecap="round" stroke-width="3"></path>
+<path d="M0,70 Q10,65 20,60 T40,50 T60,35 T80,25 T100,20 V100 H0 Z" fill="url(#gradPrimary)" opacity="0.1"></path>
+<path d="M0,80 Q15,75 30,70 T50,65 T70,55 T90,50 T100,45" fill="none" stroke="#FB923C" stroke-dasharray="4,4" stroke-linecap="round" stroke-width="2"></path>
+<path d="M0,60 Q20,55 40,65 T60,50 T80,40 T100,35" fill="none" stroke="#60A5FA" stroke-linecap="round" stroke-width="2"></path>
+<defs>
+<linearGradient id="gradPrimary" x1="0%" x2="0%" y1="0%" y2="100%">
+<stop offset="0%" style="stop-color:#00695C;stop-opacity:1"></stop>
+<stop offset="100%" style="stop-color:#00695C;stop-opacity:0"></stop>
+</linearGradient>
+</defs>
+</svg>
+<div class="absolute left-[60%] top-[35%] w-3 h-3 bg-white border-2 border-primary rounded-full shadow-md z-20"></div>
+<div class="absolute left-[60%] top-[20%] transform -translate-x-1/2 bg-[#0c1d1b] text-white text-[10px] py-1 px-2 rounded opacity-90 shadow-lg z-20">
+                            Giao tiếp: 65/100
+                            <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-[#0c1d1b]"></div>
+</div>
+</div>
+<div class="absolute left-10 right-4 bottom-2 flex justify-between text-[10px] text-gray-400 font-bold uppercase">
+<span>Tuần 1</span>
+<span>Tuần 2</span>
+<span>Tuần 3</span>
+<span>Tuần 4</span>
+</div>
+</div>
+</div>
+<div class="lg:col-span-4 bg-white dark:bg-surface-dark p-6 rounded-2xl shadow-sm border border-[#e6f4f3] dark:border-gray-700 flex flex-col">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-lg font-bold text-[#0c1d1b] dark:text-white">So sánh hiệu quả</h3>
+<div class="flex gap-2">
+<span class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-400">Tuần trước</span>
+<span class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-primary/10 text-primary">Tuần này</span>
+</div>
+</div>
+<div class="flex-1 flex flex-col justify-center gap-6">
+<div>
+<div class="flex justify-between items-center mb-1">
+<span class="text-sm font-bold text-gray-700 dark:text-gray-300">Giao tiếp mắt</span>
+<span class="text-xs font-bold text-green-600">+12%</span>
+</div>
+<div class="relative h-2.5 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+<div class="absolute top-0 left-0 h-full w-[65%] bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+<div class="absolute top-0 left-0 h-full w-[78%] bg-primary rounded-full opacity-90 shadow-[0_0_10px_rgba(0,105,92,0.4)]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-center mb-1">
+<span class="text-sm font-bold text-gray-700 dark:text-gray-300">Bắt chước âm thanh</span>
+<span class="text-xs font-bold text-green-600">+5%</span>
+</div>
+<div class="relative h-2.5 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+<div class="absolute top-0 left-0 h-full w-[40%] bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+<div class="absolute top-0 left-0 h-full w-[45%] bg-orange-400 rounded-full opacity-90"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-center mb-1">
+<span class="text-sm font-bold text-gray-700 dark:text-gray-300">Ngồi yên tại chỗ</span>
+<span class="text-xs font-bold text-gray-400">0%</span>
+</div>
+<div class="relative h-2.5 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+<div class="absolute top-0 left-0 h-full w-[60%] bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+<div class="absolute top-0 left-0 h-full w-[60%] bg-blue-400 rounded-full opacity-90"></div>
+</div>
+</div>
+<div class="mt-4 p-4 bg-primary/5 rounded-xl border border-primary/10">
+<div class="flex gap-2 items-start">
+<span class="material-symbols-outlined text-primary text-lg mt-0.5">lightbulb</span>
+<p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+<strong class="text-primary block mb-0.5">Tiến bộ nổi bật:</strong>
+                                Khả năng <span class="font-bold">Giao tiếp mắt</span> của bé đã cải thiện rõ rệt so với tuần trước, đặc biệt trong các bài tập buổi sáng.
+                            </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-surface-dark rounded-2xl shadow-sm border border-[#e6f4f3] dark:border-gray-700 overflow-hidden">
+<div class="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-purple-50 text-purple-600 rounded-lg">
+<span class="material-symbols-outlined">video_camera_front</span>
+</div>
+<h3 class="text-lg font-bold text-[#0c1d1b] dark:text-white">Phản hồi từ Video phân tích</h3>
+</div>
+<button class="text-sm font-bold text-primary hover:underline flex items-center gap-1">
+                    Xem tất cả video <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2">
+<div class="p-6 border-b md:border-b-0 border-gray-100 dark:border-gray-800 md:border-r">
+<h4 class="text-sm font-bold uppercase tracking-wider text-green-600 mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">thumb_up</span>
+                        Điểm mạnh
+                    </h4>
+<div class="space-y-4">
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-green-500 shrink-0">check_circle</span>
+<div>
+<p class="text-sm font-bold text-gray-800 dark:text-white">Hợp tác tốt khi bắt đầu</p>
+<p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Trẻ vui vẻ ngồi vào bàn và chờ đợi hướng dẫn mà không cần nhắc nhở nhiều.</p>
+</div>
+</div>
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-green-500 shrink-0">check_circle</span>
+<div>
+<p class="text-sm font-bold text-gray-800 dark:text-white">Sử dụng ngón trỏ chính xác</p>
+<p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Thao tác chỉ tay vào hình ảnh trong bài tập nhận biết rất dứt khoát.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="p-6">
+<h4 class="text-sm font-bold uppercase tracking-wider text-orange-600 mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">build</span>
+                        Cần cải thiện
+                    </h4>
+<div class="space-y-4">
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-orange-500 shrink-0">error</span>
+<div>
+<p class="text-sm font-bold text-gray-800 dark:text-white">Mất tập trung sau 5 phút</p>
+<p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Trẻ thường nhìn ra cửa sổ sau khoảng thời gian ngắn. Ba mẹ nên kéo rèm hoặc đổi hướng ngồi.</p>
+</div>
+</div>
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-orange-500 shrink-0">error</span>
+<div>
+<p class="text-sm font-bold text-gray-800 dark:text-white">Phản ứng chậm khi gọi tên</p>
+<p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Cần tăng cường độ khen thưởng khi trẻ quay lại nhìn ngay lập tức.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+
+</body></html>

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cộng đồng ẩn danh - The Parent Action Hub</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200..800&amp;family=Noto+Sans:wght@400..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#00695C", /* Deep Teal requested by user, overriding generic primary */
+                        "primary-light": "#00897B",
+                        "accent": "#11d4c4",
+                        "background-light": "#F5F7F8",
+                        "background-dark": "#102220",
+                        "surface": "#FFFFFF",
+                        "text-main": "#0d1b1a",
+                        "text-sub": "#5f7470"
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: "Plus Jakarta Sans", sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined.filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main min-h-screen flex flex-col overflow-x-hidden">
+<!-- Top Navbar -->
+<header class="sticky top-0 z-50 bg-white dark:bg-[#1A2C2A] border-b border-gray-200 dark:border-gray-800 shadow-sm">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between items-center h-16">
+<!-- Logo -->
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 text-primary dark:text-accent">
+<svg class="w-full h-full" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M24 4C25.7818 14.2173 33.7827 22.2182 44 24C33.7827 25.7818 25.7818 33.7827 24 44C22.2182 33.7827 14.2173 25.7818 4 24C14.2173 22.2182 22.2182 14.2173 24 4Z" fill="currentColor"></path>
+</svg>
+</div>
+<span class="text-xl font-bold tracking-tight text-primary dark:text-white">The Parent Action Hub</span>
+</div>
+<!-- Nav Links -->
+<nav class="hidden md:flex space-x-8">
+<a class="text-text-sub hover:text-primary px-3 py-2 text-sm font-medium transition-colors" href="#">Dashboard</a>
+<a class="text-text-sub hover:text-primary px-3 py-2 text-sm font-medium transition-colors" href="#">Thực hành</a>
+<a class="text-text-sub hover:text-primary px-3 py-2 text-sm font-medium transition-colors" href="#">Đánh giá</a>
+<a class="text-primary border-b-2 border-primary px-3 py-2 text-sm font-bold" href="#">Cộng đồng</a>
+</nav>
+<!-- User Actions -->
+<div class="flex items-center gap-4">
+<a class="text-text-sub hover:text-primary transition-colors flex items-center gap-2" href="#">
+<div class="h-8 w-8 rounded-full bg-gray-200 overflow-hidden">
+<img alt="User profile picture" class="h-full w-full object-cover" data-alt="Smiling woman profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfNGovFqp4CHjWK_jbxBXR5NDrNNegvofNz_GU2B5FyPDW5KbkRasQoqFW3gtmcBsflJX93wYfokQuAeKPyVw0SdJbdZ4xCTzpCi_rvSie8mbHMpwdNjD1sfREp6ROWBMALv8EqXhMcII8CAtZZSL92C2BMkN_2N3A0wTGsrFVOSENJSLNiJY_zgO5Qb992RKsFWYqQVPTTTRafa6NjvaTxR2pgD0W3KD7osFniC81c22lJol2QCYQi2nk73HUBHX1-w-c_BMiYdE"/>
+</div>
+</a>
+<button class="p-2 text-text-sub hover:bg-gray-100 rounded-full transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Layout -->
+<div class="max-w-7xl mx-auto w-full flex-grow flex flex-col md:flex-row py-6 px-4 sm:px-6 lg:px-8 gap-6">
+<!-- Left Sidebar: Navigation -->
+<aside class="w-full md:w-64 flex-shrink-0 hidden lg:block">
+<div class="sticky top-24 space-y-8">
+<!-- Topics -->
+<div class="bg-white dark:bg-[#1A2C2A] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-4">
+<h3 class="text-xs font-bold text-text-sub uppercase tracking-wider mb-4 px-3">Chủ đề</h3>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary dark:bg-primary/20 font-medium group transition-all" href="#">
+<span class="material-symbols-outlined filled text-[20px]">forum</span>
+<span>Tất cả</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-sub hover:bg-gray-50 dark:hover:bg-white/5 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">chat_bubble</span>
+<span>Giao tiếp</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-sub hover:bg-gray-50 dark:hover:bg-white/5 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">extension</span>
+<span>Hành vi</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-sub hover:bg-gray-50 dark:hover:bg-white/5 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">directions_run</span>
+<span>Vận động</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-sub hover:bg-gray-50 dark:hover:bg-white/5 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">home_health</span>
+<span>Chăm sóc tại nhà</span>
+</a>
+</nav>
+</div>
+<!-- My Stuff -->
+<div class="bg-white dark:bg-[#1A2C2A] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-4">
+<h3 class="text-xs font-bold text-text-sub uppercase tracking-wider mb-4 px-3">Của tôi</h3>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-sub hover:bg-gray-50 dark:hover:bg-white/5 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">bookmark</span>
+<span>Bài đã lưu</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-sub hover:bg-gray-50 dark:hover:bg-white/5 hover:text-primary transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">history</span>
+<span>Lịch sử hoạt động</span>
+</a>
+</nav>
+</div>
+</div>
+</aside>
+<!-- Main Feed -->
+<main class="flex-1 min-w-0">
+<!-- Breadcrumbs (Mobile only or simplifying context) -->
+<div class="flex items-center gap-2 mb-4 text-sm text-text-sub lg:hidden">
+<span class="font-medium">Cộng đồng</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-primary font-medium">Tất cả bài viết</span>
+</div>
+<!-- Create Post Widget -->
+<div class="bg-white dark:bg-[#1A2C2A] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-4 mb-6">
+<div class="flex gap-4">
+<div class="flex-shrink-0">
+<div class="h-10 w-10 rounded-full bg-gradient-to-br from-teal-100 to-emerald-200 dark:from-teal-900 dark:to-emerald-900 flex items-center justify-center text-primary dark:text-emerald-200 font-bold">
+<span class="material-symbols-outlined">person</span>
+</div>
+</div>
+<div class="flex-grow">
+<textarea class="w-full bg-gray-50 dark:bg-black/20 border-0 rounded-lg p-3 text-text-main placeholder-gray-400 focus:ring-2 focus:ring-primary resize-none text-sm md:text-base" placeholder="Bạn đang nghĩ gì? Chia sẻ câu chuyện hoặc câu hỏi của bạn..." rows="3"></textarea>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row justify-between items-center mt-4 pt-3 border-t border-gray-100 dark:border-gray-700 gap-4">
+<div class="flex items-center gap-4">
+<label class="flex items-center gap-2 cursor-pointer group">
+<div class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</div>
+<span class="text-sm font-medium text-text-sub group-hover:text-primary transition-colors">Đăng ẩn danh</span>
+</label>
+<div class="hidden sm:flex gap-2">
+<button class="p-2 text-text-sub hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors tooltip" title="Thêm ảnh" type="button">
+<span class="material-symbols-outlined text-[20px]">image</span>
+</button>
+<button class="p-2 text-text-sub hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors tooltip" title="Thêm cảm xúc" type="button">
+<span class="material-symbols-outlined text-[20px]">sentiment_satisfied</span>
+</button>
+</div>
+</div>
+<button class="w-full sm:w-auto px-6 py-2 bg-primary hover:bg-primary-light text-white rounded-lg font-bold text-sm transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+<span>Gửi bài</span>
+<span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+</div>
+</div>
+<!-- Feed Filter -->
+<div class="flex items-center justify-between mb-4 px-1">
+<h2 class="text-lg font-bold text-text-main">Bài viết mới nhất</h2>
+<button class="flex items-center gap-1 text-sm font-medium text-text-sub hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+<span>Lọc</span>
+</button>
+</div>
+<!-- Post Stream -->
+<div class="space-y-4">
+<!-- Post 1 -->
+<article class="bg-white dark:bg-[#1A2C2A] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-5 hover:shadow-md transition-shadow">
+<div class="flex items-start justify-between mb-3">
+<div class="flex items-center gap-3">
+<div class="h-10 w-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center overflow-hidden border border-orange-200 dark:border-orange-800">
+<img alt="Anonymous avatar" class="w-full h-full" data-alt="Cartoon avatar of a generic user" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkb5C0scmQow5Z7-o6kzt4CxigXRd_bpZ9km1CyQpnc0QTPgLwv5vB2ZZ0ZkxkF6kZDKAE7HrAvwPR0zbVaxeLcUmpi0V7puer6s2nCvBF_AN0QjNjAHZCrSL3qsKQTcVTBeK-GwrDv2r3-stJNmqyuHTG9isl2rP2hmFgEsTwQEq5pusEt_disUYNfreAfGRXkKectQm65PE-9nRaECyqK4TvI_7fCIsSJxgC3XR_fabLIY9sSzIurx9sdIy1TMNyDmInggL87MU"/>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h4 class="font-bold text-text-main text-sm">Mẹ Sóc nhỏ</h4>
+<span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-white/10 text-text-sub font-medium">Ẩn danh</span>
+</div>
+<p class="text-xs text-text-sub mt-0.5">2 giờ trước</p>
+</div>
+</div>
+<button class="text-text-sub hover:text-primary p-1 rounded-full hover:bg-gray-50 dark:hover:bg-white/5">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+<div class="mb-4">
+<div class="flex gap-2 mb-2">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-teal-50 text-primary dark:bg-primary/20 dark:text-teal-200">
+                                #HànhVi
+                            </span>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-teal-50 text-primary dark:bg-primary/20 dark:text-teal-200">
+                                #TựKỷNhẹ
+                            </span>
+</div>
+<p class="text-text-main text-base leading-relaxed">
+                            Sóc nhà mình hôm nay đã biết tự chỉ tay khi muốn lấy đồ chơi! Một bước tiến nhỏ nhưng mình vui quá mọi người ơi. Trước đây con chỉ biết khóc hoặc kéo tay mẹ thôi. Cảm ơn các bài tập chia sẻ của các mẹ trong nhóm nhé! ❤️
+                        </p>
+</div>
+<div class="flex items-center justify-between border-t border-gray-100 dark:border-gray-800 pt-3">
+<div class="flex gap-4 sm:gap-6">
+<button class="flex items-center gap-1.5 text-text-sub hover:text-red-500 transition-colors group">
+<span class="material-symbols-outlined text-[20px] group-hover:filled">favorite</span>
+<span class="text-sm font-medium">24</span>
+</button>
+<button class="flex items-center gap-1.5 text-text-sub hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">chat_bubble</span>
+<span class="text-sm font-medium">12 Bình luận</span>
+</button>
+</div>
+<button class="flex items-center gap-1.5 text-text-sub hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">share</span>
+<span class="text-sm font-medium hidden sm:inline">Chia sẻ</span>
+</button>
+</div>
+</article>
+<!-- Post 2 -->
+<article class="bg-white dark:bg-[#1A2C2A] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-5 hover:shadow-md transition-shadow">
+<div class="flex items-start justify-between mb-3">
+<div class="flex items-center gap-3">
+<div class="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center overflow-hidden border border-blue-200 dark:border-blue-800">
+<img alt="Anonymous avatar" class="w-full h-full" data-alt="Cartoon avatar of a generic user" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMdbCPY0CFwtv73xvVwmju6B9-5gVxS1vFH4wZ6-4FeMsqgRlim2v3a17rao17ww80n5WEzHc2udqMBgOP1FGz4H_GaSPNImkh9deQPMvrtIB3wm_T8KlJ8JmxqTth2Pvb583zXSsVraUonjT8d8zx9rhxey7gnGo3YXRrGmSr2AprNwprshQUbg3Qv1rWvz3rQuGafXe5VCUDwwHdG59EZck8CGRM_QOxLOwAqSsKiTmRTxSaRp3buMk4BA7SYwoCzGrp43oSYHM"/>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h4 class="font-bold text-text-main text-sm">Bố Bi (Người dùng mới)</h4>
+</div>
+<p class="text-xs text-text-sub mt-0.5">5 giờ trước</p>
+</div>
+</div>
+<button class="text-text-sub hover:text-primary p-1 rounded-full hover:bg-gray-50 dark:hover:bg-white/5">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+<div class="mb-4">
+<div class="flex gap-2 mb-2">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-teal-50 text-primary dark:bg-primary/20 dark:text-teal-200">
+                                #GiaoTiếp
+                            </span>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-teal-50 text-primary dark:bg-primary/20 dark:text-teal-200">
+                                #HỏiĐáp
+                            </span>
+</div>
+<p class="text-text-main text-base leading-relaxed">
+                            Bé nhà mình 3 tuổi chậm nói, đi khám bác sĩ bảo có nguy cơ tự kỷ. Mình đang rất hoang mang không biết bắt đầu can thiệp từ đâu. Có trung tâm nào uy tín khu vực Cầu Giấy không ạ?
+                        </p>
+</div>
+<div class="flex items-center justify-between border-t border-gray-100 dark:border-gray-800 pt-3">
+<div class="flex gap-4 sm:gap-6">
+<button class="flex items-center gap-1.5 text-text-sub hover:text-red-500 transition-colors group">
+<span class="material-symbols-outlined text-[20px] group-hover:filled">favorite</span>
+<span class="text-sm font-medium">8</span>
+</button>
+<button class="flex items-center gap-1.5 text-text-sub hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">chat_bubble</span>
+<span class="text-sm font-medium">35 Bình luận</span>
+</button>
+</div>
+<button class="flex items-center gap-1.5 text-text-sub hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">share</span>
+<span class="text-sm font-medium hidden sm:inline">Chia sẻ</span>
+</button>
+</div>
+</article>
+<!-- Post 3 -->
+<article class="bg-white dark:bg-[#1A2C2A] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-5 hover:shadow-md transition-shadow">
+<div class="flex items-start justify-between mb-3">
+<div class="flex items-center gap-3">
+<div class="h-10 w-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center overflow-hidden border border-purple-200 dark:border-purple-800">
+<img alt="Anonymous avatar" class="w-full h-full" data-alt="Cartoon avatar of a generic user" src="https://lh3.googleusercontent.com/aida-public/AB6AXuABR2DyloC6VCDDDUGW-_eVmxJU5ovpy3BNreHZhHqm7cNFfIAgxY_bzqROOe7v4DZ8XmcjRJes4iLUx5GUEMDvNGjioFyM4O8wMc1F5tKXF6S2j2w2j-vassTLKcyAOvTRK0HmaVf_IcVBER06kZGx97G1tU26FP01F4OD3YtjMTHfN3csY3rSBkK8m1P-KjM-75EjSilNwCo0jJtOLRCo12impG-zvj3MV28k8BqdfJObKneGbEb4l4vPu0FI0rVWc23HOMnti5c"/>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h4 class="font-bold text-text-main text-sm">Mẹ Bống Bang</h4>
+<span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-white/10 text-text-sub font-medium">Ẩn danh</span>
+</div>
+<p class="text-xs text-text-sub mt-0.5">1 ngày trước</p>
+</div>
+</div>
+<button class="text-text-sub hover:text-primary p-1 rounded-full hover:bg-gray-50 dark:hover:bg-white/5">
+<span class="material-symbols-outlined text-[20px]">more_horiz</span>
+</button>
+</div>
+<div class="mb-4">
+<div class="flex gap-2 mb-2">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-teal-50 text-primary dark:bg-primary/20 dark:text-teal-200">
+                                #ChămSócTạiNhà
+                            </span>
+</div>
+<p class="text-text-main text-base leading-relaxed">
+                            Hôm qua mình đã thử áp dụng phương pháp PECS tại nhà cho con. Ban đầu con hơi khó chịu nhưng sau 30 phút đã chịu hợp tác đổi thẻ lấy bánh. Kiên nhẫn là chìa khóa các mẹ ơi!
+                        </p>
+<!-- Attached Image placeholder -->
+<div class="mt-3 rounded-lg overflow-hidden bg-gray-100 h-48 w-full relative">
+<img alt="Learning cards on a table" class="w-full h-full object-cover" data-alt="A close up of learning cards arranged on a wooden table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGsIxQFaKyPr7w9n6TKl7DhFd5EURWWRObSNBmTkV8c6SHSEAwC3M1CqA8_NHOFjU1DlNJwR5lmREiwSYy_ZqhSRdxeH78V8e_GQlIP-7pvhSMEMYT4V74rlXo8ZdLgP9giXWM4PCmv9bNh3sSFPEsk5pA_1XFtbKmQvBWGudTPy5V4eD6iVOmbvywT3KOM_H6aQg_kU1qa3-hlR4onAu81pjkfUgZwvk636Q8qhxrJs5kKVG_gYqmEZtPNHBNXjyBTDZbJwlLL-s"/>
+</div>
+</div>
+<div class="flex items-center justify-between border-t border-gray-100 dark:border-gray-800 pt-3">
+<div class="flex gap-4 sm:gap-6">
+<button class="flex items-center gap-1.5 text-text-sub hover:text-red-500 transition-colors group">
+<span class="material-symbols-outlined text-[20px] group-hover:filled">favorite</span>
+<span class="text-sm font-medium">156</span>
+</button>
+<button class="flex items-center gap-1.5 text-text-sub hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">chat_bubble</span>
+<span class="text-sm font-medium">42 Bình luận</span>
+</button>
+</div>
+<button class="flex items-center gap-1.5 text-text-sub hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">share</span>
+<span class="text-sm font-medium hidden sm:inline">Chia sẻ</span>
+</button>
+</div>
+</article>
+</div>
+<!-- Loading Indicator -->
+<div class="py-8 flex justify-center">
+<div class="flex items-center gap-2 text-text-sub text-sm">
+<span class="material-symbols-outlined animate-spin">progress_activity</span>
+                    Đang tải thêm...
+                </div>
+</div>
+</main>
+<!-- Right Sidebar: Widgets -->
+<aside class="w-full lg:w-80 flex-shrink-0 space-y-6">
+<!-- Community Rules Widget (Sticky) -->
+<div class="bg-gradient-to-br from-white to-teal-50 dark:from-[#1A2C2A] dark:to-[#122220] rounded-xl shadow-sm border border-teal-100 dark:border-teal-900/30 p-5 sticky top-24">
+<div class="flex items-center gap-2 mb-3 text-primary dark:text-accent">
+<span class="material-symbols-outlined filled">verified_user</span>
+<h3 class="font-bold text-sm uppercase tracking-wider">Nội quy cộng đồng</h3>
+</div>
+<ul class="space-y-3">
+<li class="flex items-start gap-2 text-sm text-text-sub dark:text-gray-300">
+<span class="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0"></span>
+<span>Tôn trọng và hỗ trợ lẫn nhau. Không dùng ngôn từ thù địch.</span>
+</li>
+<li class="flex items-start gap-2 text-sm text-text-sub dark:text-gray-300">
+<span class="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0"></span>
+<span>Không chia sẻ thông tin định danh cá nhân hoặc địa chỉ cụ thể của trẻ.</span>
+</li>
+<li class="flex items-start gap-2 text-sm text-text-sub dark:text-gray-300">
+<span class="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0"></span>
+<span>Các lời khuyên y tế chỉ mang tính tham khảo.</span>
+</li>
+</ul>
+<button class="mt-4 w-full py-2 text-xs font-bold text-primary hover:bg-white dark:hover:bg-white/5 rounded border border-transparent hover:border-teal-200 dark:hover:border-teal-800 transition-all">
+                    Xem đầy đủ nội quy
+                </button>
+</div>
+<!-- Recent Comments Widget -->
+<div class="bg-white dark:bg-[#1A2C2A] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-5 hidden lg:block">
+<h3 class="text-xs font-bold text-text-sub uppercase tracking-wider mb-4">Bình luận mới nhất</h3>
+<div class="space-y-4">
+<div class="flex gap-3">
+<div class="h-8 w-8 rounded-full bg-gray-100 flex-shrink-0 overflow-hidden">
+<img alt="User avatar" class="w-full h-full" data-alt="Cartoon avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdnD4I1zyFavaVmXeZqtMOJUF2nftgzivf1pbsMxPv5tCjswcYHg4iWxZlMTDyjUTMls7QnctEbsynFRaBHZwEeJjEGbj-hEQwviSX0yEfeJdo6SpGIJ5gmJpDqYAkAljSVEpIWt-SKk9bHW44JbhN4O0mrR9LK4ZBHq4T1SA7G5LwAjTrB7lSefX3hy19TkDeS2WZbwL7vXKUuK_7o_qXIqMBLIWu0cME9W8Onsbb-FtlMTTjAIwsTEvzhKWXg2xzXhql3snsyyI"/>
+</div>
+<div class="text-sm">
+<p class="font-bold text-text-main text-xs">Mẹ Ốc <span class="font-normal text-text-sub">đã bình luận vào</span> <a class="text-primary hover:underline" href="#">Hỏi đáp can thiệp</a></p>
+<p class="text-text-sub mt-1 line-clamp-2 italic">"Mình thấy trung tâm Sao Mai ở Đống Đa cũng tốt lắm..."</p>
+</div>
+</div>
+<div class="flex gap-3">
+<div class="h-8 w-8 rounded-full bg-gray-100 flex-shrink-0 overflow-hidden">
+<img alt="User avatar" class="w-full h-full" data-alt="Cartoon avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4k8YMqqTkDlmKQPZpcMNR4wIOinSxvpkjG3h9dgKMx4NJXSBQX7l01eUSi6Eueb0on2jxdf4vGbycFDuepbylih_BzjjYtLtGNHprVmunDqNexpkjOrMdB4Ydsn2rwV7WW0JEVQhslAOpAEJe_ZxdaDxHX2Tr2uJDaITo6bV4jR-x-0S8ye3MRfdH9jamKpB9OVtDJBARcx-OonKiL2qw_tnwI7Qs63WXdQSqBwxzviy_LBScI7hRaWMeMHlK7QpHgZ6nwzHBPV8"/>
+</div>
+<div class="text-sm">
+<p class="font-bold text-text-main text-xs">Bố Gấu <span class="font-normal text-text-sub">đã bình luận vào</span> <a class="text-primary hover:underline" href="#">Nhật ký hôm nay</a></p>
+<p class="text-text-sub mt-1 line-clamp-2 italic">"Chúc mừng con nhé, cố gắng lên!"</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</body></html>

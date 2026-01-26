@@ -22,12 +22,13 @@ import ModeSelection from "./pages/ModeSelection";
 // Parent pages
 import ParentHome from "./pages/parent/ParentHome";
 import UnifiedDashboard from "./pages/parent/UnifiedDashboard";
-import ParentTrack from "./pages/parent/ParentTrack";
+import TrackingPage from "./pages/parent/TrackingPage";
 import ParentAnalyze from "./pages/parent/ParentAnalyze";
 import ParentAdvise from "./pages/parent/ParentAdvise";
 import ParentProfile from "./pages/parent/ParentProfile";
 import FindTherapist from "./pages/parent/FindTherapist";
 import FamilyHub from "./pages/parent/FamilyHub";
+import SchedulePage from "./pages/parent/SchedulePage";
 // DEPRECATED: Moved to src/_deprecated/career/
 // import Opportunities from "./pages/Opportunities";
 
@@ -96,8 +97,9 @@ const App = () => (
                 {/* OLD: Legacy Parent Routes */}
                 <Route element={<ProtectedRoute allowedRole="parent"><ParentLayout /></ProtectedRoute>}>
                   <Route path="/parent/dashboard" element={<UnifiedDashboard />} />
-                  <Route path="/parent/home" element={<ParentHome />} />
-                  <Route path="/parent/track" element={<ParentTrack />} />
+                  <Route path="/parent/home" element={<Navigate to="/parent/dashboard" replace />} />
+                  <Route path="/parent/track" element={<TrackingPage />} />
+                  <Route path="/parent/schedule" element={<SchedulePage />} />
                   <Route path="/parent/analyze" element={<ParentAnalyze />} />
                   <Route path="/parent/advise" element={<ParentAdvise />} />
                   <Route path="/parent/profile" element={<ParentProfile />} />
