@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tin nhắn &amp; Trao đổi tài liệu - Parent Action Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#11d4c4",
+                        "primary-dark": "#0eac9f",
+                        "background-light": "#f8fcfb",
+                        "background-dark": "#102220",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#1a2c2a",
+                        "text-main": "#0d1b1a",
+                        "text-secondary": "#4c9a93",
+                        "border-color": "#e7f3f2",
+                        "border-dark": "#2a403d",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom Scrollbar for cleaner look */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cfe7e5; 
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #11d4c4; 
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #2a403d;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main dark:text-white font-display overflow-hidden h-screen flex flex-col">
+<!-- Top Navigation -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-border-color dark:border-border-dark bg-background-light dark:bg-background-dark px-6 py-3 shrink-0 z-20">
+<div class="flex items-center gap-4 text-text-main dark:text-white">
+<div class="size-8 text-primary">
+<svg fill="currentColor" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M39.475 21.6262C40.358 21.4363 40.6863 21.5589 40.7581 21.5934C40.7876 21.655 40.8547 21.857 40.8082 22.3336C40.7408 23.0255 40.4502 24.0046 39.8572 25.2301C38.6799 27.6631 36.5085 30.6631 33.5858 33.5858C30.6631 36.5085 27.6632 38.6799 25.2301 39.8572C24.0046 40.4502 23.0255 40.7407 22.3336 40.8082C21.8571 40.8547 21.6551 40.7875 21.5934 40.7581C21.5589 40.6863 21.4363 40.358 21.6262 39.475C21.8562 38.4054 22.4689 36.9657 23.5038 35.2817C24.7575 33.2417 26.5497 30.9744 28.7621 28.762C30.9744 26.5497 33.2417 24.7574 35.2817 23.5037C36.9657 22.4689 38.4054 21.8562 39.475 21.6262ZM4.41189 29.2403L18.7597 43.5881C19.8813 44.7097 21.4027 44.9179 22.7217 44.7893C24.0585 44.659 25.5148 44.1631 26.9723 43.4579C29.9052 42.0387 33.2618 39.5667 36.4142 36.4142C39.5667 33.2618 42.0387 29.9052 43.4579 26.9723C44.1631 25.5148 44.659 24.0585 44.7893 22.7217C44.9179 21.4027 44.7097 19.8813 43.5881 18.7597L29.2403 4.41187C27.8527 3.02428 25.8765 3.02573 24.2861 3.36776C22.6081 3.72863 20.7334 4.58419 18.8396 5.74801C16.4978 7.18716 13.9881 9.18353 11.5858 11.5858C9.18354 13.988 7.18717 16.4978 5.74802 18.8396C4.58421 20.7334 3.72865 22.6081 3.36778 24.2861C3.02574 25.8765 3.02429 27.8527 4.41189 29.2403Z" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-[-0.015em]">Parent Action Hub</h2>
+</div>
+<div class="flex flex-1 justify-end gap-8">
+<div class="hidden md:flex items-center gap-9">
+<a class="text-text-main dark:text-gray-200 text-sm font-medium hover:text-primary transition-colors" href="#">Dashboard</a>
+<a class="text-text-main dark:text-gray-200 text-sm font-medium hover:text-primary transition-colors" href="#">Thực hành</a>
+<a class="text-text-main dark:text-gray-200 text-sm font-medium hover:text-primary transition-colors" href="#">Đánh giá</a>
+<a class="text-text-main dark:text-gray-200 text-sm font-medium hover:text-primary transition-colors" href="#">Cộng đồng</a>
+</div>
+<div class="flex gap-2">
+<button class="flex h-10 px-4 items-center justify-center rounded-lg bg-primary hover:bg-primary-dark text-text-main text-sm font-bold transition-colors">
+<span class="material-symbols-outlined text-[20px] mr-2">person</span>
+<span>Profile</span>
+</button>
+<button class="flex size-10 items-center justify-center rounded-lg bg-border-color dark:bg-surface-dark text-text-main dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Grid -->
+<div class="flex flex-1 overflow-hidden">
+<!-- Left Sidebar: Conversations -->
+<aside class="w-full md:w-[320px] lg:w-[360px] flex flex-col border-r border-border-color dark:border-border-dark bg-surface-light dark:bg-surface-dark z-10">
+<div class="p-4 pb-2">
+<h1 class="text-xl font-bold text-text-main dark:text-white mb-4 px-1">Tin nhắn</h1>
+<!-- Search Bar -->
+<div class="relative group">
+<input class="w-full h-10 pl-10 pr-4 rounded-lg bg-background-light dark:bg-background-dark border border-[#cfe7e5] dark:border-border-dark text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-text-secondary" placeholder="Tìm kiếm chuyên gia..."/>
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-text-secondary text-[20px]">search</span>
+</div>
+</div>
+<!-- Conversation List -->
+<div class="flex-1 overflow-y-auto pt-2">
+<!-- Active Item -->
+<div class="group flex items-center gap-3 px-4 py-3 bg-primary/10 border-l-4 border-primary cursor-pointer hover:bg-primary/20 transition-colors">
+<div class="relative shrink-0">
+<div class="size-12 rounded-full bg-center bg-cover bg-no-repeat" data-alt="Portrait of Dr. Nguyen Van A" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD6JN8iy870rl2D9pXq9rKL_fVYEyhUBUCtagNf4F6JMKRbcI4yuHqfzdxRealR7QkDN-n5rmB4eZgpLVjHUHGRjKj_Ig2I4q0-Nqm_eA108_WzdqWRrC8HkFn9VXdaMT4droFfyYeYAMWOyhLPU1P53FIAmUPdAMAzMDWBHq1L3SHLI23LwFWJeg-SxI8RzGUO67uRRtuGlqbmA-x8x6xqSTOa6Ew8Ue5gz6-22NFQR7gHbyr-kgzGQTHvB62v0rdF9WcsIEVBtd0');"></div>
+<div class="absolute bottom-0 right-0 size-3 bg-[#078830] rounded-full border-2 border-white dark:border-surface-dark"></div>
+</div>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex justify-between items-baseline">
+<p class="text-text-main dark:text-white text-sm font-bold truncate">Ths. Nguyễn Văn A</p>
+<span class="text-xs text-text-secondary font-medium">10:30</span>
+</div>
+<p class="text-text-main dark:text-gray-300 text-sm truncate">Chào mẹ, bài tập hôm nay...</p>
+</div>
+</div>
+<!-- Unread Item -->
+<div class="group flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-background-light dark:hover:bg-background-dark transition-colors border-l-4 border-transparent">
+<div class="relative shrink-0">
+<div class="size-12 rounded-full bg-center bg-cover bg-no-repeat" data-alt="Portrait of Therapist Le Thi B" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA52_DD75vs2q8S-YxzyIRqeewfwUAJCWLnL9Ot81KG2wWIasmFSkXkOcR_pK5CocFLID1X8qspQmbbsiTPbRVVhYvFVMPWz_016vBROtUcYpSHEqjLkmvOPGW5Vhv7WQPPqLh9E4Lr8Q1QmnbFhx0lWFwV31rrV_EjNSjyy-WY4I5B0ZOZ40MN8A7lkPhk5WtDQ9h7kTAuUUp_Kp0zCcsmlZ71yN7HNcMMymzuFZsEsXzqfIXqpWMlDi6_EjRN3V1Xw2hh1Aq2MSM');"></div>
+<!-- Offline/No status -->
+</div>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex justify-between items-baseline">
+<p class="text-text-main dark:text-white text-sm font-medium truncate">Chuyên gia Lê Thị B</p>
+<span class="text-xs text-primary font-bold">09:15</span>
+</div>
+<div class="flex justify-between items-center">
+<p class="text-text-secondary dark:text-gray-400 text-sm truncate font-medium">Đã gửi tài liệu hướng dẫn...</p>
+<span class="flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-primary text-text-main text-[10px] font-bold rounded-full">2</span>
+</div>
+</div>
+</div>
+<!-- Normal Item -->
+<div class="group flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-background-light dark:hover:bg-background-dark transition-colors border-l-4 border-transparent">
+<div class="relative shrink-0">
+<div class="size-12 rounded-full bg-center bg-cover bg-no-repeat" data-alt="Portrait of Dr. Tran Minh C" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDaNsAaM5pjS_SYlA87PeHXsHJKqo8SNW7EmCfbN6XwqEthNjJoNhCJ8PEXCKzhoBjZlJ03AMSgHt32i8ZkfSpgDXhNlcs6V2ZqeAGsOfjxisJOf10Osl_iLa15-uF6HOB79pVj0KnnGEYpMpTWd7GFT-Rdg6u64Q2rltDs9xbFxh3rFot_hFdvk2r0Fxv3KFXUR_ViS7SBse5PBQ-r0rGmT2KOJRfHd-O82S8YlMeAqQuP4WBYv8tuSOVGDFjGH08aNinjhYL5wRo');"></div>
+</div>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex justify-between items-baseline">
+<p class="text-text-main dark:text-white text-sm font-medium truncate">Dr. Trần Minh C</p>
+<span class="text-xs text-text-secondary">Hôm qua</span>
+</div>
+<p class="text-text-secondary dark:text-gray-400 text-sm truncate">Hẹn gặp mẹ vào buổi đánh giá...</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Center: Chat Interface -->
+<main class="flex-1 flex flex-col relative min-w-0 bg-[#f8fcfb] dark:bg-background-dark">
+<!-- Chat Header -->
+<div class="h-[72px] px-6 flex items-center justify-between border-b border-border-color dark:border-border-dark bg-surface-light dark:bg-surface-dark shrink-0">
+<div class="flex items-center gap-3">
+<div class="relative">
+<div class="size-10 rounded-full bg-center bg-cover bg-no-repeat" data-alt="Portrait of Dr. Nguyen Van A" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCqqWswGvzrK1ftej7LNeBvPBfePwrIuhkB3A9AVNGnRx5kp5INLB054WENTxtTyL1dDnm13ul1tDjXiSN6SrWqDHObKLN82mYoEnicUowbCxvSLmLCieuQAmG086N_28rwH3-jJ2EDNUfXcRN_fI6Stltc-AwO1EyL6VlphWfo18EY0pT5Zupleuayh7JB9ZbB3NHjm5YDIvab46jHTVm5gWs2TU9mVD5pUUwABMVTTAyaVp3N-Vl--5pOkyleKQvqxGMq8a-nnsk');"></div>
+<div class="absolute bottom-0 right-0 size-2.5 bg-[#078830] rounded-full border-2 border-white dark:border-surface-dark"></div>
+</div>
+<div>
+<h3 class="text-text-main dark:text-white font-bold text-base">Ths. Nguyễn Văn A</h3>
+<p class="text-text-secondary text-xs flex items-center gap-1">
+<span>Đang hoạt động</span>
+</p>
+</div>
+</div>
+<div class="flex gap-2 text-text-secondary">
+<button class="p-2 hover:bg-background-light dark:hover:bg-background-dark rounded-full transition-colors">
+<span class="material-symbols-outlined">call</span>
+</button>
+<button class="p-2 hover:bg-background-light dark:hover:bg-background-dark rounded-full transition-colors">
+<span class="material-symbols-outlined">videocam</span>
+</button>
+<button class="md:hidden p-2 hover:bg-background-light dark:hover:bg-background-dark rounded-full transition-colors">
+<span class="material-symbols-outlined">info</span>
+</button>
+</div>
+</div>
+<!-- Messages Area -->
+<div class="flex-1 overflow-y-auto p-6 space-y-6">
+<!-- Date Separator -->
+<div class="flex justify-center">
+<span class="px-3 py-1 bg-[#e7f3f2] dark:bg-surface-dark text-text-secondary text-xs rounded-full font-medium">Hôm nay, 24 Tháng 5</span>
+</div>
+<!-- Message: Therapist -->
+<div class="flex gap-3 max-w-[80%]">
+<div class="size-8 rounded-full bg-center bg-cover shrink-0 mt-1" data-alt="Small portrait of Dr. Nguyen" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBlm7lobiiTsbbV3RZyFhtPcDSlo6D5t6ExM08UGsmxGbxDfmAhbhBBaa2vvE5Pllr1pC1jZQgcGEBOVcwMpJUKa4n2wYuRxbTAiQgd5n-SFX88q9VslRV7oEtx0vtIhoml3RMzzBQECF310oy1Ofl8YZnXEmBJNwfRyUVJqXQIuDy5nnVNcpiuy21bjkMJXgabtKeCa4ZC-nDWKK3ETLdAl1G8iM9o0R4Ea1Os1iuIN1xxTn_8_pCGPVkL9POLQlVCpOt8N7V41zA');"></div>
+<div class="flex flex-col gap-1">
+<div class="bg-surface-light dark:bg-surface-dark border border-border-color dark:border-border-dark p-3.5 rounded-2xl rounded-tl-none text-text-main dark:text-gray-200 text-sm shadow-sm">
+<p>Chào mẹ bé, hôm nay bé tập luyện thế nào rồi ạ? Có gặp khó khăn gì ở bài tập giao tiếp mắt không?</p>
+</div>
+<span class="text-text-secondary text-[11px] ml-1">09:41</span>
+</div>
+</div>
+<!-- Message: Parent -->
+<div class="flex flex-row-reverse gap-3 max-w-[80%] ml-auto">
+<!-- Parent Avatar (Optional, usually omitted in own chat) -->
+<div class="flex flex-col gap-1 items-end">
+<div class="bg-primary p-3.5 rounded-2xl rounded-tr-none text-text-main text-sm shadow-sm">
+<p>Chào bác sĩ. Bé hôm nay hợp tác tốt hơn ạ. Bé đã chịu nhìn vào mắt mẹ khi đòi đồ chơi khoảng 3-4 giây.</p>
+</div>
+<span class="text-text-secondary text-[11px] mr-1">09:45</span>
+</div>
+</div>
+<!-- Message: Parent with Image -->
+<div class="flex flex-row-reverse gap-3 max-w-[80%] ml-auto">
+<div class="flex flex-col gap-1 items-end">
+<div class="bg-primary p-2 rounded-2xl rounded-tr-none text-text-main text-sm shadow-sm">
+<div class="rounded-xl overflow-hidden mb-2">
+<img alt="Child playing with educational toys" class="w-full h-auto object-cover" data-alt="Child playing with blocks" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHMqfQAdDXE4fe5ybMeJ7p4rnB8sm1X364llHpu5gC988yO0vZqRiRyPG0nR99RPG6EDwZpKNyGAfzSgz8lftBIyc7KctYyxy4eO5m-uMDHp3qxqy_029pGvLNcl-ihVVv9BiqxCLF1qq4io8OjRzv1gVpNizm0CfAy8Yk3VV3VG4Z_YJrCFrCoslD2v_DZbSnwve_h-vIRMJswmDGPyaunw8OYRYP8GyojldvckBVjgnMA0GYexzx0LAdE1k37BZerV9-G2PAmtA"/>
+</div>
+<p class="px-1.5 pb-1">Mẹ có quay lại video lúc bé chơi đây ạ.</p>
+</div>
+<div class="flex items-center gap-1 text-[11px] text-text-secondary mr-1">
+<span>Đã xem</span>
+<span class="material-symbols-outlined text-[14px]">done_all</span>
+</div>
+</div>
+</div>
+<!-- Message: Therapist -->
+<div class="flex gap-3 max-w-[80%]">
+<div class="size-8 rounded-full bg-center bg-cover shrink-0 mt-1" data-alt="Small portrait of Dr. Nguyen" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDgGJFtsirdwxEG9BaUowyRXf4Ux7v2oXB-kgjz0KWgOP_ElydbhI-J4CdcEqfWh-1JnJpyOueB0IrQ28AL_59DuoqQOglYDGxf-kc3jjvfNm-Bsa2Mr_PoJDuxVwAXO4PJXNJXd0VYJdmFHNdcZKwgQKhsH1hJZCxKfp-usA196v8ttm9cw6lVI3-oLDLPwA3Gn49QWHxWNzwEM3KvoqTCwtCzjj6FOBUcXmX_KG7-GMx_uNefOuJdwyy8C-7R8LwsM-W4YKIm2pw');"></div>
+<div class="flex flex-col gap-1">
+<div class="bg-surface-light dark:bg-surface-dark border border-border-color dark:border-border-dark p-3.5 rounded-2xl rounded-tl-none text-text-main dark:text-gray-200 text-sm shadow-sm">
+<p>Tuyệt vời quá! 3-4 giây là tiến bộ rất tốt. Mẹ nhớ khen ngợi bé ngay lúc đó nhé. Tôi gửi thêm tài liệu hướng dẫn về các trò chơi tăng tương tác để mẹ tham khảo thêm.</p>
+</div>
+</div>
+</div>
+<!-- Message: Therapist (File) -->
+<div class="flex gap-3 max-w-[80%]">
+<div class="size-8 shrink-0"></div> <!-- Spacer for alignment -->
+<div class="flex flex-col gap-1">
+<div class="bg-surface-light dark:bg-surface-dark border border-border-color dark:border-border-dark p-3 rounded-2xl rounded-tl-none text-text-main dark:text-gray-200 shadow-sm flex items-center gap-3 w-64 cursor-pointer hover:bg-background-light dark:hover:bg-background-dark transition-colors">
+<div class="size-10 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-red-500 text-[24px]">picture_as_pdf</span>
+</div>
+<div class="flex flex-col min-w-0">
+<p class="text-sm font-medium truncate">Huong_dan_tang_tuong_tac.pdf</p>
+<p class="text-xs text-text-secondary">2.4 MB • PDF</p>
+</div>
+</div>
+<span class="text-text-secondary text-[11px] ml-1">10:30</span>
+</div>
+</div>
+</div>
+<!-- Input Area -->
+<div class="p-4 bg-surface-light dark:bg-surface-dark border-t border-border-color dark:border-border-dark shrink-0">
+<div class="flex items-end gap-2">
+<button class="p-2 text-text-secondary hover:text-primary hover:bg-[#e7f3f2] dark:hover:bg-background-dark rounded-full transition-colors shrink-0">
+<span class="material-symbols-outlined text-[24px]">add_circle</span>
+</button>
+<button class="p-2 text-text-secondary hover:text-primary hover:bg-[#e7f3f2] dark:hover:bg-background-dark rounded-full transition-colors shrink-0">
+<span class="material-symbols-outlined text-[24px]">image</span>
+</button>
+<div class="flex-1 bg-background-light dark:bg-background-dark border border-[#cfe7e5] dark:border-border-dark rounded-2xl flex items-center px-4 py-2 min-h-[48px]">
+<input class="w-full bg-transparent border-none p-0 focus:ring-0 text-text-main dark:text-white placeholder:text-text-secondary resize-none text-sm" placeholder="Nhập tin nhắn..."/>
+<button class="ml-2 text-text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[22px]">sentiment_satisfied</span>
+</button>
+</div>
+<button class="p-2 text-text-secondary hover:text-primary hover:bg-[#e7f3f2] dark:hover:bg-background-dark rounded-full transition-colors shrink-0">
+<span class="material-symbols-outlined text-[24px]">mic</span>
+</button>
+<button class="flex items-center justify-center size-11 bg-primary text-text-main rounded-xl hover:bg-primary-dark transition-colors shadow-sm shrink-0">
+<span class="material-symbols-outlined text-[22px] ml-0.5">send</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Right Sidebar: Shared Resources -->
+<aside class="hidden xl:flex w-[320px] flex-col border-l border-border-color dark:border-border-dark bg-surface-light dark:bg-surface-dark z-10">
+<div class="p-5 border-b border-border-color dark:border-border-dark">
+<h3 class="font-bold text-text-main dark:text-white text-base mb-4">Tài liệu chia sẻ</h3>
+<!-- Custom Tabs -->
+<div class="flex p-1 bg-background-light dark:bg-background-dark rounded-lg">
+<button class="flex-1 py-1.5 text-xs font-bold rounded shadow-sm bg-white dark:bg-surface-dark text-text-main dark:text-white">Ảnh/Video</button>
+<button class="flex-1 py-1.5 text-xs font-medium rounded text-text-secondary hover:text-text-main transition-colors">Tài liệu</button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-5">
+<!-- Media Grid Section -->
+<div class="mb-6">
+<h4 class="text-xs font-bold text-text-secondary uppercase tracking-wider mb-3">Tháng 5</h4>
+<div class="grid grid-cols-3 gap-2">
+<div class="aspect-square rounded-lg bg-cover bg-center cursor-pointer hover:opacity-90 transition-opacity relative group" data-alt="Thumbnail of child playing" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBYY61XBCuunc-04px8mhsCIBTqXpgxP2PGBsM4qyrUmvenV5yAASd84GMZgAQ1VmUnPqADwDZmN0vdHjXnsyGvnlZfA5xMVetlz31cgRm2BtoEYQJnJgHsvHySToShbZO1UtKH6wB6Jc94Arv1BVX-vib08qwjajzQgrRkvtlxVl5w4bHQdxDjkAx_db2-El0Xq_OlVbjIebL8gQWROIBsU9cRtoJ60Eo9Boeua8OsDYwlPSwPdWB38q2ef2N-TjiIvLE_eE4cwhY');"></div>
+<div class="aspect-square rounded-lg bg-cover bg-center cursor-pointer hover:opacity-90 transition-opacity relative group" data-alt="Thumbnail of therapy session" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAMwFkxg38n-jmYlOnN_bpbA0NkieNnsmgr75jE2OF0-GQPRxtIa1QtM8164A9el8CqF_a1OVuFIinLMzGshY1Ry7nFLt63Mi-UhG35SuX3kVRH82FLLOD5oasXgtnfQ2o4IWjHvMgmzPe6tp9t3wVDj7U2KdBSD-y_6P5g9_XFKw9I3JxFA46hGJElum9yEd1CSIHlOR4z4T47blUq35-xeuI7lX1cY4iKobC2gcM9G4NyI9JGj-dMWMvLH3N9LUxI9lW8ftTBMeM');">
+<div class="absolute inset-0 bg-black/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[20px]">play_circle</span>
+</div>
+</div>
+<div class="aspect-square rounded-lg bg-cover bg-center cursor-pointer hover:opacity-90 transition-opacity relative group" data-alt="Thumbnail of a drawing" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCMdc_J-KhbhSfsLL_wLupVAiCBt_hyLjX-nU9wqEFpn07nhHz-T98oqrYfasfY5wslTR9rIBk7RKWnNYO_IwW-JSjIBO_E_k2HUHGMgi1Pz1wrtW6OhYXev_NDMqqRvKoHtqndNCCK90GDTTnznK7u5Z25dHXlOqdeXdbTRYOxbkHdGig_mvZ6-RX5RjluhaDnrVIjL8XM-XDIpy9RLXEV0mERONhF_rA3fNcR0AyB7PDzVALIzx_Quda62A0ldJXteJBKTEDV3uo');"></div>
+<div class="aspect-square rounded-lg bg-cover bg-center cursor-pointer hover:opacity-90 transition-opacity relative group" data-alt="Thumbnail of educational book" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCsIs2qflNXntwSNnrXu8s532fkx9i-Gc6MJrD92Vea_4uLak5Rz4m3PfgwRk2b4aUADslvHU1yfrBSTQI7vEzMADU0fI-Z5KeVzGj8tHH_odWregn5hQe3NnaIzslnmojhBn5gCKOFJeLtGTcfSkKmdey8OBrarDLrPGpA14dc5jUcpA4qKBaAhTPKKweUBp97rjvZCjdypaw708MvbSceI_IMo92RKG-76-56Mk8n_donC-L3i6cLgd-HSlu4nwWyFTenKCIU2a4');"></div>
+</div>
+</div>
+<!-- Recent Files Section (Simulated content for the list below the media) -->
+<div>
+<h4 class="text-xs font-bold text-text-secondary uppercase tracking-wider mb-3">Tài liệu mới</h4>
+<div class="space-y-3">
+<div class="flex items-center gap-3 p-2 hover:bg-background-light dark:hover:bg-background-dark rounded-lg cursor-pointer transition-colors group">
+<div class="size-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-500 shrink-0">
+<span class="material-symbols-outlined text-[20px]">picture_as_pdf</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-xs font-medium text-text-main dark:text-white truncate">Huong_dan_tang_tuong_tac.pdf</p>
+<p class="text-[10px] text-text-secondary">2.4 MB • 24/05/2024</p>
+</div>
+<button class="opacity-0 group-hover:opacity-100 text-text-secondary hover:text-primary transition-all">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+</div>
+<div class="flex items-center gap-3 p-2 hover:bg-background-light dark:hover:bg-background-dark rounded-lg cursor-pointer transition-colors group">
+<div class="size-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-500 shrink-0">
+<span class="material-symbols-outlined text-[20px]">description</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-xs font-medium text-text-main dark:text-white truncate">Ke_hoach_can_thiep_T5.docx</p>
+<p class="text-[10px] text-text-secondary">500 KB • 20/05/2024</p>
+</div>
+<button class="opacity-0 group-hover:opacity-100 text-text-secondary hover:text-primary transition-all">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+</div>
+<div class="flex items-center gap-3 p-2 hover:bg-background-light dark:hover:bg-background-dark rounded-lg cursor-pointer transition-colors group">
+<div class="size-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 shrink-0">
+<span class="material-symbols-outlined text-[20px]">table_view</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-xs font-medium text-text-main dark:text-white truncate">Lich_theo_doi_tien_bo.xlsx</p>
+<p class="text-[10px] text-text-secondary">1.2 MB • 15/05/2024</p>
+</div>
+<button class="opacity-0 group-hover:opacity-100 text-text-secondary hover:text-primary transition-all">
+<span class="material-symbols-outlined text-[20px]">download</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="p-4 border-t border-border-color dark:border-border-dark">
+<button class="w-full py-2 flex items-center justify-center gap-2 border border-border-color dark:border-border-dark rounded-lg text-sm font-bold text-text-secondary hover:text-primary hover:bg-background-light dark:hover:bg-background-dark transition-colors">
+<span>Xem tất cả tài liệu</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</aside>
+</div>
+</body></html>

@@ -1,0 +1,313 @@
+/* ============================================
+   AN PROJECT - PROFESSIONAL TEAL DESIGN SYSTEM
+   Theme: Corporate, Clean, Scientific
+   ============================================ */
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ===== COLOR SYSTEM (HSL Format for Shadcn) ===== */
+
+    /* Primary Teal - Main brand color */
+    --primary: 174 64% 39%;
+    /* #14B8A6 - Teal 500 */
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary Purple - Intelligence/Data */
+    --secondary: 271 81% 56%;
+    /* #A855F7 - Purple 500 */
+    --secondary-foreground: 0 0% 100%;
+
+    /* Background & Surface */
+    --background: 210 40% 98%;
+    /* #F8FAFC - Slate 50 */
+    --foreground: 222 47% 11%;
+    /* #0F172A - Slate 900 */
+
+    /* Card & Popover */
+    --card: 0 0% 100%;
+    /* White */
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    /* Muted (Secondary text & disabled states) */
+    --muted: 210 40% 96%;
+    /* #F1F5F9 - Slate 100 */
+    --muted-foreground: 215 16% 47%;
+    /* #64748B - Slate 500 */
+
+    /* Accent (Hover states) */
+    --accent: 174 64% 39%;
+    /* Same as primary */
+    --accent-foreground: 0 0% 100%;
+
+    /* Destructive (Errors - Soft coral, not harsh red) */
+    --destructive: 0 84% 60%;
+    /* #EF4444 - Red 500 (softened) */
+    --destructive-foreground: 0 0% 100%;
+
+    /* Border & Input */
+    --border: 214 32% 91%;
+    /* #E2E8F0 - Slate 200 */
+    --input: 214 32% 91%;
+    --ring: 174 64% 39%;
+    /* Teal focus ring */
+
+    /* Border Radius */
+    --radius: 0.5rem;
+    /* 8px default */
+
+    /* Typography */
+    --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+
+    /* Spacing (8px base) */
+    --space-unit: 0.5rem;
+    /* 8px */
+  }
+
+  /* Dark Mode (Optional - for future) */
+  .dark {
+    --background: 222 47% 11%;
+    /* Slate 900 */
+    --foreground: 210 40% 98%;
+    /* Slate 50 */
+    --card: 217 33% 17%;
+    /* Slate 800 */
+    --card-foreground: 210 40% 98%;
+    --popover: 217 33% 17%;
+    --popover-foreground: 210 40% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 174 64% 39%;
+    --accent-foreground: 0 0% 100%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+  }
+
+  /* ===== BASE STYLES ===== */
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-primary);
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  /* Typography Hierarchy */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-semibold;
+    font-family: var(--font-primary);
+    line-height: 1.2;
+  }
+
+  h1 {
+    @apply text-5xl md:text-6xl;
+  }
+
+  /* 48px -> 60px */
+  h2 {
+    @apply text-4xl md:text-5xl;
+  }
+
+  /* 36px -> 48px */
+  h3 {
+    @apply text-3xl md:text-4xl;
+  }
+
+  /* 30px -> 36px */
+  h4 {
+    @apply text-2xl md:text-3xl;
+  }
+
+  /* 24px -> 30px */
+  h5 {
+    @apply text-xl md:text-2xl;
+  }
+
+  /* 20px -> 24px */
+  h6 {
+    @apply text-lg md:text-xl;
+  }
+
+  /* 18px -> 20px */
+
+  p {
+    @apply text-base;
+    margin-bottom: 1rem;
+  }
+
+  /* Links */
+  a {
+    @apply text-primary hover:text-primary/80 transition-colors duration-200;
+  }
+
+  /* Code */
+  code {
+    font-family: var(--font-mono);
+    @apply text-sm bg-slate-100 px-1.5 py-0.5 rounded;
+  }
+
+  /* Focus Styles (Accessibility) */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Smooth Scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Reduced Motion (Accessibility) */
+  @media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+
+  /* ===== BUTTON COMPONENTS ===== */
+  .btn-primary {
+    @apply bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold;
+    @apply hover:bg-primary/90 active:scale-95;
+    @apply transition-all duration-200 ease-out;
+    @apply shadow-md hover:shadow-lg;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-primary border-2 border-primary px-6 py-3 rounded-lg font-semibold;
+    @apply hover:bg-primary/5 active:scale-95;
+    @apply transition-all duration-200 ease-out;
+  }
+
+  .btn-ghost {
+    @apply bg-transparent text-slate-700 px-6 py-3 rounded-lg font-medium;
+    @apply hover:bg-slate-100 active:scale-95;
+    @apply transition-all duration-200 ease-out;
+  }
+
+  /* ===== CARD COMPONENTS ===== */
+  .card-glass {
+    @apply bg-white/90 backdrop-blur-md border border-slate-200 rounded-xl p-6;
+    @apply shadow-md hover:shadow-xl transition-all duration-300;
+    @apply hover:border-primary/30;
+  }
+
+  .card-solid {
+    @apply bg-white border border-slate-200 rounded-xl p-6;
+    @apply shadow-sm hover:shadow-md transition-all duration-200;
+  }
+
+  /* ===== UTILITY CLASSES ===== */
+  .text-gradient-teal {
+    @apply bg-gradient-to-r from-teal-600 to-teal-400 bg-clip-text text-transparent;
+  }
+
+  .text-gradient-purple {
+    @apply bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent;
+  }
+
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Floating Navbar */
+  .navbar-floating {
+    @apply fixed top-4 left-4 right-4 z-50;
+    @apply bg-white/95 backdrop-blur-md border border-slate-200 rounded-2xl;
+    @apply shadow-lg;
+  }
+
+  /* Section Spacing */
+  .section-padding {
+    @apply py-16 md:py-24 lg:py-32;
+  }
+}
+
+@layer utilities {
+
+  /* Custom Animations */
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.4s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Cursor Pointer for Interactive Elements */
+  .cursor-pointer {
+    cursor: pointer;
+  }
+
+  /* Text Balance (for headings) */
+  .text-balance {
+    text-wrap: balance;
+  }
+}
