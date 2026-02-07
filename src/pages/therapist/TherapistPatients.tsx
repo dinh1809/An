@@ -9,6 +9,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { TherapistLayout } from "@/components/layout/TherapistLayout";
+import { AssignExerciseModal } from "@/components/therapist/AssignExerciseModal";
+import { Checkbox } from "@/components/ui/checkbox";
+import { CheckCircle2, Users } from "lucide-react";
 
 interface Connection {
   id: string;
@@ -45,6 +48,8 @@ export default function TherapistPatients() {
   const [pendingRequests, setPendingRequests] = useState<Connection[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedPatientIds, setSelectedPatientIds] = useState<string[]>([]);
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -113,6 +118,22 @@ export default function TherapistPatients() {
 
   const getAvatarColor = (index: number) => avatarColors[index % avatarColors.length];
 
+  const handleTogglePatientSelection = (patientId: string) => {
+    setSelectedPatientIds((prev) =>
+      prev.includes(patientId)
+        ? prev.filter((id) => id !== patientId)
+        : [...prev, patientId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedPatientIds.length === filteredParents.length) {
+      setSelectedPatientIds([]);
+    } else {
+      setSelectedPatientIds(filteredParents.map((p) => p.connection.parent_id));
+    }
+  };
+
   if (authLoading || roleLoading || loading) {
     return (
       <div className="max-w-6xl mx-auto space-y-6">
@@ -137,6 +158,15 @@ export default function TherapistPatients() {
             <p className="text-muted-foreground text-lg">View and manage connected families.</p>
           </div>
           <div className="flex gap-4 w-full md:w-auto">
+            {selectedPatientIds.length > 0 && (
+              <Button
+                onClick={() => setIsAssignModalOpen(true)}
+                className="bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-lg shadow-teal-600/20 gap-2 px-6"
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                Giao bài tập ({selectedPatientIds.length})
+              </Button>
+            )}
             <div className="relative group flex-1 md:w-80">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors">
                 <span className="material-icons-outlined">search</span>
@@ -195,9 +225,21 @@ export default function TherapistPatients() {
         {/* Patients List Card */}
         <Card className="glass-card border border-border/50 shadow-soft overflow-hidden">
           <CardHeader className="border-b border-border pb-4">
-            <CardTitle className="flex items-center gap-2 text-xl">
-              <span className="material-icons-outlined text-primary">diversity_1</span>
-              Connected Patients ({filteredParents.length})
+            <CardTitle className="flex items-center justify-between text-xl w-full">
+              <div className="flex items-center gap-2">
+                <span className="material-icons-outlined text-primary">diversity_1</span>
+                Connected Patients ({filteredParents.length})
+              </div>
+              {filteredParents.length > 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-muted-foreground mr-2">Chọn tất cả</span>
+                  <Checkbox
+                    checked={selectedPatientIds.length === filteredParents.length && filteredParents.length > 0}
+                    onCheckedChange={handleSelectAll}
+                    className="border-primary data-[state=checked]:bg-primary"
+                  />
+                </div>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-4">
@@ -217,6 +259,18 @@ export default function TherapistPatients() {
                   onClick={() => navigate(`/therapist/patient/${connection.parent_id}`)}
                 >
                   <div className="flex items-center gap-4 md:gap-6">
+                    <div
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTogglePatientSelection(connection.parent_id);
+                      }}
+                      className="shrink-0"
+                    >
+                      <Checkbox
+                        checked={selectedPatientIds.includes(connection.parent_id)}
+                        className="w-5 h-5 border-primary data-[state=checked]:bg-primary"
+                      />
+                    </div>
                     <div className="relative">
                       <div className={`w-14 h-14 rounded-full ${getAvatarColor(index)} flex items-center justify-center font-bold text-lg`}>
                         {getInitials(profile?.full_name)}
@@ -299,6 +353,17 @@ export default function TherapistPatients() {
           </CardContent>
         </Card>
       </div>
+
+      <AssignExerciseModal
+        isOpen={isAssignModalOpen}
+        onOpenChange={setIsAssignModalOpen}
+        patientIds={selectedPatientIds}
+        patientNames={
+          selectedPatientIds.length === 1
+            ? (connectedParents.find(p => p.connection.parent_id === selectedPatientIds[0])?.profile?.full_name || "Bệnh nhân")
+            : `${selectedPatientIds.length} bệnh nhân`
+        }
+      />
     </TherapistLayout>
   );
 }

@@ -25,7 +25,7 @@ function FocusLayoutInner() {
   const { isMuted, setMuted } = useGameSoundContext();
 
   const handleExit = () => {
-    navigate("/select-mode");
+    navigate("/assessment");
   };
 
   const toggleMute = () => {

@@ -372,6 +372,7 @@ const DetailSpotter = () => {
 
   // Start the game
   const handleStart = async () => {
+    if (authLoading) return;
     // If auth is still loading, we should probably wait or show a message
     // But usually this is called via a button click which is disabled IF loading is true
 
@@ -402,7 +403,32 @@ const DetailSpotter = () => {
     setTelemetryBuffer([]);
   };
 
-  // Countdown effect
+  // Finish the game - Memoized to prevent stale closures in useEffect
+  const finishGame = useCallback(async () => {
+    if (!sessionId) return;
+
+    const totalAttempts = correctCount + wrongCount;
+    const accuracy = totalAttempts > 0 ? (correctCount / totalAttempts) * 100 : 0;
+    const avgReaction = reactionTimes.length > 0
+      ? Math.round(reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length)
+      : 0;
+
+    console.log("Finishing game...", { score, accuracy, avgReaction });
+
+    try {
+      await saveTelemetry(sessionId, telemetryBuffer);
+      await completeSession(sessionId, score, accuracy, avgReaction, level);
+
+      // Redirect to result page with session ID
+      navigate(`/assessment/result?session=${sessionId}`);
+    } catch (err) {
+      console.error("Error finishing game:", err);
+      toast.error("Lỗi lưu kết quả. Vui lòng thử lại.");
+      // Redirect anyway to show what we have
+      navigate(`/assessment/result?session=${sessionId}`);
+    }
+  }, [sessionId, correctCount, wrongCount, reactionTimes, telemetryBuffer, score, level, navigate]);
+
   useEffect(() => {
     if (phase !== "countdown") return;
 
@@ -424,7 +450,7 @@ const DetailSpotter = () => {
     }
 
     addTimeout(() => setTimeLeft(t => t - 1), 1000);
-  }, [phase, timeLeft]);
+  }, [phase, timeLeft, finishGame]);
 
   // Handle grid cell click
   const handleCellClick = (index: number) => {
@@ -445,7 +471,7 @@ const DetailSpotter = () => {
       reaction_time_ms: reactionTime,
     }]);
 
-    setReactionTimes(rt => [...rt, reactionTime]);
+    setReactionTimes(prev => [...prev, reactionTime]);
 
     if (correct) {
       // Play success sound
@@ -485,22 +511,7 @@ const DetailSpotter = () => {
     }
   };
 
-  // Finish the game
-  const finishGame = async () => {
-    if (!sessionId) return;
 
-    const totalAttempts = correctCount + wrongCount;
-    const accuracy = totalAttempts > 0 ? (correctCount / totalAttempts) * 100 : 0;
-    const avgReaction = reactionTimes.length > 0
-      ? Math.round(reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length)
-      : 0;
-
-    await saveTelemetry(sessionId, telemetryBuffer);
-    await completeSession(sessionId, score, accuracy, avgReaction, level);
-
-    // Redirect to result page with session ID
-    navigate(`/assessment/result?session=${sessionId}`);
-  };
 
   // Get tier display info
   const getTierDisplayInfo = (lvl: number) => {
@@ -698,11 +709,21 @@ const DetailSpotter = () => {
 
                     <Button
                       onClick={handleStart}
-                      className="w-full bg-violet-600 hover:bg-violet-700 text-white h-16 text-xl font-bold rounded-2xl shadow-xl shadow-violet-200 transition-all hover:scale-[1.01] active:scale-[0.99] border-b-4 border-violet-800 active:border-b-0 active:translate-y-1"
+                      disabled={authLoading}
+                      className="w-full bg-violet-600 hover:bg-violet-700 text-white h-16 text-xl font-bold rounded-2xl shadow-xl shadow-violet-200 transition-all hover:scale-[1.01] active:scale-[0.99] border-b-4 border-violet-800 active:border-b-0 active:translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
                       size="lg"
                     >
-                      <Play className="w-6 h-6 mr-2 fill-current" />
-                      BẮT ĐẦU NGAY
+                      {authLoading ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <span>ĐANG TẢI...</span>
+                        </div>
+                      ) : (
+                        <>
+                          <Play className="w-6 h-6 mr-2 fill-current" />
+                          BẮT ĐẦU NGAY
+                        </>
+                      )}
                     </Button>
                   </CardContent>
                 </Card>

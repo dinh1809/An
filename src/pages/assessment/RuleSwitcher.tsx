@@ -82,7 +82,7 @@ const RULE_LABELS: Record<RuleType, { vi: string; instruction: string }> = {
 
 const RuleSwitcher = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { playSound, triggerHaptic, initAudio } = useGameSoundContext();
 
   // Game State
@@ -271,7 +271,7 @@ const RuleSwitcher = () => {
 
     const timer = setTimeout(() => setTimeLeft(t => t - 1), 1000);
     return () => clearTimeout(timer);
-  }, [phase, timeLeft]);
+  }, [phase, timeLeft, finishGame]);
 
   // Timeout checker (3 second timeout per trial)
   useEffect(() => {
@@ -281,7 +281,7 @@ const RuleSwitcher = () => {
       clearTimeout(timeoutRef.current);
     }
 
-    timeoutRef.current = setTimeout(() => {
+    timeoutRef.current = window.setTimeout(() => {
       handleTimeout();
     }, TIMEOUT_THRESHOLD);
 
@@ -457,13 +457,22 @@ const RuleSwitcher = () => {
   };
 
   // Finish the game
-  const finishGame = async () => {
+  // Finish the game - Memoized to prevent stale closures
+  const finishGame = useCallback(async () => {
     if (!sessionId) return;
 
-    await saveTelemetry(sessionId, trials);
-    await completeSession(sessionId);
-    navigate(`/assessment/result?session=${sessionId}&game=stroop_chaos`);
-  };
+    console.log("Finishing RuleSwitcher...", { score, trialsLength: trials.length });
+
+    try {
+      await saveTelemetry(sessionId, trials);
+      await completeSession(sessionId);
+      navigate(`/assessment/result?session=${sessionId}&game=stroop_chaos`);
+    } catch (err) {
+      console.error("Error finishing game:", err);
+      toast.error("Lỗi lưu kết quả");
+      navigate(`/assessment/result?session=${sessionId}&game=stroop_chaos`);
+    }
+  }, [sessionId, trials, score, navigate]);
 
   // Render the Stroop card
   const renderStroopCard = () => {
@@ -645,11 +654,21 @@ const RuleSwitcher = () => {
 
                     <Button
                       onClick={handleStart}
-                      className="w-full bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 h-14 text-lg font-semibold shadow-lg shadow-orange-500/30 transition-all hover:scale-[1.02] text-white"
+                      disabled={authLoading}
+                      className="w-full bg-gradient-to-r from-orange-500 to-rose-500 hover:from-orange-600 hover:to-rose-600 h-14 text-lg font-semibold shadow-lg shadow-orange-500/30 transition-all hover:scale-[1.02] text-white disabled:opacity-50 disabled:cursor-not-allowed"
                       size="lg"
                     >
-                      <Play className="w-5 h-5 mr-2" />
-                      Bắt Đầu Đánh Giá
+                      {authLoading ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <span>Đang tải...</span>
+                        </div>
+                      ) : (
+                        <>
+                          <Play className="w-5 h-5 mr-2" />
+                          Bắt Đầu Đánh Giá
+                        </>
+                      )}
                     </Button>
                   </CardContent>
                 </Card>

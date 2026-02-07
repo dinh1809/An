@@ -877,6 +877,48 @@ export default function Landing() {
                 </div>
             </section>
 
+            {/* Partners Section */}
+            <section className="py-20 lg:py-28 bg-white border-t border-slate-100">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center max-w-3xl mx-auto mb-16">
+                        <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
+                            Mạng lưới Đối tác tin cậy
+                        </h2>
+                        <p className="text-lg text-slate-600">
+                            Chúng tôi hợp tác với các tổ chức hàng đầu để tạo ra tác động xã hội bền vững
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-8 items-center justify-items-center opacity-70 hover:opacity-100 transition-opacity">
+                        {[
+                            { name: "Imagtor", logo: "/partners/Imagtor.webp", url: "https://imagtor.com/" },
+                            { name: "Enablecode", logo: "/partners/enablecode.png", url: "https://enablecode.vn/" },
+                            { name: "Tòhe", logo: "/partners/tohe.png", url: "https://tohe.vn/" },
+                            { name: "Vụn Art", logo: "/partners/vụn_art.png", url: "https://www.facebook.com/VunArtVanPhuc/" },
+                            { name: "Kymviet", logo: "/partners/Kymviet.jpg", url: "https://kymviet.com.vn/" },
+                            { name: "Kymviet Space", logo: "/partners/Kymviet_space.png", url: "https://www.facebook.com/KymvietSpace/" },
+                            { name: "VAN", logo: "/partners/van-logo.webp", url: "https://van.org.vn/" },
+                            { name: "VSV Capital", logo: "/partners/VSV_Captial.jpg", url: "https://vsv.capital/" }
+                        ].map((partner, idx) => (
+                            <a
+                                key={idx}
+                                href={partner.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group grayscale hover:grayscale-0 transition-all duration-300"
+                                title={partner.name}
+                            >
+                                <img
+                                    src={partner.logo}
+                                    alt={partner.name}
+                                    className="h-12 md:h-16 w-auto object-contain"
+                                />
+                            </a>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
             {/* CTA Section */}
             <section className="py-20 lg:py-28 bg-gradient-to-br from-teal-600 to-teal-700">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

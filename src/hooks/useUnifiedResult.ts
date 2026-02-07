@@ -381,7 +381,8 @@ function generateAIAnalysis(
     primaryStrength: string,
     strategy: TeachingStrategy,
     directions: DevelopmentDirection[],
-    childName: string
+    childName: string,
+    isComprehensive: boolean
 ): string {
     const strengthName = translateDomain(primaryStrength);
     const topDirection = directions[0].name_vi;
@@ -391,33 +392,38 @@ function generateAIAnalysis(
         .map(([key, value]) => `- ${translateDomain(key)}: ${value.toFixed(1)}/5`)
         .join("\n");
 
+    const disclaimer = !isComprehensive
+        ? "\n> *Lưu ý: Dữ liệu hiện tại chưa đầy đủ (dưới 3 bài kiểm tra cốt lõi). Kết quả phân tích chỉ mang tính chất tham khảo sơ bộ.*"
+        : "";
+
     return `
-### BÁO CÁO PHÂN TÍCH CHUYÊN SÂU
+### BÁO CÁO PHÂN TÍCH CHUYÊN SÂU ${!isComprehensive ? "(SƠ BỘ)" : ""}
 **Học viên:** ${childName}
 **Ngày báo cáo:** ${new Date().toLocaleDateString("vi-VN")}
+${disclaimer}
 
 ---
 
-#### 1. TỔNG QUAN HỒ SƠ NHẬN THỨC
-Dựa trên dữ liệu vi-mô (telemetry) từ bài kiểm tra toàn diện, hệ thống ghi nhận ${childName} có cấu trúc nhận thức thiên hướng **${strengthName}**.
+#### 1. ĐIỂM MẠNH & CẤU TRÚC NHẬN THỨC
+Dựa trên dữ liệu vi-mô từ các bài kiểm tra, ${childName} thể hiện ưu thế rõ rệt ở vùng năng lực **${strengthName}**.
 
-**Chi tiết hồ sơ:**
+**Chi tiết chỉ số:**
 ${profileSummary}
 
-Điều này cho thấy não bộ của con xử lý thông tin hiệu quả nhất thông qua kênh **${strengthName}**. Khả năng tiếp nhận và ghi nhớ sẽ tăng đột biến khi thông tin được mã hóa dưới dạng ${primaryStrength === "visual" ? "hình ảnh và sơ đồ" : primaryStrength === "auditory" ? "âm thanh và lời nói" : "vận động và thực hành"}.
+Điều này cho thấy não bộ của con có xu hướng xử lý thông tin hiệu quả nhất thông qua kênh **${strengthName}**. Khả năng tiếp nhận sẽ tăng cao khi thông tin được mã hóa dưới dạng ${primaryStrength === "visual" ? "hình ảnh, biểu đồ và màu sắc" : primaryStrength === "auditory" ? "âm thanh, lời nói và nhịp điệu" : "vận động, thao tác và thực hành"}.
 
 ---
 
-#### 2. CHIẾN LƯỢC GIÁO DỤC TỐI ƯU (${strategy.name_vi})
+#### 2. CHIẾN LƯỢC GIÁO DỤC ĐỀ XUẤT (${strategy.name_vi})
 Để kích hoạt tối đa tiềm năng, gia đình nên áp dụng phương pháp **${strategy.method}**.
-- Thay vì ép con học theo cách truyền thống, hãy sử dụng **${strategy.tools.slice(0, 2).join(" và ")}**.
-- **Mẹo quan trọng:** ${strategy.tips[0]}
+- **Công cụ:** Sử dụng các công cụ như **${strategy.tools.slice(0, 2).join(" và ")}** để hỗ trợ việc học.
+- **Phương pháp tiếp cận:** ${strategy.tips[0]}
 
 ---
 
-#### 3. KHUYẾN NGHỊ HƯỚNG PHÁT TRIỂN
-Dựa trên sự kết hợp giữa ${strengthName} và các chỉ số bổ trợ, hướng đi phù hợp nhất hiện tại là: **${topDirection}**.
-Đây là lĩnh vực mà con không chỉ có năng lực tự nhiên mà còn có khả năng duy trì sự tập trung cao (Hyper-focus).
+#### 3. LĨNH VỰC TIỀM NĂNG
+Dựa trên sự kết hợp giữa điểm mạnh ${strengthName} và các chỉ số bổ trợ, lĩnh vực phù hợp nhất để phát triển hiện tại là: **${topDirection}**.
+Đây là lĩnh vực mà con có thể duy trì sự tập trung cao (Hyper-focus) và phát huy tối đa năng lực tự nhiên.
 
 *Báo cáo được tạo tự động bởi Hệ Thống Phân Tích Neuro-Logic (Dr. An AI).*
 `;
@@ -527,9 +533,15 @@ export function useUnifiedResult() {
         // Use 3 as threshold for now to be less strict during testing, or check against param
         const isComprehensive = playedCoreGames.length >= 3;
 
-        const aiAnalysis = isComprehensive
-            ? generateAIAnalysis(profile, primaryStrength, strategy, directions, childName)
-            : null;
+        // NEW: Always generate analysis if there is at least one game, but add a disclaimer if not comprehensive
+        const aiAnalysis = generateAIAnalysis(
+            profile,
+            primaryStrength,
+            strategy,
+            directions,
+            childName,
+            isComprehensive
+        );
 
         return {
             currentGame,

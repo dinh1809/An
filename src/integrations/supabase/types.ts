@@ -152,6 +152,8 @@ export type Database = {
           doctor_name: string
           id: string
           is_completed: boolean | null
+          notes: string | null
+          therapist_id: string | null
           title: string
           user_id: string
           video_url: string | null
@@ -162,6 +164,8 @@ export type Database = {
           doctor_name: string
           id?: string
           is_completed?: boolean | null
+          notes?: string | null
+          therapist_id?: string | null
           title: string
           user_id: string
           video_url?: string | null
@@ -172,6 +176,8 @@ export type Database = {
           doctor_name?: string
           id?: string
           is_completed?: boolean | null
+          notes?: string | null
+          therapist_id?: string | null
           title?: string
           user_id?: string
           video_url?: string | null

@@ -15,6 +15,7 @@
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { MarkdownDisplay } from "@/components/ui/MarkdownDisplay";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     RadarChart,
@@ -382,9 +383,9 @@ const UnifiedResult = () => {
     const StrategyIcon = ICON_MAP[data.strategy.icon] || Brain;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50/30 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 print:bg-white">
             {/* ============ HEADER ============ */}
-            <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+            <header className="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 print:hidden">
                 <div className="max-w-4xl mx-auto px-4 py-3">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -443,8 +444,7 @@ const UnifiedResult = () => {
                 {/* Tabs */}
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <TabsList className={cn(
-                        "grid w-full mb-6",
-                        (data.isComprehensive && viewMode === "parent") ? "grid-cols-5" : "grid-cols-2"
+                        "w-full mb-6 h-auto flex flex-wrap gap-1 justify-start bg-slate-100 p-1 dark:bg-slate-800 print:hidden",
                     )}>
                         <TabsTrigger value="result" className="flex items-center gap-1">
                             <Trophy className="w-4 h-4" />
@@ -455,7 +455,7 @@ const UnifiedResult = () => {
                             <span className="hidden sm:inline">Hồ sơ</span>
                         </TabsTrigger>
 
-                        {(data.isComprehensive && viewMode === "parent") && (
+                        {viewMode === "parent" && (
                             <>
                                 <TabsTrigger value="direction" className="flex items-center gap-1">
                                     <Target className="w-4 h-4" />
@@ -480,72 +480,47 @@ const UnifiedResult = () => {
                             animate={{ opacity: 1, y: 0 }}
                             className="space-y-6"
                         >
-                            {/* AI ANALYSIS CARD (Parent + Comprehensive Only) */}
-                            {(data.isComprehensive && viewMode === "parent" && data.aiAnalysis) && (
-                                <Card className="border-2 border-purple-500/20 bg-gradient-to-br from-purple-50 to-white dark:from-purple-950/20 dark:to-slate-900 overflow-hidden">
-                                    <div className="bg-gradient-to-r from-purple-500 to-indigo-600 px-6 py-3 flex items-center gap-3">
-                                        <Sparkles className="w-5 h-5 text-yellow-300 animate-pulse" />
-                                        <h3 className="font-bold text-white text-lg">Phân Tích Chuyên Sâu Dr. An AI</h3>
+                            {/* AI ANALYSIS CARD (Always Visible Now) */}
+                            {data.aiAnalysis && (
+                                <Card className="border-2 border-purple-500/20 bg-gradient-to-br from-purple-50 to-white dark:from-purple-950/20 dark:to-slate-900 overflow-hidden print:border-0 print:shadow-none">
+                                    <div className="bg-gradient-to-r from-purple-500 to-indigo-600 px-6 py-3 flex items-center justify-between gap-3 print:hidden">
+                                        <div className="flex items-center gap-3">
+                                            <Sparkles className="w-5 h-5 text-yellow-300 animate-pulse" />
+                                            <h3 className="font-bold text-white text-lg">Phân Tích Chuyên Sâu Dr. An AI</h3>
+                                        </div>
+                                        <Button
+                                            size="sm"
+                                            variant="secondary"
+                                            className="bg-white/20 hover:bg-white/30 text-white border-0"
+                                            onClick={() => window.print()}
+                                        >
+                                            <Download className="w-4 h-4 mr-2" />
+                                            Tải PDF
+                                        </Button>
                                     </div>
                                     <CardContent className="p-6">
-                                        <div className="prose dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 text-sm leading-relaxed whitespace-pre-line">
-                                            {data.aiAnalysis}
+                                        <div className="prose dark:prose-invert max-w-none print:prose-sm">
+                                            <MarkdownDisplay content={data.aiAnalysis} />
                                         </div>
                                     </CardContent>
+
+                                    {/* Footer Actions for web view */}
+                                    <div className="p-6 pt-0 flex justify-center gap-3 print:hidden">
+                                        <Button variant="outline" onClick={() => navigate("/assessment")}>
+                                            <RotateCcw className="w-4 h-4 mr-2" />
+                                            Tiếp tục đánh giá
+                                        </Button>
+                                        <Button className="bg-teal-500 hover:bg-teal-600" onClick={() => window.print()}>
+                                            <Download className="w-4 h-4 mr-2" />
+                                            Lưu Kết quả PDF
+                                        </Button>
+                                    </div>
                                 </Card>
                             )}
 
-                            {data.currentGame ? (
-                                <Card>
-                                    <CardContent className="p-8 text-center">
-                                        <ScoreDisplay
-                                            score={data.currentGame.final_score}
-                                            label={`Điểm ${data.currentGame.game_type.replace(/_/g, " ")}`}
-                                        />
 
-                                        <div className="grid grid-cols-3 gap-4 mt-6">
-                                            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800">
-                                                <p className="text-xs text-slate-500 mb-1">Độ chính xác</p>
-                                                <p className="text-lg font-bold text-slate-800 dark:text-white">
-                                                    {Math.round(data.currentGame.accuracy_percentage || 0)}%
-                                                </p>
-                                            </div>
-                                            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800">
-                                                <p className="text-xs text-slate-500 mb-1">Thời gian phản xạ</p>
-                                                <p className="text-lg font-bold text-slate-800 dark:text-white">
-                                                    {Math.round(data.currentGame.avg_reaction_time_ms || 0)}ms
-                                                </p>
-                                            </div>
-                                            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800">
-                                                <p className="text-xs text-slate-500 mb-1">Đã hoàn thành</p>
-                                                <p className="text-lg font-bold text-slate-800 dark:text-white">
-                                                    {data.completedGames}/{data.totalGames}
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex justify-center gap-3 mt-6">
-                                            <Button variant="outline" onClick={() => navigate("/assessment")}>
-                                                <RotateCcw className="w-4 h-4 mr-2" />
-                                                Tiếp tục đánh giá
-                                            </Button>
-                                            <Button className="bg-teal-500 hover:bg-teal-600">
-                                                <Download className="w-4 h-4 mr-2" />
-                                                Lưu kết quả
-                                            </Button>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ) : (
-                                <Card>
-                                    <CardContent className="p-8 text-center">
-                                        <p className="text-slate-500">Chưa có dữ liệu bài vừa chơi</p>
-                                    </CardContent>
-                                </Card>
-                            )}
-
-                            {/* Quick Summary - Only show if NOT comprehensive parent view (since AI report covers it) */}
-                            {(!data.isComprehensive || viewMode === "player") && (
+                            {/* Quick Summary - Only show if NOT parent view (since AI report covers it for parents) */}
+                            {viewMode === "player" && (
                                 <Card className="bg-gradient-to-r from-teal-50 to-purple-50 dark:from-teal-950/30 dark:to-purple-950/30 border-teal-200 dark:border-teal-800">
                                     <CardContent className="p-6">
                                         <div className="flex items-start gap-4">
@@ -633,8 +608,8 @@ const UnifiedResult = () => {
                         </motion.div>
                     </TabsContent>
 
-                    {/* ============ TAB 3: DIRECTION (Comprehensive + Parent Only) ============ */}
-                    {(data.isComprehensive && viewMode === "parent") && (
+                    {/* ============ TAB 3: DIRECTION (Parent Only) ============ */}
+                    {viewMode === "parent" && (
                         <TabsContent value="direction">
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
@@ -660,8 +635,8 @@ const UnifiedResult = () => {
                         </TabsContent>
                     )}
 
-                    {/* ============ TAB 4: TEACHING (Comprehensive + Parent Only) ============ */}
-                    {(data.isComprehensive && viewMode === "parent") && (
+                    {/* ============ TAB 4: TEACHING (Parent Only) ============ */}
+                    {viewMode === "parent" && (
                         <TabsContent value="teaching">
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
@@ -721,8 +696,8 @@ const UnifiedResult = () => {
                         </TabsContent>
                     )}
 
-                    {/* ============ TAB 5: PLAN (Comprehensive + Parent Only) ============ */}
-                    {(data.isComprehensive && viewMode === "parent") && (
+                    {/* ============ TAB 5: PLAN (Parent Only) ============ */}
+                    {viewMode === "parent" && (
                         <TabsContent value="plan">
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
@@ -769,8 +744,84 @@ const UnifiedResult = () => {
                 </Tabs>
             </div>
 
+
+            {/* ============ PARTNER SECTION ============ */}
+            <section className="max-w-4xl mx-auto px-4 py-12 border-t border-slate-200 dark:border-slate-800 mt-12 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm rounded-xl mb-12 print:hidden">
+                <div className="text-center mb-10">
+                    <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2 font-heading">
+                        Mạng lưới Đối tác Hỗ trợ
+                    </h2>
+                    <p className="text-slate-500 dark:text-slate-400">
+                        Kết nối với các chuyên gia giáo dục đặc biệt và trung tâm trị liệu hàng đầu
+                    </p>
+                </div>
+
+                <div className="space-y-10">
+                    {[
+                        {
+                            category: "Việc làm & Đào tạo IT",
+                            description: "Phù hợp với người tự kỷ chức năng cao, có khả năng tập trung vào chi tiết và công nghệ.",
+                            items: [
+                                { name: "Imagtor", logo: "/partners/Imagtor.webp", url: "https://imagtor.com/", info: "Đào tạo và tuyển dụng người khuyết tật làm xử lý ảnh BĐS." },
+                                { name: "Enablecode", logo: "/partners/enablecode.png", url: "https://enablecode.vn/", info: "Công ty phần mềm sử dụng nhân sự là người khuyết tật." },
+                            ]
+                        },
+                        {
+                            category: "Thủ công & Nghệ thuật",
+                            description: "Phù hợp với người tự kỷ có tư duy hình ảnh tốt, thích sự lặp lại hoặc môi trường ít áp lực giao tiếp.",
+                            items: [
+                                { name: "Tòhe", logo: "/partners/tohe.png", url: "https://tohe.vn/", info: "Sân chơi nghệ thuật và sản phẩm từ tranh vẽ của trẻ tự kỷ." },
+                                { name: "Vụn Art", logo: "/partners/vụn_art.png", url: "https://www.facebook.com/VunArtVanPhuc/", info: "Ghép tranh từ vụn lụa, tạo việc làm bền vững." },
+                                { name: "Kymviet", logo: "/partners/Kymviet.jpg", url: "https://kymviet.com.vn/", info: "Sản xuất thú bông và đồ decor bởi người khuyết tật." },
+                                { name: "Kymviet Space", logo: "/partners/Kymviet_space.png", url: "https://www.facebook.com/KymvietSpace/", info: "Quán cafe và workshop phục vụ bởi người điếc/khuyết tật." },
+                            ]
+                        },
+                        {
+                            category: "Mạng lưới & Chuyên môn",
+                            description: "Các tổ chức kết nối cộng đồng và hỗ trợ chuyên môn giáo dục.",
+                            items: [
+                                { name: "VAN", logo: "/partners/van-logo.webp", url: "https://van.org.vn/", info: "Mạng lưới Tự kỷ Việt Nam - Kết nối phụ huynh và chuyên gia." },
+                                { name: "VSV Capital", logo: "/partners/VSV_Captial.jpg", url: "https://vsv.capital/", info: "Venture Capital hỗ trợ các dự án tác động xã hội." }
+                            ]
+                        }
+                    ].map((group, gIdx) => (
+                        <div key={gIdx} className="space-y-4">
+                            <div className="flex flex-col md:flex-row md:items-center gap-2 border-l-4 border-teal-500 pl-4">
+                                <h3 className="text-xl font-bold text-slate-800 dark:text-white">{group.category}</h3>
+                                <p className="text-sm text-slate-500 dark:text-slate-400">{group.description}</p>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                {group.items.map((partner, pIdx) => (
+                                    <a
+                                        key={pIdx}
+                                        href={partner.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="group flex flex-col p-4 bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-teal-500 hover:shadow-lg transition-all"
+                                    >
+                                        <div className="h-16 flex items-center justify-center mb-3">
+                                            <img
+                                                src={partner.logo}
+                                                alt={partner.name}
+                                                className="max-w-full max-h-full object-contain grayscale group-hover:grayscale-0 transition-all duration-300"
+                                            />
+                                        </div>
+                                        <h4 className="font-bold text-slate-800 dark:text-white text-sm mb-1 group-hover:text-teal-600 transition-colors">
+                                            {partner.name}
+                                        </h4>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
+                                            {partner.info}
+                                        </p>
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
             {/* ============ FOOTER ============ */}
-            <footer className="py-8 text-center">
+            <footer className="py-8 text-center text-slate-400">
                 <p className="text-xs text-slate-400 font-mono">
                     AN PLATFORM • PHIÊN BẢN 4.0 • BẢO MẬT AES-256
                 </p>

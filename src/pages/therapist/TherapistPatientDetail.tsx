@@ -38,6 +38,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { AssignExerciseModal } from "@/components/therapist/AssignExerciseModal";
+import { ClipboardList } from "lucide-react";
 
 interface Profile {
   user_id: string;
@@ -80,6 +82,7 @@ export default function TherapistPatientDetail() {
   const [videos, setVideos] = useState<VideoUpload[]>([]);
   const [selectedVideo, setSelectedVideo] = useState<VideoUpload | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -205,6 +208,15 @@ export default function TherapistPatientDetail() {
               {profile?.full_name || "Patient"}
             </h1>
             <p className="text-muted-foreground">Patient Details & Analytics</p>
+          </div>
+          <div className="ml-auto">
+            <Button
+              onClick={() => setIsAssignModalOpen(true)}
+              className="bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-lg shadow-teal-600/20 gap-2 px-6"
+            >
+              <ClipboardList className="h-4 w-4" />
+              Giao bài tập
+            </Button>
           </div>
         </div>
 
@@ -397,6 +409,8 @@ export default function TherapistPatientDetail() {
                   <VideoAnnotationPlayer
                     videoId={selectedVideo.id}
                     videoUrl={selectedVideo.file_url}
+                    patientId={parentId || ""}
+                    patientName={profile?.full_name || "Bệnh nhân"}
                   />
                 )}
               </DialogContent>
@@ -404,6 +418,13 @@ export default function TherapistPatientDetail() {
           </TabsContent>
         </Tabs>
       </div>
+
+      <AssignExerciseModal
+        isOpen={isAssignModalOpen}
+        onOpenChange={setIsAssignModalOpen}
+        patientIds={parentId ? [parentId] : []}
+        patientNames={profile?.full_name || "Bệnh nhân"}
+      />
     </TherapistLayout>
   );
 }

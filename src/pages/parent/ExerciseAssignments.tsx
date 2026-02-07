@@ -41,19 +41,15 @@ import { uploadToCloudinary } from '@/services/cloudinaryService';
 import { supabase } from '@/integrations/supabase/client';
 import { useVideoUpload } from '@/hooks/useVideoUpload';
 
-// Mock data for exercises (keep pending part for UI structure)
-const assignedExercises = [
-    {
-        id: '1',
-        title: 'Bài tập giao tiếp mắt',
-        description: 'Thực hành duy trì ánh mắt với bé trong 3-5 giây',
-        therapist: 'BS. Nguyễn Văn An',
-        dueDate: '10/02/2026',
-        status: 'pending',
-        duration: '5 phút',
-        priority: 'high'
-    }
-];
+// Helper: Convert YouTube URL to Embed URL
+const getYouTubeEmbedUrl = (url: string | null) => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11)
+        ? `https://www.youtube.com/embed/${match[2]}`
+        : null;
+};
 
 // Helper: Format duration from seconds
 const formatDuration = (seconds: number): string => {
@@ -76,6 +72,8 @@ export default function ExerciseAssignments() {
     const [isDragging, setIsDragging] = useState(false);
     const [uploadedVideosList, setUploadedVideosList] = useState<any[]>([]);
     const [isLoadingVideos, setIsLoadingVideos] = useState(true);
+    const [realAssignedExercises, setRealAssignedExercises] = useState<any[]>([]);
+    const [isLoadingAssignments, setIsLoadingAssignments] = useState(true);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Fetch real videos from DB
@@ -126,12 +124,32 @@ export default function ExerciseAssignments() {
         }
     }, [user, selectedVideo]);
 
-    useEffect(() => {
-        fetchVideos();
+    const fetchAssignments = useCallback(async () => {
+        if (!user) return;
+        setIsLoadingAssignments(true);
+        try {
+            const { data, error } = await supabase
+                .from('exercises')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('assigned_at', { ascending: false });
+
+            if (error) throw error;
+            setRealAssignedExercises(data || []);
+        } catch (err) {
+            console.error("Fetch assignments error:", err);
+        } finally {
+            setIsLoadingAssignments(false);
+        }
     }, [user]);
 
-    const pendingExercises = assignedExercises.filter(e => e.status === 'pending');
-    const completedExercises = assignedExercises.filter(e => e.status === 'completed');
+    useEffect(() => {
+        fetchVideos();
+        fetchAssignments();
+    }, [user, fetchVideos, fetchAssignments]);
+
+    const pendingExercises = realAssignedExercises.filter(e => !e.is_completed);
+    const completedExercises = realAssignedExercises.filter(e => e.is_completed);
 
     const getPriorityColor = (priority: string) => {
         switch (priority) {
@@ -346,30 +364,58 @@ export default function ExerciseAssignments() {
                                         className="group p-4 rounded-2xl bg-white border border-border hover:border-[#00695C]/30 hover:shadow-md transition-all cursor-pointer"
                                         onClick={() => openUploadForExercise(exercise)}
                                     >
+                                        {exercise.video_url && (
+                                            <div className="mt-4 mb-4 rounded-xl overflow-hidden bg-slate-100 aspect-video">
+                                                {getYouTubeEmbedUrl(exercise.video_url) ? (
+                                                    <iframe
+                                                        width="100%"
+                                                        height="100%"
+                                                        src={getYouTubeEmbedUrl(exercise.video_url)!}
+                                                        title="YouTube video player"
+                                                        frameBorder="0"
+                                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                        allowFullScreen
+                                                    />
+                                                ) : (
+                                                    <div className="flex items-center justify-center h-full text-muted-foreground gap-2">
+                                                        <Video className="h-5 w-5" />
+                                                        <span>Video hướng dẫn</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+
                                         <div className="flex items-start justify-between gap-4">
                                             <div className="flex-1">
                                                 <div className="flex items-center gap-2 mb-2">
-                                                    <Badge className={cn("text-[10px] font-bold border", getPriorityColor(exercise.priority))}>
-                                                        {getPriorityLabel(exercise.priority)}
+                                                    <Badge className="text-[10px] font-bold border bg-blue-100 text-blue-700 border-blue-200">
+                                                        Hằng ngày
                                                     </Badge>
                                                     <span className="text-xs text-muted-foreground">
-                                                        Hạn: {exercise.dueDate}
+                                                        Giao ngày: {new Date(exercise.assigned_at).toLocaleDateString('vi-VN')}
                                                     </span>
                                                 </div>
                                                 <h3 className="font-bold text-lg group-hover:text-[#00695C] transition-colors">
                                                     {exercise.title}
                                                 </h3>
-                                                <p className="text-sm text-muted-foreground mt-1">
+                                                <p className="text-sm text-muted-foreground mt-1 whitespace-pre-wrap">
                                                     {exercise.description}
                                                 </p>
-                                                <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+
+                                                {exercise.notes && (
+                                                    <div className="mt-3 p-3 rounded-xl bg-amber-50 border border-amber-100 text-sm">
+                                                        <p className="font-bold text-amber-800 flex items-center gap-1.5 mb-1">
+                                                            <AlertCircle className="h-4 w-4" />
+                                                            Lưu ý từ Bác sĩ:
+                                                        </p>
+                                                        <p className="text-amber-700 whitespace-pre-wrap">{exercise.notes}</p>
+                                                    </div>
+                                                )}
+
+                                                <div className="flex items-center gap-4 mt-4 text-xs text-muted-foreground font-medium">
                                                     <span className="flex items-center gap-1">
-                                                        <Clock className="h-3 w-3" />
-                                                        {exercise.duration}
-                                                    </span>
-                                                    <span className="flex items-center gap-1">
-                                                        <Star className="h-3 w-3" />
-                                                        {exercise.therapist}
+                                                        <Sparkles className="h-3.5 w-3.5" />
+                                                        {exercise.doctor_name}
                                                     </span>
                                                 </div>
                                             </div>
@@ -382,11 +428,19 @@ export default function ExerciseAssignments() {
                                                 }}
                                             >
                                                 <Upload className="h-4 w-4 mr-2" />
-                                                Upload
+                                                Nộp bài
                                             </Button>
                                         </div>
                                     </motion.div>
                                 ))}
+
+                                {pendingExercises.length === 0 && !isLoadingAssignments && (
+                                    <div className="text-center py-12">
+                                        <CheckCircle2 className="h-12 w-12 text-green-500/20 mx-auto mb-3" />
+                                        <p className="text-muted-foreground font-bold">Bạn đã hoàn thành tất cả bài tập!</p>
+                                        <p className="text-sm text-muted-foreground/70 mt-1">Chờ bác sĩ giao bài tập mới nhé.</p>
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
 
@@ -774,6 +828,6 @@ export default function ExerciseAssignments() {
                     )}
                 </AnimatePresence>
             </div>
-        </ParentLayout>
+        </ParentLayout >
     );
 }

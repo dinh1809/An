@@ -16,6 +16,7 @@ import { ThemeWrapper } from "./components/layout/ThemeWrapper";
 // Auth
 import Auth from "./pages/Auth";
 import RoleSelection from "./pages/RoleSelection";
+import ModeSelection from "./pages/ModeSelection";
 
 // Parent pages
 import UnifiedDashboard from "./pages/parent/UnifiedDashboard";
@@ -49,6 +50,7 @@ import SequenceMemory from "./pages/assessment/SequenceMemory";
 import DispatcherAssessment from "./pages/assessment/DispatcherAssessment";
 import MatrixAssessment from "./pages/assessment/MatrixAssessment";
 import AssessmentResult from "./pages/assessment/AssessmentResult";
+import UnifiedResult from "./pages/assessment/UnifiedResult";
 import TaskBoard from "./pages/workspace/TaskBoard";
 
 // Shared pages
@@ -74,6 +76,7 @@ const App = () => (
                 {/* Auth routes - Public */}
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/select-role" element={<RoleSelection />} />
+                <Route path="/select-mode" element={<ModeSelection />} />
 
                 {/* Magic link connection route */}
                 <Route path="/connect" element={<Connect />} />
@@ -108,7 +111,7 @@ const App = () => (
                   <Route path="/assessment/sequence-memory" element={<SequenceMemory />} />
                   <Route path="/assessment/dispatcher" element={<DispatcherAssessment />} />
                   <Route path="/assessment/matrix" element={<MatrixAssessment />} />
-                  <Route path="/assessment/result" element={<AssessmentResult />} />
+                  <Route path="/assessment/result" element={<UnifiedResult />} />
                 </Route>
 
                 {/* WORKSPACE MODE */}
