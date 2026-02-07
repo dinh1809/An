@@ -2,6 +2,7 @@ import { NavLink as RouterNavLink, useNavigate, useLocation } from "react-router
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.jfif";
+import { useToast } from "@/hooks/use-toast";
 
 const navItems = [
   { icon: "dashboard", label: "Dashboard", path: "/therapist/dashboard" },
@@ -16,13 +17,24 @@ export function TherapistSidebar() {
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
 
   const isActive = (path: string) => location.pathname === path;
 
   const handleSignOut = async () => {
-    await signOut();
-    navigate("/auth");
+    try {
+      await signOut();
+      toast({
+        title: "Đăng xuất thành công",
+        description: "Hẹn gặp lại bạn!",
+      });
+      navigate("/auth");
+    } catch (error) {
+      console.error("SignOut error:", error);
+      navigate("/auth");
+    }
   };
+
 
   return (
     <aside className="hidden md:flex fixed left-0 top-0 h-full w-64 flex-col bg-card border-r border-border z-50 transition-colors duration-300">
@@ -44,8 +56,8 @@ export function TherapistSidebar() {
             key={item.path}
             to={item.path}
             className={`relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive(item.path)
-                ? "sidebar-item-active"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              ? "sidebar-item-active"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground"
               }`}
           >
             <span className="material-icons-round text-[20px]">{item.icon}</span>

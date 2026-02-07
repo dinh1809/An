@@ -22,6 +22,7 @@ import {
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import logo from '@/assets/logo.jfif';
+import { useToast } from '@/hooks/use-toast';
 
 interface NavItem {
     to: string;
@@ -49,11 +50,30 @@ export function TopNavbar({ customItems, className, activeClassName }: TopNavbar
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const items = customItems || navItems;
+    const { toast } = useToast();
 
     const handleLogout = async () => {
-        await supabase.auth.signOut();
-        navigate('/auth');
+        try {
+            // Clearing cache/localStorage manually can help if there are zombie sessions
+            localStorage.clear();
+            sessionStorage.clear();
+
+            await supabase.auth.signOut();
+            toast({
+                title: "Đăng xuất thành công",
+                description: "Hẹn gặp lại bạn lần sau!",
+            });
+
+            // USE window.location.href to force a full reload and clear React Context
+            window.location.href = '/auth';
+        } catch (error: any) {
+            console.error("Logout error:", error);
+            // Even if there's an error, we MUST force login screen
+            window.location.href = '/auth';
+        }
     };
+
+
 
     const handleSwitchMode = () => {
         navigate('/select-mode');
