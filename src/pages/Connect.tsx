@@ -67,57 +67,39 @@ export default function Connect() {
     if (!code) return;
 
     try {
-      // 1. First validate the invite code via RPC (or check invitations table directly if allowed)
-      // Since we have strict policies, we should ideally use a function, but let's try reading the invitation
-      // If we can't read it (RLS), then the code is invalid or we are not allowed.
-      // BUT: The plan says "Parents can ONLY find an invite by exact code match".
-
-      const { data: inviteData, error: inviteError } = await (supabase as any)
-        .from('invitations')
-        .select(`
-            *,
-            therapist:profiles!therapist_id (
-                user_id,
-                full_name,
-                avatar_url,
-                clinic_name,
-                clinic_address
-            )
-         `)
-        .eq('code', code)
-        .eq('status', 'active')
-        .gt('expires_at', new Date().toISOString())
+      // Find therapist by code in profiles table
+      const { data: therapistData, error: fetchError } = await supabase
+        .from('profiles')
+        .select('id, full_name, avatar_url, clinic_name, clinic_address')
+        .eq('invite_code', code.toUpperCase())
+        .eq('role', 'therapist')
         .maybeSingle();
 
-      if (inviteError || !inviteData) {
-        console.error("Invite fetch error:", inviteError);
-        setError("Mã mời không hợp lệ hoặc đã hết hạn.");
+      if (fetchError || !therapistData) {
+        console.error("Therapist fetch error:", fetchError);
+        setError("Mã mời không hợp lệ hoặc không tìm thấy chuyên gia.");
         setLoading(false);
         return;
       }
 
-      const therapistData = inviteData.therapist;
-
-      // 2. Check if already connected
-      const { data: existingConnection } = await supabase
-        .from("connections")
-        .select("id, status")
-        .eq("parent_id", user!.id)
-        .eq("therapist_id", therapistData.user_id)
+      // Check if already connected
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("therapist_id")
+        .eq("id", user!.id)
         .maybeSingle();
 
-      if (existingConnection) {
-        if (existingConnection.status === "accepted") {
-          setAlreadyConnected(true);
-        } else if (existingConnection.status === "pending") {
-          // It's fine, we can allow re-connecting or just show them.
-          // For this flow, let's treat it as "Already Connected" but maybe show a different message?
-          // Simplicity: Show already connected details.
-          setAlreadyConnected(true);
-        }
+      if (profile?.therapist_id === therapistData.id) {
+        setAlreadyConnected(true);
       }
 
-      setTherapist(therapistData);
+      setTherapist({
+        user_id: therapistData.id,
+        full_name: therapistData.full_name,
+        avatar_url: therapistData.avatar_url,
+        clinic_name: therapistData.clinic_name,
+        clinic_address: therapistData.clinic_address
+      });
       setLoading(false);
     } catch (err) {
       console.error("Error fetching therapist:", err);
@@ -131,9 +113,9 @@ export default function Connect() {
 
     setConnecting(true);
     try {
-      // Use the secure RPC to connect via invite
-      const { data, error } = await (supabase as any)
-        .rpc('connect_via_invite', { code_input: code });
+      // Use the standard RPC for connecting
+      const { data, error } = await supabase
+        .rpc('connect_patient_to_therapist', { code_input: code });
 
       if (error) throw error;
 
@@ -149,7 +131,7 @@ export default function Connect() {
       });
 
       // Redirect to parent dashboard
-      navigate("/parent/home");
+      navigate("/parent/dashboard");
     } catch (err: any) {
       console.error("Error connecting:", err);
       toast({
