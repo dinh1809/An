@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cài đặt &amp; Phân quyền người chăm sóc</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#11d4c4",
+                        "background-light": "#f6f8f8",
+                        "background-dark": "#102220",
+                        "dark-teal": "#0d1b1a",
+                        "soft-teal": "#e7f3f2",
+                        "medium-teal": "#4c9a93",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        /* Custom Toggle Switch Style */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #11d4c4;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #11d4c4;
+        }
+        
+        /* Custom Scrollbar for nicer look */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8; 
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-dark-teal min-h-screen flex flex-col overflow-x-hidden">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-soft-teal px-6 py-3 shadow-sm">
+<div class="max-w-7xl mx-auto flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-8 text-primary">
+<span class="material-symbols-outlined text-3xl">diversity_1</span>
+</div>
+<h2 class="text-dark-teal text-xl font-bold tracking-tight">The Parent Action Hub</h2>
+</div>
+<nav class="hidden md:flex flex-1 justify-end items-center gap-8">
+<div class="flex items-center gap-6">
+<a class="text-gray-600 hover:text-primary text-sm font-medium transition-colors" href="#">Dashboard</a>
+<a class="text-gray-600 hover:text-primary text-sm font-medium transition-colors" href="#">Thực hành</a>
+<a class="text-gray-600 hover:text-primary text-sm font-medium transition-colors" href="#">Đánh giá</a>
+<a class="text-gray-600 hover:text-primary text-sm font-medium transition-colors" href="#">Cộng đồng</a>
+<div class="flex items-center gap-1 text-primary cursor-pointer relative after:content-[''] after:absolute after:-bottom-5 after:left-0 after:w-full after:h-0.5 after:bg-primary">
+<span class="material-symbols-outlined text-lg">settings</span>
+<span class="text-sm font-bold">Cài đặt</span>
+</div>
+</div>
+<div class="h-6 w-px bg-gray-200"></div>
+<div class="flex items-center gap-3 cursor-pointer group">
+<div class="text-right hidden lg:block">
+<p class="text-xs font-bold text-dark-teal">Nguyen Thi Huong</p>
+<p class="text-[10px] text-gray-500">Phụ huynh</p>
+</div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-transparent group-hover:border-primary transition-all" data-alt="User profile picture of a smiling woman" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDUgGtVRVpnqbxTZnDYOqDiqn50F3e1KSzVTfZ5n0M6VfOUStSw7cTUoAiL4p5KClKJnZOHE8XT2BG84NkJq9mVVDOpIiGqBWDU_v6i891z2XhH6stAxx0brt5qLDHaE1vZid9bmpk2HOTdy-HNFxWBV5RRJB0on8lENnqsaozbMOb44FatR64jx8zuOHLrN1e8hWINslRgmbjcnZF2xw6pgvj5apwyFDwDsGcye6ER9ukl85qDhuyP9WeIeqfZ4KUyuRKv3FYOZpA");'>
+</div>
+</div>
+</nav>
+<!-- Mobile Menu Icon -->
+<button class="md:hidden text-dark-teal">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</header>
+<!-- Main Layout -->
+<div class="flex-1 max-w-7xl mx-auto w-full p-4 md:p-8 flex flex-col lg:flex-row gap-8">
+<!-- Left Sidebar (Navigation) -->
+<aside class="w-full lg:w-64 flex-shrink-0">
+<div class="sticky top-24">
+<h1 class="text-dark-teal text-xl font-bold mb-6 px-2">Cài đặt hệ thống</h1>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary/10 text-primary border-l-4 border-primary transition-all" href="#">
+<span class="material-symbols-outlined">manage_accounts</span>
+<span class="text-sm font-bold">Tài khoản &amp; Bảo mật</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-soft-teal hover:text-dark-teal transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">notifications</span>
+<span class="text-sm font-medium">Cài đặt thông báo</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-soft-teal hover:text-dark-teal transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">lock</span>
+<span class="text-sm font-medium">Quyền riêng tư &amp; Truy cập</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-soft-teal hover:text-dark-teal transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">language</span>
+<span class="text-sm font-medium">Ngôn ngữ</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 mt-4 rounded-lg text-red-500 hover:bg-red-50 transition-all" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="text-sm font-medium">Đăng xuất</span>
+</a>
+</nav>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col gap-8">
+<!-- 1. Account & Security Section -->
+<section class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+<div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
+<h2 class="text-lg font-bold text-dark-teal">Tài khoản &amp; Bảo mật</h2>
+<span class="material-symbols-outlined text-gray-300">security</span>
+</div>
+<div class="p-6">
+<!-- Profile Header Reuse/Adaptation -->
+<div class="flex flex-col md:flex-row gap-6 items-center md:items-start mb-8">
+<div class="relative group cursor-pointer">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-24 h-24 shadow-md" data-alt="Current user profile photo" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuChTLFLtT15rNT6ZYdjR0rX38IPbJW8ibAvax1Uv5_CC6lPArOfyAZqoAkbD7ILBYsjVNUxOZ1gApo1TUDJWzFYmLOcRbOLmU-fXZf4A2u6f2uu7lCh4jX-GISbkGV31SmWuIOMdbLAFICZEz-coo1U1q58h2uxPi__-tf2m0Jp1OXp2YbGUQhi1A7W0uAethWHI3ipICZqmjxHY34SUlUq0C1ufnFXWIpMRffEQpCbuzBXSaISCGugIAfBeeBA2hbF9wfWE24SRNQ");'></div>
+<div class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-white">edit</span>
+</div>
+</div>
+<div class="flex-1 w-full text-center md:text-left">
+<div class="flex flex-col md:flex-row justify-between items-center gap-4">
+<div>
+<h3 class="text-xl font-bold text-dark-teal">Nguyen Thi Huong</h3>
+<p class="text-medium-teal">nguyen.huong@email.com</p>
+</div>
+<button class="px-4 py-2 bg-soft-teal hover:bg-primary/20 text-dark-teal text-sm font-semibold rounded-lg transition-colors">
+                                    Đổi ảnh đại diện
+                                </button>
+</div>
+<!-- Form Fields -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+<label class="block">
+<span class="text-sm font-medium text-dark-teal">Họ và tên</span>
+<input class="mt-1 block w-full rounded-lg border-gray-200 bg-background-light focus:border-primary focus:ring focus:ring-primary/20 text-sm py-2.5" type="text" value="Nguyen Thi Huong"/>
+</label>
+<label class="block">
+<span class="text-sm font-medium text-dark-teal">Email đăng nhập</span>
+<input class="mt-1 block w-full rounded-lg border-gray-200 bg-background-light focus:border-primary focus:ring focus:ring-primary/20 text-sm py-2.5" disabled="" type="email" value="nguyen.huong@email.com"/>
+</label>
+</div>
+</div>
+</div>
+<div class="h-px bg-gray-100 my-6"></div>
+<!-- Password & 2FA -->
+<div class="space-y-6">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+<div>
+<h4 class="text-sm font-bold text-dark-teal">Đổi mật khẩu</h4>
+<p class="text-xs text-gray-500 mt-1">Lần thay đổi cuối: 3 tháng trước</p>
+</div>
+<button class="px-4 py-2 border border-gray-200 hover:border-primary text-gray-600 hover:text-primary text-sm font-medium rounded-lg transition-colors">
+                                Cập nhật mật khẩu
+                            </button>
+</div>
+<div class="flex justify-between items-center p-4 bg-background-light rounded-lg border border-gray-100">
+<div class="flex gap-3 items-start">
+<div class="p-2 bg-white rounded-md shadow-sm text-primary">
+<span class="material-symbols-outlined">phonelink_lock</span>
+</div>
+<div>
+<h4 class="text-sm font-bold text-dark-teal">Xác thực 2 yếu tố (2FA)</h4>
+<p class="text-xs text-gray-500 mt-1 max-w-[300px]">Tăng cường bảo mật bằng cách yêu cầu mã xác nhận khi đăng nhập trên thiết bị lạ.</p>
+</div>
+</div>
+<!-- Toggle Switch -->
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</div>
+</section>
+<!-- 2. Caregiver Permissions Section -->
+<section class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+<div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-white to-background-light">
+<div>
+<h2 class="text-lg font-bold text-dark-teal">Phân quyền người chăm sóc</h2>
+<p class="text-sm text-gray-500 mt-1">Mời thành viên gia đình hoặc chuyên gia cùng hỗ trợ bé.</p>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary text-white text-sm font-bold rounded-lg shadow-sm hover:bg-teal-400 transition-colors">
+<span class="material-symbols-outlined text-[18px]">person_add</span>
+<span>Mời thành viên</span>
+</button>
+</div>
+<div class="p-6 grid gap-6">
+<!-- Invite Card (Quick Action) -->
+<div class="bg-soft-teal/50 rounded-xl p-4 border border-primary/20 flex flex-col sm:flex-row gap-3 items-center">
+<div class="flex-1 w-full">
+<label class="sr-only">Email người được mời</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-medium-teal">mail</span>
+<input class="w-full pl-10 pr-4 py-2 rounded-lg border-0 ring-1 ring-primary/30 focus:ring-2 focus:ring-primary text-sm" placeholder="Nhập email người thân hoặc giáo viên..." type="email"/>
+</div>
+</div>
+<div class="w-full sm:w-auto">
+<select class="w-full py-2 pl-3 pr-8 rounded-lg border-0 ring-1 ring-primary/30 focus:ring-2 focus:ring-primary text-sm bg-white text-gray-700">
+<option>Vai trò: Người thân</option>
+<option>Vai trò: Giáo viên</option>
+<option>Vai trò: Bác sĩ</option>
+</select>
+</div>
+<button class="w-full sm:w-auto px-5 py-2 bg-white text-primary border border-primary font-semibold rounded-lg text-sm hover:bg-primary hover:text-white transition-colors">
+                            Gửi lời mời
+                        </button>
+</div>
+<!-- Existing Caregivers List -->
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-4">
+<!-- Card 1: Grandparent -->
+<div class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow bg-white">
+<div class="flex items-start justify-between mb-4">
+<div class="flex items-center gap-3">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-12" data-alt="Grandmother profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB77qByjPIpe4LOJDsUxOGuSrp73Qb5qnwRbnBAKilXIpYvlCwRgj9Tu1ci2Oc1fh-xaRqEAIsE7W1DMRqx3VnwS0tZqL88krnffUXDGLEy43P9a3Iwm6e2kJyEFX3xLOOzcTSxMvhMk5cqaV-6waZ5OTkvCrh0w08j26r8bMHtEfWbsFUv18C6FgoWllQAQRJxpwGeD4tXFF4K-vWxY2HyXxUNmwCKRLnoNYNQ7-YjN6cefmSOeXSuZMDavbTJHiqO1NG6LqVroKM");'></div>
+<div>
+<h4 class="font-bold text-dark-teal">Bà Nội (Phạm Thị Mai)</h4>
+<p class="text-xs text-gray-500">Vai trò: Người thân</p>
+</div>
+</div>
+<span class="px-2 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded-full uppercase tracking-wider">Đang hoạt động</span>
+</div>
+<div class="space-y-3 bg-background-light p-3 rounded-lg">
+<div class="flex items-center justify-between">
+<span class="text-xs font-medium text-gray-600 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">analytics</span> Xem báo cáo
+                                    </span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-8 h-4 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[0px] after:left-[0px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-xs font-medium text-gray-600 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">fitness_center</span> Thực hành bài tập
+                                    </span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-8 h-4 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[0px] after:left-[0px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-xs font-medium text-gray-600 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">forum</span> Truy cập Forum
+                                    </span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-8 h-4 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[0px] after:left-[0px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+<div class="mt-3 flex justify-end">
+<button class="text-xs text-red-500 hover:text-red-700 font-medium">Xoá quyền truy cập</button>
+</div>
+</div>
+<!-- Card 2: Teacher -->
+<div class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow bg-white">
+<div class="flex items-start justify-between mb-4">
+<div class="flex items-center gap-3">
+<div class="bg-center bg-no-repeat bg-cover rounded-full size-12" data-alt="Teacher profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBAc-riyeLUaK7hBFqLZVOB_hVvCoJ4MZnalyAlXgoB059zyGSVkcTa47PMIWh9eyBa1QPEw376G0NbYSG0yOro6oPGc9r8ZCxU4SE4VOxBIEGKLZezzBOu55OQva5Ck2Pjxira9gp3Kv_sI1mSEz-yP0EDcr2it0pwM3nVQxoyzbRIBPOJSTMWE6WPwjH2ZIJU6aMrKO-RaGAtj3g_P9ZaZNtXmHx-0DLU3qY7NlYNCe6koc34j9F2e75cBEMB70gWTSuYAfGOFmk");'></div>
+<div>
+<h4 class="font-bold text-dark-teal">Cô Lan (Giáo viên)</h4>
+<p class="text-xs text-gray-500">Vai trò: Giáo viên hỗ trợ</p>
+</div>
+</div>
+<span class="px-2 py-1 bg-gray-100 text-gray-600 text-[10px] font-bold rounded-full uppercase tracking-wider">Chờ xác nhận</span>
+</div>
+<div class="space-y-3 bg-background-light p-3 rounded-lg opacity-80">
+<div class="flex items-center justify-between">
+<span class="text-xs font-medium text-gray-600 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">analytics</span> Xem báo cáo
+                                    </span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-8 h-4 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[0px] after:left-[0px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-xs font-medium text-gray-600 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">fitness_center</span> Thực hành bài tập
+                                    </span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-8 h-4 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[0px] after:left-[0px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-xs font-medium text-gray-600 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">forum</span> Truy cập Forum
+                                    </span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-8 h-4 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[0px] after:left-[0px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+<div class="mt-3 flex justify-between items-center">
+<span class="text-[10px] italic text-gray-400">Đã gửi lời mời 2 giờ trước</span>
+<button class="text-xs text-primary hover:text-teal-600 font-medium">Gửi lại</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 3. Notification Settings -->
+<section class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+<div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
+<h2 class="text-lg font-bold text-dark-teal">Cài đặt thông báo</h2>
+<span class="material-symbols-outlined text-gray-300">notifications_active</span>
+</div>
+<div class="p-6">
+<div class="space-y-4">
+<label class="flex items-start gap-3 p-3 rounded-lg hover:bg-background-light transition-colors cursor-pointer">
+<div class="flex items-center h-5 mt-1">
+<input checked="" class="w-5 h-5 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2" type="checkbox"/>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-bold text-dark-teal">Nhiệm vụ hàng ngày (Daily Quests)</span>
+<span class="text-xs text-gray-500">Nhận nhắc nhở lúc 8:00 sáng mỗi ngày để hoàn thành bài tập.</span>
+</div>
+</label>
+<label class="flex items-start gap-3 p-3 rounded-lg hover:bg-background-light transition-colors cursor-pointer">
+<div class="flex items-center h-5 mt-1">
+<input checked="" class="w-5 h-5 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2" type="checkbox"/>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-bold text-dark-teal">Lịch hẹn trị liệu (Therapy Sessions)</span>
+<span class="text-xs text-gray-500">Thông báo trước 1 giờ khi có buổi hẹn với chuyên gia.</span>
+</div>
+</label>
+<label class="flex items-start gap-3 p-3 rounded-lg hover:bg-background-light transition-colors cursor-pointer">
+<div class="flex items-center h-5 mt-1">
+<input class="w-5 h-5 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2" type="checkbox"/>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-bold text-dark-teal">Cập nhật cộng đồng</span>
+<span class="text-xs text-gray-500">Khi có phản hồi mới trong các bài viết bạn theo dõi.</span>
+</div>
+</label>
+</div>
+</div>
+</section>
+<div class="flex justify-end gap-4 pb-8">
+<button class="px-6 py-2.5 rounded-lg border border-gray-300 text-gray-600 font-medium text-sm hover:bg-gray-50 transition-colors">Huỷ thay đổi</button>
+<button class="px-6 py-2.5 rounded-lg bg-primary text-white font-bold text-sm shadow-md hover:bg-teal-500 hover:shadow-lg transition-all transform hover:-translate-y-0.5">Lưu cài đặt</button>
+</div>
+</main>
+</div>
+</body></html>

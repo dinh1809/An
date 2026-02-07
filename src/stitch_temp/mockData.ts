@@ -1,0 +1,207 @@
+// Mock data for Stitch components
+export const userData = {
+    name: 'Minh Anh',
+    age: 8,
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=MinhAnh',
+    level: 'Khởi đầu',
+    completedGames: 3,
+    totalGames: 9,
+};
+
+export const gamesList = {
+    basic: [
+        {
+            id: 'detail-spotter',
+            name: 'Thợ Săn Chi Tiết',
+            description: 'Quan sát và nhận diện mẫu',
+            duration: '5 phút',
+            icon: 'eye',
+            color: 'emerald',
+            status: 'completed',
+        },
+        {
+            id: 'stroop-chaos',
+            name: 'Hỗn Loạn Stroop',
+            description: 'Linh hoạt tư duy',
+            duration: '4 phút',
+            icon: 'shuffle',
+            color: 'sky',
+            status: 'completed',
+        },
+        {
+            id: 'sequence-memory',
+            name: 'Bậc Thầy Chuỗi Số',
+            description: 'Trí nhớ làm việc',
+            duration: '6 phút',
+            icon: 'hash',
+            color: 'purple',
+            status: 'current',
+        },
+        {
+            id: 'visual-logic',
+            name: 'Logic Hình Ảnh',
+            description: 'Ma trận Raven',
+            duration: '8 phút',
+            icon: 'grid',
+            color: 'amber',
+            status: 'locked',
+        },
+        {
+            id: 'dispatcher',
+            name: 'Điều Phối Viên',
+            description: 'Đa nhiệm & bền bỉ',
+            duration: '7 phút',
+            icon: 'package',
+            color: 'rose',
+            status: 'locked',
+        },
+        {
+            id: 'sonic-composer',
+            name: 'Nhà Soạn Nhạc',
+            description: 'Thính giác & giai điệu',
+            duration: '5 phút',
+            icon: 'music',
+            color: 'indigo',
+            status: 'locked',
+        },
+    ],
+    advanced: [
+        {
+            id: 'time-warp-cargo',
+            name: 'Kho Thời Gian',
+            tag: 'N-BACK',
+            description: 'Trí nhớ làm việc nâng cao',
+            duration: '8 phút',
+            icon: 'clock',
+            color: 'violet',
+            status: 'locked',
+        },
+        {
+            id: 'command-override',
+            name: 'Vượt Qua Lệnh',
+            tag: 'STROOP',
+            description: 'Ức chế phản ứng',
+            duration: '6 phút',
+            icon: 'zap',
+            color: 'emerald',
+            status: 'locked',
+        },
+        {
+            id: 'flux-matrix',
+            name: 'Ma Trận Biến Đổi',
+            tag: 'WCST',
+            description: 'Linh hoạt nhận thức',
+            duration: '10 phút',
+            icon: 'layers',
+            color: 'indigo',
+            status: 'locked',
+        },
+    ],
+};
+
+export const assessmentResult = {
+    totalScore: 847,
+    totalTime: '23:45',
+    level: 'Pro',
+    dateCompleted: 'Ngày 5 tháng 2, 2026',
+    radarData: [
+        { axis: 'Thị giác', value: 85 },
+        { axis: 'Logic', value: 92 },
+        { axis: 'Trí nhớ', value: 78 },
+        { axis: 'Tốc độ', value: 88 },
+        { axis: 'Linh hoạt', value: 72 },
+    ],
+    jobMatches: [
+        {
+            title: 'Lập trình viên',
+            matchPercent: 98,
+            icon: 'code',
+            description: 'Khả năng logic và trí nhớ xuất sắc',
+        },
+        {
+            title: 'Thiết kế đồ họa',
+            matchPercent: 92,
+            icon: 'palette',
+            description: 'Năng lực thị giác-không gian cao',
+        },
+        {
+            title: 'Kiểm soát chất lượng',
+            matchPercent: 89,
+            icon: 'check-circle',
+            description: 'Chú ý đến chi tiết tuyệt vời',
+        },
+    ],
+};
+
+export const parentGuidance = {
+    childStrengths: [
+        {
+            name: 'Thị giác-Không gian',
+            percentile: 'Top 20%',
+            description: 'Con có khả năng nhận diện mẫu tuyệt vời',
+            icon: 'eye',
+        },
+        {
+            name: 'Tư duy Logic',
+            percentile: 'Top 15%',
+            description: 'Xuất sắc trong giải quyết vấn đề',
+            icon: 'brain',
+        },
+        {
+            name: 'Tốc độ xử lý',
+            percentile: 'Top 30%',
+            description: 'Phản ứng nhanh với thông tin',
+            icon: 'zap',
+        },
+    ],
+    nextSteps: [
+        { title: 'Đọc báo cáo chi tiết', status: 'completed' },
+        { title: 'Kết nối với chuyên gia', status: 'current' },
+        { title: 'Lên kế hoạch học tập', status: 'upcoming' },
+        { title: 'Theo dõi tiến độ', status: 'upcoming' },
+    ],
+    suggestedActivities: [
+        { name: 'Bài tập logic hàng ngày', duration: '15 phút', icon: 'puzzle' },
+        { name: 'Game nhớ chuỗi', duration: '10 phút', icon: 'brain' },
+        { name: 'Vẽ theo mẫu', duration: '20 phút', icon: 'pencil' },
+    ],
+};
+
+export const partners = [
+    {
+        id: 1,
+        name: 'Nguyễn Thị Lan',
+        role: 'Chuyên gia Trị liệu Ngôn ngữ',
+        company: 'Phòng khám ABC',
+        location: 'Quận 1, TP.HCM',
+        matchPercent: 92,
+        rating: 4.8,
+        reviewCount: 127,
+        verified: true,
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Lan',
+    },
+    {
+        id: 2,
+        name: 'Trần Văn Minh',
+        role: 'Nhà Tâm lý Trẻ em',
+        company: 'Trung tâm XYZ',
+        location: 'Quận 3, TP.HCM',
+        matchPercent: 88,
+        rating: 4.9,
+        reviewCount: 89,
+        verified: true,
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Minh',
+    },
+    {
+        id: 3,
+        name: 'Lê Thị Hương',
+        role: 'Chuyên gia Hướng nghiệp',
+        company: 'Career Center',
+        location: 'Quận 7, TP.HCM',
+        matchPercent: 85,
+        rating: 4.7,
+        reviewCount: 156,
+        verified: true,
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Huong',
+    },
+];

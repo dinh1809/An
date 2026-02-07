@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hồ sơ &amp; Kho lưu trữ Video dài hạn - The Parent Action Hub</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200..800&amp;family=Noto+Sans:wght@400..700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#00695C","primary-light": "#00897B",
+                        "accent": "#11d4c4",
+                        "background-light": "#F5F7F8",
+                        "background-dark": "#102220",
+                        "surface": "#FFFFFF",
+                        "text-main": "#0d1b1a",
+                        "text-sub": "#5f7470"
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"],
+                        "body": ["Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: "Plus Jakarta Sans", sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined.filled { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }.no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none;  scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main min-h-screen flex flex-col overflow-x-hidden font-body">
+<header class="sticky top-0 z-50 bg-white dark:bg-[#1A2C2A] border-b border-gray-200 dark:border-gray-800 shadow-sm font-display">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between items-center h-16">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 text-primary dark:text-accent">
+<svg class="w-full h-full" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M24 4C25.7818 14.2173 33.7827 22.2182 44 24C33.7827 25.7818 25.7818 33.7827 24 44C22.2182 33.7827 14.2173 25.7818 4 24C14.2173 22.2182 22.2182 14.2173 24 4Z" fill="currentColor"></path>
+</svg>
+</div>
+<span class="text-xl font-bold tracking-tight text-primary dark:text-white">The Parent Action Hub</span>
+</div>
+<nav class="hidden md:flex space-x-8">
+<a class="text-text-sub hover:text-primary px-3 py-2 text-sm font-medium transition-colors" href="#">Dashboard</a>
+<a class="text-text-sub hover:text-primary px-3 py-2 text-sm font-medium transition-colors" href="#">Thực hành</a>
+<a class="text-text-sub hover:text-primary px-3 py-2 text-sm font-medium transition-colors" href="#">Đánh giá</a>
+<a class="text-text-sub hover:text-primary px-3 py-2 text-sm font-medium transition-colors" href="#">Cộng đồng</a>
+<a class="text-primary border-b-2 border-primary px-3 py-2 text-sm font-bold" href="#">Hồ sơ</a>
+</nav>
+<div class="flex items-center gap-4">
+<a class="text-text-sub hover:text-primary transition-colors flex items-center gap-2" href="#">
+<div class="h-8 w-8 rounded-full bg-gray-200 overflow-hidden ring-2 ring-primary ring-offset-2 dark:ring-offset-gray-900">
+<img alt="User profile picture" class="h-full w-full object-cover" data-alt="Smiling woman profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfNGovFqp4CHjWK_jbxBXR5NDrNNegvofNz_GU2B5FyPDW5KbkRasQoqFW3gtmcBsflJX93wYfokQuAeKPyVw0SdJbdZ4xCTzpCi_rvSie8mbHMpwdNjD1sfREp6ROWBMALv8EqXhMcII8CAtZZSL92C2BMkN_2N3A0wTGsrFVOSENJSLNiJY_zgO5Qb992RKsFWYqQVPTTTRafa6NjvaTxR2pgD0W3KD7osFniC81c22lJol2QCYQi2nk73HUBHX1-w-c_BMiYdE"/>
+</div>
+</a>
+<button class="p-2 text-text-sub hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<div class="max-w-7xl mx-auto w-full flex-grow py-8 px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<aside class="lg:col-span-4 space-y-6">
+<div class="bg-white dark:bg-[#1A2C2A] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+<div class="relative h-32 bg-gradient-to-r from-primary to-teal-400">
+<button class="absolute top-3 right-3 p-1.5 bg-white/20 hover:bg-white/30 rounded-full text-white backdrop-blur-sm transition-colors">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+</div>
+<div class="px-6 pb-6 relative">
+<div class="-mt-16 mb-4 flex justify-between items-end">
+<div class="h-32 w-32 rounded-full border-4 border-white dark:border-[#1A2C2A] overflow-hidden bg-white shadow-md">
+<img alt="Child portrait" class="w-full h-full object-cover" data-alt="Portrait of a young boy smiling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMdbCPY0CFwtv73xvVwmju6B9-5gVxS1vFH4wZ6-4FeMsqgRlim2v3a17rao17ww80n5WEzHc2udqMBgOP1FGz4H_GaSPNImkh9deQPMvrtIB3wm_T8KlJ8JmxqTth2Pvb583zXSsVraUonjT8d8zx9rhxey7gnGo3YXRrGmSr2AprNwprshQUbg3Qv1rWvz3rQuGafXe5VCUDwwHdG59EZck8CGRM_QOxLOwAqSsKiTmRTxSaRp3buMk4BA7SYwoCzGrp43oSYHM"/>
+</div>
+</div>
+<div class="mb-4">
+<h1 class="text-2xl font-display font-bold text-text-main">Nguyễn Minh Khang (Sóc)</h1>
+<p class="text-text-sub text-sm mt-1">4 Tuổi • Nam • Sinh ngày: 12/08/2019</p>
+</div>
+<div class="space-y-4">
+<div>
+<h3 class="text-xs font-bold text-text-sub uppercase tracking-wider mb-2">Chẩn đoán y khoa</h3>
+<div class="bg-teal-50 dark:bg-primary/10 border border-teal-100 dark:border-primary/20 rounded-lg p-3">
+<div class="flex items-start gap-2 text-primary dark:text-teal-300">
+<span class="material-symbols-outlined filled text-[20px]">medical_services</span>
+<span class="font-bold text-sm">Rối loạn phổ tự kỷ (ASD) - Mức độ 2</span>
+</div>
+<p class="text-xs text-text-sub mt-2 pl-7">Chẩn đoán tại Bệnh viện Nhi Trung ương (10/2022)</p>
+</div>
+</div>
+<div>
+<h3 class="text-xs font-bold text-text-sub uppercase tracking-wider mb-2">Mục tiêu can thiệp hiện tại</h3>
+<ul class="space-y-2">
+<li class="flex items-center gap-2 text-sm text-text-main bg-gray-50 dark:bg-white/5 p-2 rounded-lg">
+<span class="material-symbols-outlined text-green-600 text-[18px]">check_circle</span>
+<span>Tăng cường giao tiếp bằng mắt (30s)</span>
+</li>
+<li class="flex items-center gap-2 text-sm text-text-main bg-gray-50 dark:bg-white/5 p-2 rounded-lg">
+<span class="material-symbols-outlined text-orange-500 text-[18px]">pending</span>
+<span>Chủ động chỉ tay khi có nhu cầu</span>
+</li>
+<li class="flex items-center gap-2 text-sm text-text-main bg-gray-50 dark:bg-white/5 p-2 rounded-lg">
+<span class="material-symbols-outlined text-orange-500 text-[18px]">pending</span>
+<span>Giảm hành vi rập khuôn khi vui</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-[#1A2C2A] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+<div class="flex justify-between items-center mb-4">
+<h2 class="font-display font-bold text-lg text-text-main">Trị liệu viên phụ trách</h2>
+<button class="text-primary hover:text-primary-light text-sm font-medium">Quản lý</button>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between group">
+<div class="flex items-center gap-3">
+<div class="h-10 w-10 rounded-full bg-purple-100 overflow-hidden">
+<img alt="Therapist 1" class="w-full h-full object-cover" data-alt="Professional woman therapist" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdnD4I1zyFavaVmXeZqtMOJUF2nftgzivf1pbsMxPv5tCjswcYHg4iWxZlMTDyjUTMls7QnctEbsynFRaBHZwEeJjEGbj-hEQwviSX0yEfeJdo6SpGIJ5gmJpDqYAkAljSVEpIWt-SKk9bHW44JbhN4O0mrR9LK4ZBHq4T1SA7G5LwAjTrB7lSefX3hy19TkDeS2WZbwL7vXKUuK_7o_qXIqMBLIWu0cME9W8Onsbb-FtlMTTjAIwsTEvzhKWXg2xzXhql3snsyyI"/>
+</div>
+<div>
+<p class="text-sm font-bold text-text-main">Cô Thu Hà</p>
+<p class="text-xs text-text-sub">Can thiệp hành vi</p>
+</div>
+</div>
+<div class="flex gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 rounded-full bg-gray-100 hover:bg-primary hover:text-white text-text-sub transition-colors">
+<span class="material-symbols-outlined text-[18px]">call</span>
+</button>
+<button class="p-1.5 rounded-full bg-gray-100 hover:bg-primary hover:text-white text-text-sub transition-colors">
+<span class="material-symbols-outlined text-[18px]">chat</span>
+</button>
+</div>
+</div>
+<div class="flex items-center justify-between group">
+<div class="flex items-center gap-3">
+<div class="h-10 w-10 rounded-full bg-blue-100 overflow-hidden">
+<img alt="Therapist 2" class="w-full h-full object-cover" data-alt="Professional man therapist" src="https://lh3.googleusercontent.com/aida-public/AB6AXuABR2DyloC6VCDDDUGW-_eVmxJU5ovpy3BNreHZhHqm7cNFfIAgxY_bzqROOe7v4DZ8XmcjRJes4iLUx5GUEMDvNGjioFyM4O8wMc1F5tKXF6S2j2w2j-vassTLKcyAOvTRK0HmaVf_IcVBER06kZGx97G1tU26FP01F4OD3YtjMTHfN3csY3rSBkK8m1P-KjM-75EjSilNwCo0jJtOLRCo12impG-zvj3MV28k8BqdfJObKneGbEb4l4vPu0FI0rVWc23HOMnti5c"/>
+</div>
+<div>
+<p class="text-sm font-bold text-text-main">Thầy Minh Tuấn</p>
+<p class="text-xs text-text-sub">Vận động thô</p>
+</div>
+</div>
+<div class="flex gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 rounded-full bg-gray-100 hover:bg-primary hover:text-white text-text-sub transition-colors">
+<span class="material-symbols-outlined text-[18px]">call</span>
+</button>
+<button class="p-1.5 rounded-full bg-gray-100 hover:bg-primary hover:text-white text-text-sub transition-colors">
+<span class="material-symbols-outlined text-[18px]">chat</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<main class="lg:col-span-8 space-y-8">
+<div class="bg-white dark:bg-[#1A2C2A] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+<div class="flex justify-between items-center mb-6">
+<div>
+<h2 class="font-display font-bold text-xl text-text-main flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">video_library</span>
+                            Kho lưu trữ Video dài hạn
+                        </h2>
+<p class="text-sm text-text-sub mt-1">Theo dõi sự tiến bộ của con qua các mốc thời gian</p>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-light text-white rounded-lg text-sm font-bold transition-all shadow-md hover:shadow-lg">
+<span class="material-symbols-outlined text-[20px]">upload</span>
+                        Tải lên Video
+                    </button>
+</div>
+<div class="relative pl-4 sm:pl-8 border-l-2 border-gray-200 dark:border-gray-700 space-y-10">
+<div class="relative">
+<div class="absolute -left-[25px] sm:-left-[41px] top-0 h-5 w-5 rounded-full bg-primary border-4 border-white dark:border-[#1A2C2A] shadow-sm"></div>
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-lg font-bold text-text-main">Tháng 10, 2023</h3>
+<span class="text-xs font-medium bg-green-100 text-green-800 px-2 py-1 rounded-md">Đã đạt mục tiêu</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+<div class="group cursor-pointer">
+<div class="relative aspect-video bg-gray-900 rounded-lg overflow-hidden mb-2 shadow-sm group-hover:shadow-md transition-all">
+<img alt="Playing with toys" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGsIxQFaKyPr7w9n6TKl7DhFd5EURWWRObSNBmTkV8c6SHSEAwC3M1CqA8_NHOFjU1DlNJwR5lmREiwSYy_ZqhSRdxeH78V8e_GQlIP-7pvhSMEMYT4V74rlXo8ZdLgP9giXWM4PCmv9bNh3sSFPEsk5pA_1XFtbKmQvBWGudTPy5V4eD6iVOmbvywT3KOM_H6aQg_kU1qa3-hlR4onAu81pjkfUgZwvk636Q8qhxrJs5kKVG_gYqmEZtPNHBNXjyBTDZbJwlLL-s"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="h-10 w-10 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined filled text-white">play_arrow</span>
+</div>
+</div>
+<span class="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded">02:14</span>
+</div>
+<h4 class="text-sm font-bold text-text-main leading-tight group-hover:text-primary transition-colors">Tương tác nhóm lần 1</h4>
+<p class="text-xs text-text-sub mt-1">15/10/2023</p>
+</div>
+<div class="group cursor-pointer">
+<div class="relative aspect-video bg-gray-900 rounded-lg overflow-hidden mb-2 shadow-sm group-hover:shadow-md transition-all">
+<div class="absolute inset-0 bg-gradient-to-tr from-primary/40 to-transparent z-10"></div>
+<img alt="Speaking practice" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMdbCPY0CFwtv73xvVwmju6B9-5gVxS1vFH4wZ6-4FeMsqgRlim2v3a17rao17ww80n5WEzHc2udqMBgOP1FGz4H_GaSPNImkh9deQPMvrtIB3wm_T8KlJ8JmxqTth2Pvb583zXSsVraUonjT8d8zx9rhxey7gnGo3YXRrGmSr2AprNwprshQUbg3Qv1rWvz3rQuGafXe5VCUDwwHdG59EZck8CGRM_QOxLOwAqSsKiTmRTxSaRp3buMk4BA7SYwoCzGrp43oSYHM"/>
+<div class="absolute inset-0 flex items-center justify-center z-20">
+<div class="h-10 w-10 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined filled text-white">play_arrow</span>
+</div>
+</div>
+<span class="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded z-20">01:45</span>
+</div>
+<h4 class="text-sm font-bold text-text-main leading-tight group-hover:text-primary transition-colors">Tập phát âm "Ba"</h4>
+<p class="text-xs text-text-sub mt-1">10/10/2023</p>
+</div>
+</div>
+</div>
+<div class="relative">
+<div class="absolute -left-[25px] sm:-left-[41px] top-0 h-5 w-5 rounded-full bg-gray-300 dark:bg-gray-600 border-4 border-white dark:border-[#1A2C2A]"></div>
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-lg font-bold text-text-main text-opacity-80">Tháng 9, 2023</h3>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+<div class="group cursor-pointer">
+<div class="relative aspect-video bg-gray-900 rounded-lg overflow-hidden mb-2 shadow-sm group-hover:shadow-md transition-all">
+<img alt="Outdoor activity" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkb5C0scmQow5Z7-o6kzt4CxigXRd_bpZ9km1CyQpnc0QTPgLwv5vB2ZZ0ZkxkF6kZDKAE7HrAvwPR0zbVaxeLcUmpi0V7puer6s2nCvBF_AN0QjNjAHZCrSL3qsKQTcVTBeK-GwrDv2r3-stJNmqyuHTG9isl2rP2hmFgEsTwQEq5pusEt_disUYNfreAfGRXkKectQm65PE-9nRaECyqK4TvI_7fCIsSJxgC3XR_fabLIY9sSzIurx9sdIy1TMNyDmInggL87MU"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="h-10 w-10 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined filled text-white">play_arrow</span>
+</div>
+</div>
+<span class="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded">03:20</span>
+</div>
+<h4 class="text-sm font-bold text-text-main leading-tight group-hover:text-primary transition-colors">Vận động ngoài trời</h4>
+<p class="text-xs text-text-sub mt-1">22/09/2023</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 text-center">
+<button class="text-sm text-primary font-medium hover:underline flex items-center justify-center w-full gap-1">
+                        Xem các tháng trước
+                        <span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+</div>
+</div>
+<div class="bg-white dark:bg-[#1A2C2A] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+<h2 class="font-display font-bold text-xl text-text-main flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">history_edu</span>
+                        Lịch sử &amp; Báo cáo
+                    </h2>
+<div class="relative w-full sm:w-64">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-gray-400 text-[20px]">search</span>
+</span>
+<input class="block w-full pl-10 pr-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg leading-5 bg-gray-50 dark:bg-black/20 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm" placeholder="Tìm kiếm báo cáo..." type="text"/>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+<thead class="bg-gray-50 dark:bg-white/5">
+<tr>
+<th class="px-6 py-3 text-left text-xs font-medium text-text-sub uppercase tracking-wider" scope="col">Ngày</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-text-sub uppercase tracking-wider" scope="col">Tên báo cáo / Hoạt động</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-text-sub uppercase tracking-wider" scope="col">Người tạo</th>
+<th class="px-6 py-3 text-right text-xs font-medium text-text-sub uppercase tracking-wider" scope="col">Hành động</th>
+</tr>
+</thead>
+<tbody class="bg-white dark:bg-[#1A2C2A] divide-y divide-gray-200 dark:divide-gray-800">
+<tr>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-text-sub">15/10/2023</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center">
+<span class="material-symbols-outlined text-red-500 mr-2 text-[20px]">description</span>
+<span class="text-sm font-medium text-text-main">Báo cáo đánh giá Quý 3</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-text-sub">Cô Thu Hà</td>
+<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+<a class="text-primary hover:text-primary-light" href="#">Tải về</a>
+</td>
+</tr>
+<tr>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-text-sub">01/10/2023</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center">
+<span class="material-symbols-outlined text-blue-500 mr-2 text-[20px]">assignment</span>
+<span class="text-sm font-medium text-text-main">Kế hoạch can thiệp cá nhân (IEP)</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-text-sub">Hội đồng chuyên môn</td>
+<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+<a class="text-primary hover:text-primary-light" href="#">Tải về</a>
+</td>
+</tr>
+<tr>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-text-sub">20/09/2023</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center">
+<span class="material-symbols-outlined text-green-500 mr-2 text-[20px]">checklist</span>
+<span class="text-sm font-medium text-text-main">Nhật ký theo dõi hành vi tuần</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-sm text-text-sub">Mẹ (Tự ghi)</td>
+<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+<a class="text-primary hover:text-primary-light" href="#">Xem</a>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="mt-4 flex justify-end">
+<nav aria-label="Pagination" class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+<a class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-white/5 text-sm font-medium text-gray-500 hover:bg-gray-50 dark:hover:bg-white/10" href="#">
+<span class="sr-only">Previous</span>
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+</a>
+<a aria-current="page" class="z-10 bg-primary/10 border-primary text-primary relative inline-flex items-center px-4 py-2 border text-sm font-medium" href="#">
+                            1
+                        </a>
+<a class="bg-white dark:bg-white/5 border-gray-300 dark:border-gray-700 text-text-sub hover:bg-gray-50 dark:hover:bg-white/10 relative inline-flex items-center px-4 py-2 border text-sm font-medium" href="#">
+                            2
+                        </a>
+<a class="bg-white dark:bg-white/5 border-gray-300 dark:border-gray-700 text-text-sub hover:bg-gray-50 dark:hover:bg-white/10 relative inline-flex items-center px-4 py-2 border text-sm font-medium" href="#">
+                            3
+                        </a>
+<a class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-white/5 text-sm font-medium text-gray-500 hover:bg-gray-50 dark:hover:bg-white/10" href="#">
+<span class="sr-only">Next</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</a>
+</nav>
+</div>
+</div>
+</main>
+</div>
+</div>
+
+</body></html>
