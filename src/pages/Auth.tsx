@@ -41,7 +41,7 @@ export default function Auth() {
             if (role === "therapist") {
                 navigate("/therapist/dashboard", { replace: true });
             } else if (role === "parent") {
-                navigate("/select-mode", { replace: true });
+                navigate("/parent/dashboard", { replace: true });
             }
         }
     }, [user, role, roleLoading, navigate]);
@@ -123,7 +123,7 @@ export default function Auth() {
         if (selectedRole === "therapist") {
             navigate("/therapist/dashboard");
         } else {
-            navigate("/parent/hub");
+            navigate("/parent/dashboard");
         }
 
         setIsLoading(false);

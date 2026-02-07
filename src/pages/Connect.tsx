@@ -67,22 +67,38 @@ export default function Connect() {
     if (!code) return;
 
     try {
-      // Find therapist by code
-      const { data: therapistData, error: fetchError } = await supabase
-        .from("profiles")
-        .select("user_id, full_name, avatar_url, clinic_name, clinic_address")
-        .eq("therapist_code", code)
+      // 1. First validate the invite code via RPC (or check invitations table directly if allowed)
+      // Since we have strict policies, we should ideally use a function, but let's try reading the invitation
+      // If we can't read it (RLS), then the code is invalid or we are not allowed.
+      // BUT: The plan says "Parents can ONLY find an invite by exact code match".
+
+      const { data: inviteData, error: inviteError } = await (supabase as any)
+        .from('invitations')
+        .select(`
+            *,
+            therapist:profiles!therapist_id (
+                user_id,
+                full_name,
+                avatar_url,
+                clinic_name,
+                clinic_address
+            )
+         `)
+        .eq('code', code)
+        .eq('status', 'active')
+        .gt('expires_at', new Date().toISOString())
         .maybeSingle();
 
-      if (fetchError) throw fetchError;
-
-      if (!therapistData) {
-        setError("This connection code is invalid or expired.");
+      if (inviteError || !inviteData) {
+        console.error("Invite fetch error:", inviteError);
+        setError("Mã mời không hợp lệ hoặc đã hết hạn.");
         setLoading(false);
         return;
       }
 
-      // Check if already connected
+      const therapistData = inviteData.therapist;
+
+      // 2. Check if already connected
       const { data: existingConnection } = await supabase
         .from("connections")
         .select("id, status")
@@ -94,9 +110,10 @@ export default function Connect() {
         if (existingConnection.status === "accepted") {
           setAlreadyConnected(true);
         } else if (existingConnection.status === "pending") {
-          setError("You already have a pending request with this therapist.");
-          setLoading(false);
-          return;
+          // It's fine, we can allow re-connecting or just show them.
+          // For this flow, let's treat it as "Already Connected" but maybe show a different message?
+          // Simplicity: Show already connected details.
+          setAlreadyConnected(true);
         }
       }
 
@@ -104,48 +121,41 @@ export default function Connect() {
       setLoading(false);
     } catch (err) {
       console.error("Error fetching therapist:", err);
-      setError("Failed to load therapist information.");
+      setError("Không thể tải thông tin chuyên gia. Vui lòng thử lại.");
       setLoading(false);
     }
   };
 
   const handleConnect = async () => {
-    if (!user || !therapist) return;
+    if (!user || !therapist || !code) return;
 
     setConnecting(true);
     try {
-      const { error: connectError } = await supabase
-        .from("connections")
-        .insert({
-          parent_id: user.id,
-          therapist_id: therapist.user_id,
-          status: "pending",
-        });
+      // Use the secure RPC to connect via invite
+      const { data, error } = await (supabase as any)
+        .rpc('connect_via_invite', { code_input: code });
 
-      if (connectError) {
-        if (connectError.code === "23505") {
-          toast({
-            title: "Already connected",
-            description: "You already have a connection with this therapist.",
-          });
-        } else {
-          throw connectError;
-        }
-      } else {
-        toast({
-          title: "Connection request sent!",
-          description: `Waiting for ${therapist.full_name || "the therapist"} to accept.`,
-        });
+      if (error) throw error;
+
+      const result = data as any;
+
+      if (!result.success) {
+        throw new Error(result.message);
       }
+
+      toast({
+        title: "Kết nối thành công!",
+        description: `Bạn đã kết nối với chuyên gia ${therapist.full_name}.`,
+      });
 
       // Redirect to parent dashboard
       navigate("/parent/home");
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error connecting:", err);
       toast({
         variant: "destructive",
-        title: "Connection failed",
-        description: "Please try again later.",
+        title: "Lỗi kết nối",
+        description: err.message || "Đã có lỗi xảy ra. Vui lòng thử lại.",
       });
     }
     setConnecting(false);
@@ -240,9 +250,9 @@ export default function Connect() {
             <div className="flex justify-center -mt-12 mb-4">
               <div className="h-24 w-24 rounded-full bg-primary/10 border-4 border-card shadow-lg flex items-center justify-center">
                 {therapist?.avatar_url ? (
-                  <img 
-                    src={therapist.avatar_url} 
-                    alt={therapist.full_name || "Therapist"} 
+                  <img
+                    src={therapist.avatar_url}
+                    alt={therapist.full_name || "Therapist"}
                     className="h-full w-full rounded-full object-cover"
                   />
                 ) : (
@@ -282,8 +292,8 @@ export default function Connect() {
 
             {/* Action Buttons */}
             <div className="flex gap-3">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={handleCancel}
                 className="flex-1 h-12 rounded-xl gap-2"
                 disabled={connecting}
@@ -291,7 +301,7 @@ export default function Connect() {
                 <X className="h-4 w-4" />
                 Cancel
               </Button>
-              <Button 
+              <Button
                 onClick={handleConnect}
                 className="flex-1 h-12 rounded-xl gap-2"
                 disabled={connecting}

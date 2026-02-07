@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { VideoAnnotationPlayer } from '@/components/therapist/VideoAnnotationPlayer';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Video, Calendar, User } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { TherapistLayout } from '@/components/layout/TherapistLayout';
@@ -14,7 +14,9 @@ interface VideoUpload {
     duration_seconds: number;
     created_at: string;
     user_id: string;
-    // profiles format depends on join query
+    profiles?: {
+        full_name: string;
+    };
 }
 
 export default function VideoReview() {
@@ -25,16 +27,23 @@ export default function VideoReview() {
     useEffect(() => {
         const fetchVideos = async () => {
             try {
-                // Fetch videos order by newest
+                // Fetch videos order by newest with patient profile join
                 const { data, error } = await supabase
                     .from('video_uploads')
-                    .select('*')
+                    .select('*, profiles:user_id(full_name)')
                     .order('created_at', { ascending: false });
 
                 if (error) throw error;
-                setVideos(data || []);
-                if (data && data.length > 0) {
-                    setSelectedVideo(data[0]); // Auto-select newest
+
+                // Use type assertion to bypass relation detection issue in TS
+                const formattedVideos = (data as any[]).map(v => ({
+                    ...v,
+                    profiles: v.profiles || { full_name: 'Bệnh nhân ẩn danh' }
+                })) as VideoUpload[];
+
+                setVideos(formattedVideos);
+                if (formattedVideos.length > 0) {
+                    setSelectedVideo(formattedVideos[0]); // Auto-select newest
                 }
             } catch (err) {
                 console.error("Error loading videos:", err);
@@ -53,45 +62,55 @@ export default function VideoReview() {
 
     return (
         <TherapistLayout>
-            <div className="container mx-auto p-0 max-w-7xl">
-                <div className="flex items-center gap-3 mb-8">
-                    <div className="p-3 bg-purple-100 rounded-xl">
-                        <Video className="text-purple-600" size={24} />
+            <div className="w-full px-6 py-4">
+                <div className="flex items-center gap-4 mb-8">
+                    <div className="p-4 bg-purple-100 rounded-2xl">
+                        <Video className="text-purple-600" size={32} />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Video Review & Feedback</h1>
-                        <p className="text-gray-500">Analyze patient videos and provide timestamped feedback.</p>
+                        <h1 className="text-3xl font-black text-gray-900 tracking-tight">PHÂN TÍCH VIDEO & NHẬN XÉT</h1>
+                        <p className="text-lg text-gray-500 font-medium">Theo dõi và đánh giá quá trình luyện tập của bệnh nhân qua video.</p>
                     </div>
                 </div>
 
                 {loading ? (
-                    <div className="flex items-center justify-center p-20">Loading videos...</div>
+                    <div className="flex items-center justify-center p-20 text-xl font-bold text-purple-600 animate-pulse">
+                        Đang tải danh sách video...
+                    </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 h-[calc(100vh-250px)]">
+                    <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-8 h-[calc(100vh-220px)]">
                         {/* Sidebar: List of Videos */}
-                        <Card className="md:col-span-1 border-0 shadow-lg flex flex-col h-full bg-white dark:bg-gray-900">
-                            <div className="p-4 border-b">
-                                <h3 className="font-bold text-gray-700">Patient Uploads</h3>
+                        <Card className="md:col-span-1 lg:col-span-1 border-0 shadow-2xl flex flex-col h-full bg-white dark:bg-gray-900 rounded-[32px] overflow-hidden">
+                            <div className="p-6 border-b bg-gray-50/50">
+                                <h3 className="text-lg font-black text-gray-800 uppercase tracking-wider">Danh sách video</h3>
                             </div>
                             <ScrollArea className="flex-1">
-                                <div className="divide-y">
+                                <div className="divide-y divide-gray-100">
                                     {videos.length === 0 ? (
-                                        <div className="p-6 text-center text-gray-400">No videos uploaded yet.</div>
+                                        <div className="p-10 text-center text-gray-400 font-medium italic">Chưa có video nào được tải lên.</div>
                                     ) : (
                                         videos.map(video => (
                                             <div
                                                 key={video.id}
                                                 onClick={() => setSelectedVideo(video)}
-                                                className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${selectedVideo?.id === video.id ? 'bg-purple-50 border-l-4 border-purple-600' : ''}`}
+                                                className={`p-6 cursor-pointer hover:bg-purple-50/50 transition-all duration-300 ${selectedVideo?.id === video.id ? 'bg-purple-50 border-r-4 border-purple-600' : ''}`}
                                             >
-                                                <h4 className="font-medium text-gray-900 line-clamp-1">{video.title}</h4>
-                                                <div className="flex items-center gap-2 text-xs text-gray-500 mt-2">
-                                                    <Calendar size={12} />
-                                                    {new Date(video.created_at).toLocaleDateString()}
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <User size={14} className="text-purple-500" />
+                                                    <span className="text-sm font-black text-purple-700 uppercase tracking-tighter">
+                                                        {video.profiles?.full_name || 'Bệnh nhân ẩn danh'}
+                                                    </span>
                                                 </div>
-                                                <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                                                    <Video size={12} />
-                                                    {formatDuration(video.duration_seconds || 0)}
+                                                <h4 className="text-xl font-bold text-gray-900 line-clamp-2 leading-tight mb-3">{video.title}</h4>
+                                                <div className="flex items-center gap-4">
+                                                    <div className="flex items-center gap-1.5 text-sm text-gray-500 font-medium">
+                                                        <Calendar size={14} className="opacity-70" />
+                                                        {new Date(video.created_at).toLocaleDateString('vi-VN')}
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5 text-sm text-gray-500 font-medium">
+                                                        <Video size={14} className="opacity-70" />
+                                                        {formatDuration(video.duration_seconds || 0)}
+                                                    </div>
                                                 </div>
                                             </div>
                                         ))
@@ -101,20 +120,23 @@ export default function VideoReview() {
                         </Card>
 
                         {/* Main Stage: Player */}
-                        <div className="md:col-span-3 h-full overflow-y-auto">
+                        <div className="md:col-span-3 lg:col-span-4 h-full">
                             {selectedVideo ? (
-                                <div className="space-y-6">
-                                    <div className="bg-white p-6 rounded-2xl shadow-sm border">
-                                        <h2 className="text-xl font-bold mb-4">{selectedVideo.title}</h2>
-                                        <VideoAnnotationPlayer
-                                            videoId={selectedVideo.id}
-                                            videoUrl={selectedVideo.file_url}
-                                        />
-                                    </div>
+                                <div className="h-full">
+                                    <VideoAnnotationPlayer
+                                        videoId={selectedVideo.id}
+                                        videoUrl={selectedVideo.file_url}
+                                        patientId={selectedVideo.user_id}
+                                        patientName={selectedVideo.profiles?.full_name || 'Bệnh nhân'}
+                                        className="h-full"
+                                    />
                                 </div>
                             ) : (
-                                <div className="h-full flex items-center justify-center bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-                                    <p className="text-gray-400">Select a video to start review</p>
+                                <div className="h-full flex flex-col items-center justify-center bg-gray-50 rounded-[32px] border-4 border-dashed border-gray-200">
+                                    <div className="p-6 bg-gray-100 rounded-full mb-4">
+                                        <Video size={48} className="text-gray-400" />
+                                    </div>
+                                    <p className="text-2xl font-black text-gray-400">Chọn một video để bắt đầu đánh giá</p>
                                 </div>
                             )}
                         </div>

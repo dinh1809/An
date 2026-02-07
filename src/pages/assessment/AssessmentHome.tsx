@@ -1,12 +1,3 @@
-/**
- * 🎮 TRUNG TÂM HUẤN LUYỆN - ASSESSMENT HOME
- * ==========================================
- * Vietnamese Mission Control Dashboard
- * 
- * REDESIGNED: Based on Stitch UI design
- * Features: Hero Banner, Glassmorphism Cards, Progress Stats
- */
-
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -28,9 +19,12 @@ import {
   Circle,
   Play,
   Lock,
-  User
+  User,
+  Briefcase,
+  GraduationCap,
+  ArrowRight
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -99,7 +93,7 @@ const BASIC_MODULES: GameModule[] = [
     title: "Logic Hình Ảnh",
     description: "Phân tích Ma trận Raven - Tư duy logic",
     icon: Zap,
-    path: "/assessment/matrix_logic",
+    path: "/assessment/matrix",
     gradient: "from-amber-500 to-orange-500",
     bgColor: "bg-amber-500/10",
     iconColor: "text-amber-500",
@@ -378,21 +372,18 @@ const AssessmentHome = () => {
       {/* ============ MAIN CONTENT ============ */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-10">
 
-        {/* SECTION 1: BASIC GAMES */}
-        <section>
+        {/* TRAINING CENTER */}
+        <div className="space-y-6">
           <div className="flex items-center gap-3 mb-5">
             <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 text-white font-bold text-sm shadow-lg shadow-teal-500/30">
-              1
+              <GraduationCap className="w-4 h-4" />
             </div>
-            <h2 className="text-xl font-bold text-slate-800 dark:text-white">
-              Khởi Động
+            <h2 className="text-xl font-bold text-slate-800 dark:text-white uppercase tracking-wider">
+              Trung Tâm Đào Tạo
             </h2>
-            <Badge className="bg-teal-100 text-teal-700 dark:bg-teal-900/50 dark:text-teal-300 border-0">
-              CƠ BẢN
-            </Badge>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {BASIC_MODULES.map((module, index) => (
               <GameCard
                 key={module.id}
@@ -402,7 +393,7 @@ const AssessmentHome = () => {
               />
             ))}
           </div>
-        </section>
+        </div>
 
         {/* SECTION 2: ADVANCED GAMES */}
         <section>

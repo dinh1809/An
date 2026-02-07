@@ -8,7 +8,7 @@
  * - Track assigned exercises from therapist
  */
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { ParentLayout } from '@/components/layout/ParentLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -38,8 +38,10 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { uploadToCloudinary } from '@/services/cloudinaryService';
+import { supabase } from '@/integrations/supabase/client';
+import { useVideoUpload } from '@/hooks/useVideoUpload';
 
-// Mock data for exercises
+// Mock data for exercises (keep pending part for UI structure)
 const assignedExercises = [
     {
         id: '1',
@@ -50,85 +52,83 @@ const assignedExercises = [
         status: 'pending',
         duration: '5 phút',
         priority: 'high'
-    },
-    {
-        id: '2',
-        title: 'Kỹ năng bắt chước động tác',
-        description: 'Bé bắt chước các động tác đơn giản như vỗ tay, giơ tay cao',
-        therapist: 'BS. Nguyễn Văn An',
-        dueDate: '12/02/2026',
-        status: 'pending',
-        duration: '10 phút',
-        priority: 'medium'
-    },
-    {
-        id: '3',
-        title: 'Nhận biết màu sắc',
-        description: 'Sử dụng flashcard để bé nhận biết 3 màu cơ bản',
-        therapist: 'BS. Trần Thanh Bình',
-        dueDate: '08/02/2026',
-        status: 'completed',
-        duration: '7 phút',
-        priority: 'low'
     }
 ];
 
-const uploadedVideos = [
-    {
-        id: 'v1',
-        title: 'Bài tập giao tiếp mắt - Buổi 1',
-        uploadedAt: '05/02/2026',
-        duration: '4:32',
-        status: 'reviewed',
-        thumbnail: 'https://images.unsplash.com/photo-1544776193-352d25ca82cd?w=400&h=225&fit=crop',
-        annotations: [
-            { time: '0:45', text: 'Bé đã bắt đầu có sự chú ý, rất tốt!', type: 'praise' },
-            { time: '1:20', text: 'Mẹ nên hạ thấp tầm mắt xuống chút nữa.', type: 'suggestion' },
-            { time: '2:10', text: 'Bé duy trì ánh mắt được 3 giây, tiến bộ vượt bậc!', type: 'praise' }
-        ],
-        therapist: 'BS. Nguyễn Văn An',
-        overallFeedback: 'Bé tiến bộ rất tốt! Tiếp tục duy trì 2 buổi/ngày.'
-    },
-    {
-        id: 'v2',
-        title: 'Kỹ năng bắt chước - Buổi 3',
-        uploadedAt: '03/02/2026',
-        duration: '6:15',
-        status: 'reviewed',
-        thumbnail: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&h=225&fit=crop',
-        annotations: [
-            { time: '1:10', text: 'Bé bắt chước động tác vỗ tay rất chính xác.', type: 'praise' },
-            { time: '3:45', text: 'Thử thêm động tác giơ 2 tay cao.', type: 'suggestion' }
-        ],
-        therapist: 'BS. Nguyễn Văn An',
-        overallFeedback: 'Khả năng bắt chước đang phát triển tốt.'
-    },
-    {
-        id: 'v3',
-        title: 'Nhận biết màu sắc - Buổi 5',
-        uploadedAt: '01/02/2026',
-        duration: '5:48',
-        status: 'pending',
-        thumbnail: 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=400&h=225&fit=crop',
-        annotations: [],
-        therapist: null,
-        overallFeedback: null
-    }
-];
+// Helper: Format duration from seconds
+const formatDuration = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+};
 
 export default function ExerciseAssignments() {
-    const [selectedVideo, setSelectedVideo] = useState(uploadedVideos[0]);
+    const { user } = useAuth();
+    const { toast } = useToast();
+    const { uploadVideo, isUploading: isHookUploading } = useVideoUpload();
+
+    const [selectedVideo, setSelectedVideo] = useState<any>(null);
     const [activeTab, setActiveTab] = useState('assignments');
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [selectedExercise, setSelectedExercise] = useState<typeof assignedExercises[0] | null>(null);
+    const [selectedExercise, setSelectedExercise] = useState<any | null>(null);
     const [isDragging, setIsDragging] = useState(false);
-    const [uploadedVideosList, setUploadedVideosList] = useState(uploadedVideos);
+    const [uploadedVideosList, setUploadedVideosList] = useState<any[]>([]);
+    const [isLoadingVideos, setIsLoadingVideos] = useState(true);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const { user } = useAuth();
-    const { toast } = useToast();
+    // Fetch real videos from DB
+    const fetchVideos = useCallback(async () => {
+        if (!user) return;
+        setIsLoadingVideos(true);
+        try {
+            console.log("Fetching real videos for user:", user.id);
+            const { data, error } = await (supabase as any)
+                .from('video_uploads')
+                .select(`
+                    *,
+                    video_feedback (*)
+                `)
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            const mappedVideos = (data || []).map((v: any) => ({
+                id: v.id,
+                title: v.title,
+                uploadedAt: new Date(v.created_at).toLocaleDateString('vi-VN'),
+                duration: formatDuration(v.duration_seconds || 0),
+                status: (v.video_feedback && v.video_feedback.length > 0) ? 'reviewed' : 'pending',
+                thumbnail: v.file_url.replace(/\.[^/.]+$/, '.jpg'),
+                annotations: (v.video_feedback && v.video_feedback.length > 0)
+                    ? v.video_feedback.map((f: any) => ({
+                        time: formatDuration(f.timestamp),
+                        text: f.content,
+                        type: f.type || 'suggestion'
+                    }))
+                    : [],
+                therapist: 'Chuyên gia của bạn',
+                overallFeedback: (v.video_feedback && v.video_feedback.length > 0)
+                    ? v.video_feedback[0].content : null,
+                cloudinaryUrl: v.file_url
+            }));
+
+            setUploadedVideosList(mappedVideos);
+            if (mappedVideos.length > 0 && !selectedVideo) {
+                setSelectedVideo(mappedVideos[0]);
+            }
+        } catch (err) {
+            console.error("Fetch videos error:", err);
+        } finally {
+            setIsLoadingVideos(false);
+        }
+    }, [user, selectedVideo]);
+
+    useEffect(() => {
+        fetchVideos();
+    }, [user]);
 
     const pendingExercises = assignedExercises.filter(e => e.status === 'pending');
     const completedExercises = assignedExercises.filter(e => e.status === 'completed');
@@ -149,10 +149,9 @@ export default function ExerciseAssignments() {
         }
     };
 
-    // Handle file selection
     const handleFileSelect = useCallback((file: File) => {
         const validTypes = ['video/mp4', 'video/quicktime', 'video/webm', 'video/x-msvideo'];
-        const maxSize = 500 * 1024 * 1024; // 500MB
+        const maxSize = 500 * 1024 * 1024;
 
         if (!validTypes.includes(file.type)) {
             toast({
@@ -175,7 +174,6 @@ export default function ExerciseAssignments() {
         setSelectedFile(file);
     }, [toast]);
 
-    // Handle drag and drop
     const handleDragOver = useCallback((e: React.DragEvent) => {
         e.preventDefault();
         setIsDragging(true);
@@ -193,15 +191,13 @@ export default function ExerciseAssignments() {
         if (file) handleFileSelect(file);
     }, [handleFileSelect]);
 
-    // Handle file input change
     const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) handleFileSelect(file);
     };
 
-    // Upload video to Cloudinary
     const handleUpload = async () => {
-        if (!selectedFile) {
+        if (!selectedFile || !user) {
             toast({
                 title: "Chưa chọn video",
                 description: "Vui lòng chọn video trước khi upload",
@@ -210,60 +206,30 @@ export default function ExerciseAssignments() {
             return;
         }
 
-        setUploadProgress(0);
+        setUploadProgress(10);
 
         try {
-            // Simulate progress updates
-            const progressInterval = setInterval(() => {
-                setUploadProgress(prev => {
-                    if (prev >= 90) {
-                        clearInterval(progressInterval);
-                        return prev;
-                    }
-                    return prev + 10;
+            const result = await uploadVideo(selectedFile, user.id);
+
+            if (result.success) {
+                setUploadProgress(100);
+                toast({
+                    title: "Upload thành công! 🎉",
+                    description: "Video đã được gửi đi. Chuyên gia sẽ nhận xét sớm.",
                 });
-            }, 500);
 
-            // Upload to Cloudinary
-            const result = await uploadToCloudinary(selectedFile);
+                await fetchVideos();
 
-            clearInterval(progressInterval);
-            setUploadProgress(100);
-
-            // Create new video entry
-            const newVideo = {
-                id: `v${Date.now()}`,
-                title: selectedExercise
-                    ? `${selectedExercise.title} - Upload ${new Date().toLocaleDateString('vi-VN')}`
-                    : selectedFile.name.replace(/\.[^/.]+$/, ''),
-                uploadedAt: new Date().toLocaleDateString('vi-VN'),
-                duration: result.duration ? formatDuration(result.duration) : '0:00',
-                status: 'pending' as const,
-                thumbnail: result.secure_url.replace(/\.[^/.]+$/, '.jpg'), // Cloudinary auto-generates thumbnail
-                annotations: [],
-                therapist: null,
-                overallFeedback: null,
-                cloudinaryUrl: result.secure_url,
-                publicId: result.public_id
-            };
-
-            // Add to list
-            setUploadedVideosList(prev => [newVideo, ...prev]);
-
-            toast({
-                title: "Upload thành công! 🎉",
-                description: "Video đã được gửi đi. Chuyên gia sẽ nhận xét trong 24-48h.",
-            });
-
-            // Reset state
-            setTimeout(() => {
-                setIsUploading(false);
-                setSelectedFile(null);
-                setSelectedExercise(null);
-                setUploadProgress(0);
-                setActiveTab('uploads');
-            }, 1000);
-
+                setTimeout(() => {
+                    setIsUploading(false);
+                    setSelectedFile(null);
+                    setSelectedExercise(null);
+                    setUploadProgress(0);
+                    setActiveTab('uploads');
+                }, 1000);
+            } else {
+                throw new Error(result.error);
+            }
         } catch (error: any) {
             console.error('Upload error:', error);
             toast({
@@ -275,21 +241,12 @@ export default function ExerciseAssignments() {
         }
     };
 
-    // Format duration from seconds
-    const formatDuration = (seconds: number): string => {
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
-    };
-
-    // Open upload modal for specific exercise
-    const openUploadForExercise = (exercise: typeof assignedExercises[0]) => {
+    const openUploadForExercise = (exercise: any) => {
         setSelectedExercise(exercise);
         setSelectedFile(null);
         setIsUploading(true);
     };
 
-    // Open general upload modal
     const openGeneralUpload = () => {
         setSelectedExercise(null);
         setSelectedFile(null);
@@ -299,7 +256,6 @@ export default function ExerciseAssignments() {
     return (
         <ParentLayout>
             <div className="space-y-8 pb-12">
-                {/* Page Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
                         <h1 className="text-3xl font-black text-[#00695C] tracking-tight">Giao Bài Tập</h1>
@@ -325,13 +281,12 @@ export default function ExerciseAssignments() {
                     className="hidden"
                 />
 
-                {/* Stats Overview */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {[
                         { label: 'Bài tập được giao', value: pendingExercises.length, icon: FileVideo, color: 'text-blue-500 bg-blue-50' },
                         { label: 'Đã hoàn thành', value: completedExercises.length, icon: CheckCircle2, color: 'text-green-500 bg-green-50' },
-                        { label: 'Video đã upload', value: uploadedVideos.length, icon: Video, color: 'text-purple-500 bg-purple-50' },
-                        { label: 'Nhận xét mới', value: 5, icon: MessageSquare, color: 'text-amber-500 bg-amber-50' }
+                        { label: 'Video đã upload', value: uploadedVideosList.length, icon: Video, color: 'text-purple-500 bg-purple-50' },
+                        { label: 'Nhận xét mới', value: uploadedVideosList.filter(v => v.status === 'reviewed').length, icon: MessageSquare, color: 'text-amber-500 bg-amber-50' }
                     ].map((stat, i) => (
                         <motion.div
                             key={i}
@@ -354,7 +309,6 @@ export default function ExerciseAssignments() {
                     ))}
                 </div>
 
-                {/* Main Content Tabs */}
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
                     <TabsList className="bg-muted/50 p-1 rounded-xl">
                         <TabsTrigger value="assignments" className="rounded-lg font-bold data-[state=active]:bg-white data-[state=active]:shadow">
@@ -371,9 +325,7 @@ export default function ExerciseAssignments() {
                         </TabsTrigger>
                     </TabsList>
 
-                    {/* Assignments Tab */}
                     <TabsContent value="assignments" className="space-y-6">
-                        {/* Pending Exercises */}
                         <Card className="border-none shadow-xl rounded-3xl overflow-hidden">
                             <CardHeader className="bg-gradient-to-r from-[#00695C]/5 to-transparent">
                                 <CardTitle className="flex items-center gap-2">
@@ -438,7 +390,6 @@ export default function ExerciseAssignments() {
                             </CardContent>
                         </Card>
 
-                        {/* Completed Exercises */}
                         {completedExercises.length > 0 && (
                             <Card className="border-none shadow-xl rounded-3xl overflow-hidden opacity-80">
                                 <CardHeader>
@@ -462,10 +413,8 @@ export default function ExerciseAssignments() {
                         )}
                     </TabsContent>
 
-                    {/* Uploads Tab */}
                     <TabsContent value="uploads" className="space-y-6">
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            {/* Video List */}
                             <div className="lg:col-span-1 space-y-4">
                                 <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground px-1">
                                     Video của bạn
@@ -476,7 +425,7 @@ export default function ExerciseAssignments() {
                                         onClick={() => setSelectedVideo(video)}
                                         className={cn(
                                             "cursor-pointer border-2 transition-all hover:shadow-md overflow-hidden",
-                                            selectedVideo.id === video.id
+                                            selectedVideo?.id === video.id
                                                 ? "border-[#00695C] shadow-lg"
                                                 : "border-transparent"
                                         )}
@@ -514,110 +463,118 @@ export default function ExerciseAssignments() {
                                 ))}
                             </div>
 
-                            {/* Video Player & Annotations */}
                             <div className="lg:col-span-2 space-y-4">
                                 <Card className="border-none shadow-xl rounded-3xl overflow-hidden">
-                                    {/* Video Player */}
-                                    <div className="relative aspect-video bg-black">
-                                        <img
-                                            src={selectedVideo.thumbnail}
-                                            alt={selectedVideo.title}
-                                            className="w-full h-full object-cover opacity-80"
-                                        />
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <button className="p-4 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors">
-                                                <Play className="h-12 w-12 text-white" />
-                                            </button>
-                                        </div>
-                                        {/* Progress bar */}
-                                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20">
-                                            <div className="h-full bg-[#00695C] w-1/3" />
-                                        </div>
-                                    </div>
-
-                                    <CardContent className="p-6 space-y-6">
-                                        <div className="flex items-start justify-between">
-                                            <div>
-                                                <h2 className="text-xl font-bold">{selectedVideo.title}</h2>
-                                                <p className="text-sm text-muted-foreground mt-1">
-                                                    Upload: {selectedVideo.uploadedAt} • Thời lượng: {selectedVideo.duration}
-                                                </p>
-                                            </div>
-                                            {selectedVideo.status === 'reviewed' && (
-                                                <Badge className="bg-green-100 text-green-700 border-green-200">
-                                                    <CheckCircle2 className="h-3 w-3 mr-1" />
-                                                    Đã nhận xét
-                                                </Badge>
-                                            )}
-                                        </div>
-
-                                        {/* Overall Feedback */}
-                                        {selectedVideo.overallFeedback && (
-                                            <div className="p-4 rounded-2xl bg-gradient-to-r from-[#00695C]/10 to-transparent border border-[#00695C]/20">
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <Sparkles className="h-4 w-4 text-[#00695C]" />
-                                                    <span className="font-bold text-sm text-[#00695C]">Đánh giá tổng quan</span>
+                                    {selectedVideo ? (
+                                        <>
+                                            <div className="relative aspect-video bg-black">
+                                                <img
+                                                    src={selectedVideo.thumbnail}
+                                                    alt={selectedVideo.title}
+                                                    className="w-full h-full object-cover opacity-80"
+                                                />
+                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                    <a
+                                                        href={selectedVideo.cloudinaryUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="p-4 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
+                                                    >
+                                                        <Play className="h-12 w-12 text-white" />
+                                                    </a>
                                                 </div>
-                                                <p className="text-sm font-medium">{selectedVideo.overallFeedback}</p>
-                                                <p className="text-xs text-muted-foreground mt-2">— {selectedVideo.therapist}</p>
-                                            </div>
-                                        )}
-
-                                        {/* Annotations Timeline */}
-                                        {selectedVideo.annotations.length > 0 ? (
-                                            <div className="space-y-3">
-                                                <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                                                    <MessageSquare className="h-4 w-4" />
-                                                    Nhận xét theo thời gian
-                                                </h3>
-                                                <div className="space-y-2">
-                                                    {selectedVideo.annotations.map((ann, i) => (
-                                                        <motion.div
-                                                            key={i}
-                                                            initial={{ opacity: 0, x: 10 }}
-                                                            animate={{ opacity: 1, x: 0 }}
-                                                            transition={{ delay: i * 0.1 }}
-                                                            className={cn(
-                                                                "p-3 rounded-xl border cursor-pointer transition-all hover:shadow-md",
-                                                                ann.type === 'praise'
-                                                                    ? "bg-green-50 border-green-200 hover:border-green-400"
-                                                                    : "bg-amber-50 border-amber-200 hover:border-amber-400"
-                                                            )}
-                                                        >
-                                                            <div className="flex items-start gap-3">
-                                                                <span className={cn(
-                                                                    "font-black text-xs tabular-nums px-2 py-1 rounded",
-                                                                    ann.type === 'praise' ? "bg-green-200 text-green-800" : "bg-amber-200 text-amber-800"
-                                                                )}>
-                                                                    {ann.time}
-                                                                </span>
-                                                                <div className="flex-1">
-                                                                    <p className="text-sm font-medium">{ann.text}</p>
-                                                                    <span className="text-[10px] text-muted-foreground mt-1 block">
-                                                                        {ann.type === 'praise' ? '✨ Khen ngợi' : '💡 Góp ý'}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        </motion.div>
-                                                    ))}
+                                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20">
+                                                    <div className="h-full bg-[#00695C] w-1/3" />
                                                 </div>
                                             </div>
-                                        ) : (
-                                            <div className="text-center py-8">
-                                                <AlertCircle className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
-                                                <p className="text-muted-foreground font-medium">Chờ chuyên gia xem xét...</p>
-                                                <p className="text-sm text-muted-foreground/70 mt-1">
-                                                    Video sẽ được nhận xét trong vòng 24-48 giờ
-                                                </p>
-                                            </div>
-                                        )}
-                                    </CardContent>
+
+                                            <CardContent className="p-6 space-y-6">
+                                                <div className="flex items-start justify-between">
+                                                    <div>
+                                                        <h2 className="text-xl font-bold">{selectedVideo.title}</h2>
+                                                        <p className="text-sm text-muted-foreground mt-1">
+                                                            Upload: {selectedVideo.uploadedAt} • Thời lượng: {selectedVideo.duration}
+                                                        </p>
+                                                    </div>
+                                                    {selectedVideo.status === 'reviewed' && (
+                                                        <Badge className="bg-green-100 text-green-700 border-green-200">
+                                                            <CheckCircle2 className="h-3 w-3 mr-1" />
+                                                            Đã nhận xét
+                                                        </Badge>
+                                                    )}
+                                                </div>
+
+                                                {selectedVideo.overallFeedback && (
+                                                    <div className="p-4 rounded-2xl bg-gradient-to-r from-[#00695C]/10 to-transparent border border-[#00695C]/20">
+                                                        <div className="flex items-center gap-2 mb-2">
+                                                            <Sparkles className="h-4 w-4 text-[#00695C]" />
+                                                            <span className="font-bold text-sm text-[#00695C]">Đánh giá tổng quan</span>
+                                                        </div>
+                                                        <p className="text-sm font-medium">{selectedVideo.overallFeedback}</p>
+                                                        <p className="text-xs text-muted-foreground mt-2">— {selectedVideo.therapist}</p>
+                                                    </div>
+                                                )}
+
+                                                {selectedVideo.annotations.length > 0 ? (
+                                                    <div className="space-y-3">
+                                                        <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                                            <MessageSquare className="h-4 w-4" />
+                                                            Nhận xét theo thời gian
+                                                        </h3>
+                                                        <div className="space-y-2">
+                                                            {selectedVideo.annotations.map((ann: any, i: number) => (
+                                                                <motion.div
+                                                                    key={i}
+                                                                    initial={{ opacity: 0, x: 10 }}
+                                                                    animate={{ opacity: 1, x: 0 }}
+                                                                    transition={{ delay: i * 0.1 }}
+                                                                    className={cn(
+                                                                        "p-3 rounded-xl border cursor-pointer transition-all hover:shadow-md",
+                                                                        ann.type === 'praise'
+                                                                            ? "bg-green-50 border-green-200 hover:border-green-400"
+                                                                            : "bg-amber-50 border-amber-200 hover:border-amber-400"
+                                                                    )}
+                                                                >
+                                                                    <div className="flex items-start gap-3">
+                                                                        <span className={cn(
+                                                                            "font-black text-xs tabular-nums px-2 py-1 rounded",
+                                                                            ann.type === 'praise' ? "bg-green-200 text-green-800" : "bg-amber-200 text-amber-800"
+                                                                        )}>
+                                                                            {ann.time}
+                                                                        </span>
+                                                                        <div className="flex-1">
+                                                                            <p className="text-sm font-medium">{ann.text}</p>
+                                                                            <span className="text-[10px] text-muted-foreground mt-1 block">
+                                                                                {ann.type === 'praise' ? '✨ Khen ngợi' : '💡 Góp ý'}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </motion.div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-center py-8">
+                                                        <AlertCircle className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
+                                                        <p className="text-muted-foreground font-medium">Chờ chuyên gia xem xét...</p>
+                                                        <p className="text-sm text-muted-foreground/70 mt-1">
+                                                            Video sẽ được nhận xét trong vòng 24-48 giờ
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </CardContent>
+                                        </>
+                                    ) : (
+                                        <div className="p-8 text-center bg-muted/30 rounded-3xl">
+                                            <Video className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
+                                            <p className="text-muted-foreground font-medium">Chọn video để xem chi tiết</p>
+                                        </div>
+                                    )}
                                 </Card>
                             </div>
                         </div>
                     </TabsContent>
 
-                    {/* Feedback Summary Tab */}
                     <TabsContent value="feedback" className="space-y-6">
                         <Card className="border-none shadow-xl rounded-3xl overflow-hidden">
                             <CardHeader className="bg-gradient-to-r from-purple-500/10 to-transparent">
@@ -630,15 +587,14 @@ export default function ExerciseAssignments() {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="p-6 space-y-6">
-                                {/* Praise Section */}
                                 <div className="space-y-3">
                                     <h3 className="font-bold text-sm flex items-center gap-2 text-green-700">
                                         <Sparkles className="h-4 w-4" />
-                                        Điểm tích cực (5)
+                                        Điểm tích cực
                                     </h3>
                                     <div className="grid gap-2">
-                                        {uploadedVideos
-                                            .flatMap(v => v.annotations.filter(a => a.type === 'praise').map(a => ({ ...a, video: v.title })))
+                                        {uploadedVideosList
+                                            .flatMap(v => v.annotations.filter((a: any) => a.type === 'praise').map((a: any) => ({ ...a, video: v.title })))
                                             .map((ann, i) => (
                                                 <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-green-50 border border-green-100">
                                                     <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 shrink-0" />
@@ -652,15 +608,14 @@ export default function ExerciseAssignments() {
                                     </div>
                                 </div>
 
-                                {/* Suggestions Section */}
                                 <div className="space-y-3">
                                     <h3 className="font-bold text-sm flex items-center gap-2 text-amber-700">
                                         <AlertCircle className="h-4 w-4" />
-                                        Góp ý cải thiện (2)
+                                        Góp ý cải thiện
                                     </h3>
                                     <div className="grid gap-2">
-                                        {uploadedVideos
-                                            .flatMap(v => v.annotations.filter(a => a.type === 'suggestion').map(a => ({ ...a, video: v.title })))
+                                        {uploadedVideosList
+                                            .flatMap(v => v.annotations.filter((a: any) => a.type === 'suggestion').map((a: any) => ({ ...a, video: v.title })))
                                             .map((ann, i) => (
                                                 <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-amber-50 border border-amber-100">
                                                     <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
@@ -678,7 +633,6 @@ export default function ExerciseAssignments() {
                     </TabsContent>
                 </Tabs>
 
-                {/* Upload Modal */}
                 <AnimatePresence>
                     {isUploading && (
                         <motion.div
@@ -725,7 +679,6 @@ export default function ExerciseAssignments() {
                                             : 'Kéo thả video vào đây hoặc chọn file để bắt đầu upload lên Cloudinary.'}
                                     </p>
 
-                                    {/* Drop Zone / File Placeholder */}
                                     {!selectedFile ? (
                                         <div
                                             onDragOver={handleDragOver}

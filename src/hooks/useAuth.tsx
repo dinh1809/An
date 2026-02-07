@@ -19,12 +19,77 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Helper to ensure profile exists
+    const ensureProfile = async (session: Session | null) => {
+      if (!session?.user) {
+        setLoading(false);
+        return;
+      }
+
+      const user = session.user;
+
+      try {
+        // 1. Check if profile exists
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (profileError && profileError.code !== 'PGRST116') {
+          console.warn("[useAuth] Profile fetch warning:", profileError);
+        }
+
+        // 2. If no profile, lazy create it
+        if (!profile) {
+          console.log("[useAuth] Profile missing, lazy creating...");
+          const role = user.user_metadata?.role || user.app_metadata?.role || 'parent';
+          const fullName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User';
+
+          let therapistCode = null;
+          if (role === 'therapist') {
+            therapistCode = 'DR-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+          }
+
+          // Insert profile
+          const { error: insertError } = await supabase.from('profiles').insert({
+            user_id: user.id,
+            full_name: fullName,
+            role: role,
+            email: user.email?.toLowerCase().trim(),
+            therapist_code: therapistCode
+          });
+
+          if (insertError) {
+            console.error("[useAuth] Lazy create failed:", insertError);
+          } else {
+            // Also ensure role table is synced
+            await supabase.from('user_roles').upsert({
+              user_id: user.id,
+              role: role as any
+            }, { onConflict: 'user_id, role' });
+
+            console.log("[useAuth] Lazy create success");
+          }
+        }
+      } catch (err) {
+        console.error("[useAuth] Critical identity error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        setLoading(false);
+
+        if (event === 'SIGNED_IN' || (event === 'INITIAL_SESSION' && session)) {
+          ensureProfile(session);
+        } else if (event === 'SIGNED_OUT') {
+          setLoading(false);
+        }
       }
     );
 
@@ -32,7 +97,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      setLoading(false);
+      if (session) {
+        ensureProfile(session);
+      } else {
+        setLoading(false);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -71,6 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           user_id: userId,
           full_name: fullName,
           role: role,
+          email: email.toLowerCase().trim(),
           therapist_code: therapistCode
         }, { onConflict: 'user_id' });
 

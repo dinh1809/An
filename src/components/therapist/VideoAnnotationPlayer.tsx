@@ -1,13 +1,23 @@
 
-import React, { useRef, useState, useEffect } from 'react';
-import { Play, Pause, Plus, MessageSquare } from 'lucide-react';
+import { useRef, useState, useEffect } from 'react';
+import { Play, Pause, Plus, MessageSquare, Loader2, Sparkles, X, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { format } from 'date-fns';
+import { useToast } from "@/hooks/use-toast";
+import ReactMarkdown from 'react-markdown';
+import { AnimatePresence } from 'framer-motion';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 
 // Placeholder type until DB migration is run
 export interface VideoFeedback {
@@ -23,12 +33,16 @@ export interface VideoFeedback {
 interface VideoAnnotationPlayerProps {
     videoId: string;
     videoUrl: string;
+    patientId: string;
+    patientName: string;
     className?: string;
 }
 
 export const VideoAnnotationPlayer: React.FC<VideoAnnotationPlayerProps> = ({
     videoId,
     videoUrl,
+    patientId,
+    patientName,
     className
 }) => {
     const { user } = useAuth();
@@ -40,6 +54,10 @@ export const VideoAnnotationPlayer: React.FC<VideoAnnotationPlayerProps> = ({
     const [newComment, setNewComment] = useState("");
     const [isCommentBoxOpen, setIsCommentBoxOpen] = useState(false);
     const [loadingComments, setLoadingComments] = useState(false);
+    const [generatingReport, setGeneratingReport] = useState(false);
+    const [reportContent, setReportContent] = useState<string | null>(null);
+    const [showReportDialog, setShowReportDialog] = useState(false);
+    const { toast } = useToast();
 
     // Format seconds to MM:SS
     const formatTime = (seconds: number) => {
@@ -54,9 +72,6 @@ export const VideoAnnotationPlayer: React.FC<VideoAnnotationPlayerProps> = ({
             if (!videoId) return;
             setLoadingComments(true);
             try {
-                // In a real scenario, we'd join with profiles to get names
-                // For MVP, we just fetch the raw table 'video_feedback'
-                // NOTE: This will fail until the table exists. We'll simulate empty for now if it errors.
                 const { data, error } = await supabase
                     .from('video_feedback' as any)
                     .select('*')
@@ -64,10 +79,9 @@ export const VideoAnnotationPlayer: React.FC<VideoAnnotationPlayerProps> = ({
                     .order('timestamp', { ascending: true });
 
                 if (error) {
-                    // console.warn("Could not fetch feedback (Table might remain to be created):", error);
                     setComments([]);
                 } else {
-                    setComments(data as VideoFeedback[]);
+                    setComments(data as unknown as VideoFeedback[]);
                 }
             } catch (err) {
                 console.error(err);
@@ -93,7 +107,6 @@ export const VideoAnnotationPlayer: React.FC<VideoAnnotationPlayerProps> = ({
         }
     };
 
-    // Play/Pause
     const togglePlay = () => {
         if (videoRef.current) {
             if (isPlaying) videoRef.current.pause();
@@ -102,17 +115,12 @@ export const VideoAnnotationPlayer: React.FC<VideoAnnotationPlayerProps> = ({
         }
     };
 
-    // Jump to timestamp
     const seekTo = (seconds: number) => {
         if (videoRef.current) {
             videoRef.current.currentTime = seconds;
-            // Optionally auto-play
-            // videoRef.current.play();
-            // setIsPlaying(true);
         }
     };
 
-    // Save Comment
     const handleSaveComment = async () => {
         if (!newComment.trim() || !user) return;
 
@@ -132,27 +140,116 @@ export const VideoAnnotationPlayer: React.FC<VideoAnnotationPlayerProps> = ({
 
             if (error) throw error;
 
-            // Optimistic update or reuse fetched data
             const savedComment: VideoFeedback = {
-                ...data,
-                // Add any mock fields if necessary
+                ...(data as any),
             };
 
             setComments(prev => [...prev, savedComment].sort((a, b) => a.timestamp - b.timestamp));
             setNewComment("");
             setIsCommentBoxOpen(false);
 
+            toast({
+                title: "Đã lưu ghi chú",
+                description: `Tại thời điểm ${formatTime(timestamp)}`,
+            });
         } catch (err) {
             console.error("Failed to save comment:", err);
-            alert("Could not save comment. Ensure database table 'video_feedback' exists.");
+            toast({
+                title: "Lỗi lưu ghi chú",
+                variant: "destructive"
+            });
+        }
+    };
+
+    const generateReport = async () => {
+        if (comments.length === 0) {
+            toast({
+                title: "Chưa có ghi chú",
+                description: "Vui lòng thêm ghi chú vào video trước khi tạo báo cáo.",
+                variant: "destructive"
+            })
+            return;
+        }
+
+        setGeneratingReport(true);
+        try {
+            console.log("Invoking AI for patient:", patientName, "at function: generate-clinical-report");
+
+            const { data, error } = await supabase.functions.invoke('generate-clinical-report', {
+                body: {
+                    annotations: comments.map(c => ({
+                        timestamp: formatTime(c.timestamp),
+                        note: c.content
+                    })),
+                    patient_name: patientName
+                }
+            });
+
+            if (error) {
+                console.error("Supabase Function Error Object:", error);
+
+                // Check if it's a deployment/not found error
+                const errorMsg = error.message || "";
+                if (errorMsg.includes("Failed to send a request") || errorMsg.includes("404")) {
+                    throw new Error("Chưa tìm thấy Edge Function trên server. Bạn cần chạy lệnh 'npx supabase functions deploy generate-clinical-report' để kích hoạt AI.");
+                }
+                throw error;
+            }
+
+            if (!data || !data.report) {
+                throw new Error("AI returned empty report");
+            }
+
+            setReportContent(data.report);
+            setShowReportDialog(true);
+        } catch (err: any) {
+            console.error("AI Full Error Details:", err);
+            toast({
+                title: "Lỗi kết nối AI",
+                description: err.message || "Không thể kết nối với Edge Function. Vui lòng kiểm tra lại kết nối mạng hoặc deploy function.",
+                variant: "destructive"
+            });
+        } finally {
+            setGeneratingReport(false);
+        }
+    };
+
+    const saveReport = async () => {
+        if (!reportContent || !user) return;
+
+        try {
+            const { error } = await (supabase as any)
+                .from('clinical_reports')
+                .insert({
+                    therapist_id: user.id,
+                    patient_id: patientId, // FIXED: Now uses the correct patientId from props
+                    video_id: videoId,
+                    content: reportContent,
+                    status: 'published',
+                    raw_annotations: comments
+                });
+
+            if (error) throw error;
+
+            toast({
+                title: "Đã xuất bản báo cáo! 🚀",
+                description: `Báo cáo về ${patientName} đã được gửi tới phụ huynh.`,
+            });
+            setShowReportDialog(false);
+        } catch (err) {
+            console.error("Save Error:", err);
+            toast({
+                title: "Lỗi lưu báo cáo",
+                variant: "destructive"
+            });
         }
     };
 
     return (
-        <div className={cn("grid grid-cols-1 lg:grid-cols-3 gap-6", className)}>
-            {/* Left: Video Player */}
-            <div className="lg:col-span-2 space-y-4">
-                <div className="relative rounded-xl overflow-hidden bg-black aspect-video group shadow-lg">
+        <div className={cn("grid grid-cols-1 lg:grid-cols-4 gap-8 h-full", className)}>
+            {/* Left/Middle: Video Player and Controls */}
+            <div className="lg:col-span-3 space-y-6 flex flex-col h-full">
+                <div className="relative rounded-[32px] overflow-hidden bg-black aspect-video group shadow-2xl border-4 border-white/10 flex-1">
                     <video
                         ref={videoRef}
                         src={videoUrl}
@@ -160,102 +257,147 @@ export const VideoAnnotationPlayer: React.FC<VideoAnnotationPlayerProps> = ({
                         onTimeUpdate={handleTimeUpdate}
                         onLoadedMetadata={handleLoadedMetadata}
                         onClick={togglePlay}
+                        crossOrigin="anonymous"
+                        playsInline
+                        controls
                     />
-
-                    {/* Custom Controls Overlay (Simple) */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-4">
-                        <button onClick={togglePlay} className="text-white hover:text-purple-400">
-                            {isPlaying ? <Pause size={24} /> : <Play size={24} />}
-                        </button>
-                        <div className="text-white text-sm font-mono">
-                            {formatTime(currentTime)} / {formatTime(duration)}
-                        </div>
-                        <input
-                            type="range"
-                            min="0"
-                            max={duration}
-                            value={currentTime}
-                            onChange={(e) => seekTo(Number(e.target.value))}
-                            className="flex-1 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
-                        />
-                    </div>
                 </div>
 
-                {/* Quick Add Button */}
-                <div className="flex justify-between items-center">
-                    <div className="text-sm text-gray-500">
-                        Playing: {formatTime(currentTime)}
+                {/* Info Bar & Quick Add */}
+                <div className="flex justify-between items-center bg-white p-6 rounded-[24px] shadow-sm border">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-purple-50 text-purple-700 rounded-xl font-black text-lg tabular-nums">
+                            {formatTime(currentTime)}
+                        </div>
+                        <div>
+                            <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">Đang xem</p>
+                            <p className="text-xl font-black text-gray-900">{patientName}</p>
+                        </div>
                     </div>
+
                     <Button
                         onClick={() => setIsCommentBoxOpen(true)}
-                        className="bg-purple-600 hover:bg-purple-700 text-white gap-2"
+                        size="lg"
+                        className="bg-purple-600 hover:bg-purple-700 text-white gap-3 rounded-2xl h-14 px-8 shadow-lg shadow-purple-600/20 text-lg font-black"
                     >
-                        <Plus size={16} />
-                        Add Note at {formatTime(currentTime)}
+                        <Plus size={24} />
+                        THÊM GHI CHÚ
                     </Button>
                 </div>
 
-                {/* Add Comment Input */}
-                {isCommentBoxOpen && (
-                    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-xl border border-purple-100 dark:border-purple-900 animation-in fade-in slide-in-from-top-2">
-                        <div className="flex justify-between items-center mb-2">
-                            <span className="text-xs font-bold bg-purple-100 text-purple-700 px-2 py-1 rounded">
-                                @ {formatTime(currentTime)}
-                            </span>
-                            <button onClick={() => setIsCommentBoxOpen(false)} className="text-xs text-gray-500 hover:text-gray-700">Cancel</button>
+                {/* Add Comment Input Modal/Box */}
+                <AnimatePresence>
+                    {isCommentBoxOpen && (
+                        <div className="bg-gradient-to-br from-purple-50 to-white p-6 rounded-[24px] border-2 border-purple-200 shadow-xl space-y-4">
+                            <div className="flex justify-between items-center">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm font-black bg-purple-600 text-white px-3 py-1.5 rounded-lg shadow-md">
+                                        NHẬN XÉT: {formatTime(currentTime)}
+                                    </span>
+                                </div>
+                                <Button variant="ghost" size="icon" onClick={() => setIsCommentBoxOpen(false)} className="rounded-full">
+                                    <X size={20} />
+                                </Button>
+                            </div>
+                            <Textarea
+                                value={newComment}
+                                onChange={(e) => setNewComment(e.target.value)}
+                                placeholder="Mô tả những gì bạn thấy tại thời điểm này... (ví dụ: Bé giao tiếp mắt tốt, Bé chưa giữ được thăng bằng...)"
+                                className="min-h-[120px] text-lg bg-white border-purple-100 focus:ring-purple-500 rounded-xl p-4 leading-relaxed"
+                                autoFocus
+                            />
+                            <div className="flex justify-end gap-3">
+                                <Button variant="outline" onClick={() => setIsCommentBoxOpen(false)} className="rounded-xl h-12 px-6">Hủy</Button>
+                                <Button onClick={handleSaveComment} className="bg-purple-600 text-white rounded-xl h-12 px-8 font-bold">Lưu ghi chú</Button>
+                            </div>
                         </div>
-                        <Textarea
-                            value={newComment}
-                            onChange={(e) => setNewComment(e.target.value)}
-                            placeholder="Describe what you observe here (e.g. 'Good eye contact', 'Struggling with balance')..."
-                            className="mb-3 bg-white"
-                        />
-                        <div className="flex justify-end">
-                            <Button size="sm" onClick={handleSaveComment}>Save Note</Button>
-                        </div>
-                    </div>
-                )}
+                    )}
+                </AnimatePresence>
             </div>
 
-            {/* Right: Feedback Timeline */}
-            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col h-[500px]">
-                <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2">
-                    <MessageSquare size={18} className="text-purple-600" />
-                    <h3 className="font-bold">Session Notes</h3>
-                    <span className="ml-auto text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">{comments.length}</span>
+            {/* Right Side: Timeline & Analysis */}
+            <div className="lg:col-span-1 flex flex-col h-full bg-white dark:bg-gray-900 rounded-[32px] border shadow-xl overflow-hidden">
+                <div className="p-6 border-b bg-gray-50/50 flex flex-col gap-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <MessageSquare size={20} className="text-purple-600" />
+                            <h3 className="text-lg font-black text-gray-800 uppercase tracking-tighter">Ghi chú ({comments.length})</h3>
+                        </div>
+                    </div>
+
+                    <Button
+                        size="lg"
+                        className="w-full gap-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl h-14 shadow-lg shadow-purple-600/20 font-black text-md"
+                        onClick={generateReport}
+                        disabled={generatingReport || comments.length === 0}
+                    >
+                        {generatingReport ? (
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                            <Sparkles size={20} />
+                        )}
+                        {generatingReport ? "ĐANG PHÂN TÍCH..." : "AI TẠO BÁO CÁO"}
+                    </Button>
                 </div>
 
                 <ScrollArea className="flex-1 p-4">
-                    {comments.length === 0 ? (
-                        <div className="text-center text-gray-400 py-10 text-sm">
-                            <p>No notes yet.</p>
-                            <p>Watch the video and add observations.</p>
-                        </div>
-                    ) : (
-                        <div className="space-y-3">
-                            {comments.map((comment) => (
+                    <div className="space-y-4">
+                        {comments.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-20 text-center px-6">
+                                <div className="p-4 bg-gray-50 rounded-full mb-3">
+                                    <MessageSquare className="text-gray-300" size={32} />
+                                </div>
+                                <p className="text-gray-400 font-bold">Chưa có ghi chú nào.</p>
+                                <p className="text-xs text-gray-400 mt-1">Dùng công cụ "Thêm ghi chú" khi đang xem video.</p>
+                            </div>
+                        ) : (
+                            comments.map((comment, idx) => (
                                 <div
                                     key={comment.id}
+                                    className="group p-5 rounded-2xl bg-white border border-gray-100 hover:border-purple-200 hover:shadow-md transition-all cursor-pointer relative"
                                     onClick={() => seekTo(comment.timestamp)}
-                                    className="group p-3 rounded-lg border border-gray-100 dark:border-gray-800 hover:border-purple-200 hover:bg-purple-50 dark:hover:bg-purple-900/10 cursor-pointer transition-all"
                                 >
-                                    <div className="flex items-center justify-between mb-1">
-                                        <span className="text-sm font-bold text-purple-600 bg-purple-50 dark:bg-purple-900/30 px-2 py-0.5 rounded">
+                                    <div className="flex items-start gap-4">
+                                        <div className="px-2.5 py-1 bg-purple-100 text-purple-700 rounded-lg text-sm font-black tabular-nums shrink-0">
                                             {formatTime(comment.timestamp)}
-                                        </span>
-                                        <span className="text-xs text-gray-400">
-                                            {new Date(comment.created_at).toLocaleDateString()}
-                                        </span>
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="text-lg font-medium text-gray-800 leading-relaxed mb-2">{comment.content}</p>
+                                            <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest">Ghi chú #{idx + 1}</p>
+                                        </div>
+                                        <ChevronRight size={16} className="text-gray-300 group-hover:text-purple-400 transition-colors mt-1" />
                                     </div>
-                                    <p className="text-sm text-gray-700 dark:text-gray-300">
-                                        {comment.content}
-                                    </p>
                                 </div>
-                            ))}
-                        </div>
-                    )}
+                            ))
+                        )}
+                    </div>
                 </ScrollArea>
             </div>
+
+            {/* AI Report Dialog */}
+            <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto rounded-[32px] p-0 border-none shadow-2xl">
+                    <div className="bg-gradient-to-r from-purple-600 to-indigo-600 p-8 text-white">
+                        <DialogHeader>
+                            <DialogTitle className="text-3xl font-black uppercase tracking-tight">Dự thảo Báo cáo Tiến độ (AI)</DialogTitle>
+                            <DialogDescription className="text-purple-100 text-lg opacity-90">
+                                Dựa trên {comments.length} quan sát klin lâm sàng về bé {patientName}.
+                            </DialogDescription>
+                        </DialogHeader>
+                    </div>
+
+                    <div className="p-8">
+                        <div className="bg-gray-50 p-10 rounded-[28px] border border-gray-100 shadow-inner prose prose-lg dark:prose-invert max-w-none prose-headings:text-purple-700 prose-headings:font-black">
+                            <ReactMarkdown>{reportContent || ''}</ReactMarkdown>
+                        </div>
+                    </div>
+
+                    <div className="flex justify-end gap-4 p-8 bg-gray-50 border-t items-center">
+                        <Button variant="ghost" onClick={() => setShowReportDialog(false)} className="rounded-xl h-12 px-6 font-bold text-gray-500">Đóng để sửa lại</Button>
+                        <Button onClick={saveReport} className="bg-purple-600 hover:bg-purple-700 text-white rounded-xl h-12 px-10 font-black text-lg shadow-lg shadow-purple-600/20">XÁC NHẬN & GỬI BÁO CÁO</Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

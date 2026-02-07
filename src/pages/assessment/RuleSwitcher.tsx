@@ -223,8 +223,6 @@ const RuleSwitcher = () => {
     return data.id;
   };
 
-
-
   // Start the game
   const handleStart = async () => {
     initAudio(); // Initialize sound context
@@ -285,7 +283,7 @@ const RuleSwitcher = () => {
 
     timeoutRef.current = setTimeout(() => {
       handleTimeout();
-    }, TIMEOUT_THRESHOLD) as unknown as number;
+    }, TIMEOUT_THRESHOLD);
 
     return () => {
       if (timeoutRef.current) {
@@ -414,10 +412,6 @@ const RuleSwitcher = () => {
   const completeSession = async (sid: string) => {
     if (sid.startsWith("mock-session")) return;
 
-    // --- NEURO-LOGIC ANALYSIS ---
-    // 1. Switch Cost: Avg time (Switch Trials) - Avg time (Repeat Trials)
-    // 2. Inhibition Score: Accuracy on Incongruent trials
-
     const switchTrials = trials.filter(t => t.wasAfterSwitch && t.isCorrect);
     const repeatTrials = trials.filter(t => !t.wasAfterSwitch && t.isCorrect);
 
@@ -430,7 +424,6 @@ const RuleSwitcher = () => {
 
     const switchCostMs = (avgSwitchTime > 0 && avgRepeatTime > 0) ? (avgSwitchTime - avgRepeatTime) : 0;
 
-    // Inhibition: Check stroop interference (Incongruent trials)
     const incongruentTrials = trials.filter(t => !t.isCongruent);
     const inhibitionAccuracy = incongruentTrials.length > 0
       ? (incongruentTrials.filter(t => t.isCorrect).length / incongruentTrials.length) * 100
@@ -451,7 +444,6 @@ const RuleSwitcher = () => {
         completed_at: new Date().toISOString(),
         final_score: score,
         accuracy_percentage: accuracy,
-        // avg_reaction_time_ms is not stored in state summary, so we calc it
         avg_reaction_time_ms: trials.length > 0
           ? Math.round(trials.reduce((sum, t) => sum + t.reactionTime, 0) / trials.length)
           : 0,
@@ -808,17 +800,15 @@ const RuleSwitcher = () => {
             )}
           </AnimatePresence>
         </div>
+
+        <style>{`
+            @keyframes shake {
+              0%, 100% { transform: translateX(0); }
+              10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+              20%, 40%, 60%, 80% { transform: translateX(4px); }
+            }
+          `}</style>
       </div>
-
-      {/* Shake animation keyframes */}
-      <style>{`
-        @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-          20%, 40%, 60%, 80% { transform: translateX(4px); }
-        }
-      `}</style>
-
       <GameFooter />
     </GameLayout>
   );

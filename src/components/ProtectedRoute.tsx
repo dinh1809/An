@@ -43,7 +43,7 @@ export function ProtectedRoute({ allowedRole, children }: ProtectedRouteProps) {
     if (role === "therapist") {
       return <Navigate to="/therapist/dashboard" replace />;
     } else {
-      return <Navigate to="/select-mode" replace />;
+      return <Navigate to="/parent/dashboard" replace />;
     }
   }
 

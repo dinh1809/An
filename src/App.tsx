@@ -1,125 +1,143 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
-import { useUserRole } from "@/hooks/useUserRole";
-import { useAuth } from "@/hooks/useAuth";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ThemeProvider } from "@/contexts/ThemeProvider";
 
-// Import các trang
+// Layouts
+import { ParentLayout } from "@/components/layout/ParentLayout";
+import { TherapistLayout } from "@/components/layout/TherapistLayout";
+import { FocusLayout } from "@/components/layout/FocusLayout";
+import { ThemeWrapper } from "./components/layout/ThemeWrapper";
+
+// Auth
 import Auth from "./pages/Auth";
-import NotFound from "./pages/NotFound";
+import RoleSelection from "./pages/RoleSelection";
 
-// Parent Pages
+// Parent pages
 import UnifiedDashboard from "./pages/parent/UnifiedDashboard";
-import FamilyHub from "./pages/parent/FamilyHub";
-import ParentTrack from "./pages/parent/ParentTrack";
-import ExerciseAssignments from "./pages/parent/ExerciseAssignments";
+import TrackingPage from "./pages/parent/TrackingPage";
 import ParentAnalyze from "./pages/parent/ParentAnalyze";
-import Forum from "./pages/parent/Forum";
+import ParentAdvise from "./pages/parent/ParentAdvise";
 import ParentProfile from "./pages/parent/ParentProfile";
+import FindTherapist from "./pages/parent/FindTherapist";
+import FamilyHub from "./pages/parent/FamilyHub";
+import SchedulePage from "./pages/parent/SchedulePage";
+import Forum from "./pages/parent/Forum";
+import ExerciseAssignments from "./pages/parent/ExerciseAssignments";
 
-// Assessment Pages (Hướng nghiệp)
-import AssessmentHome from "./pages/assessment/AssessmentHome";
-
-// Therapist Pages
+// Therapist pages
 import TherapistDashboard from "./pages/therapist/Dashboard";
-import TherapistPatients from "./pages/therapist/TherapistPatients";
-import VideoReview from "./pages/therapist/VideoReview";
+import TherapistPatients from "./pages/therapist/Patients";
+import TherapistVideoReview from "./pages/therapist/VideoReview";
 import TherapistLibrary from "./pages/therapist/Library";
 import TherapistSessions from "./pages/therapist/Sessions";
 import TherapistReports from "./pages/therapist/Reports";
 import TherapistMessages from "./pages/therapist/Messages";
 import TherapistSettings from "./pages/therapist/Settings";
-import TherapistProfile from "./pages/therapist/TherapistProfile";
 import TherapistPatientDetail from "./pages/therapist/TherapistPatientDetail";
+
+// Assessment pages
+import AssessmentHome from "./pages/assessment/AssessmentHome";
+import DetailSpotter from "./pages/assessment/DetailSpotter";
+import RuleSwitcher from "./pages/assessment/RuleSwitcher";
+import RuleSwitcherTutorial from "./pages/assessment/RuleSwitcherTutorial";
+import SequenceMemory from "./pages/assessment/SequenceMemory";
+import DispatcherAssessment from "./pages/assessment/DispatcherAssessment";
+import MatrixAssessment from "./pages/assessment/MatrixAssessment";
+import AssessmentResult from "./pages/assessment/AssessmentResult";
+import TaskBoard from "./pages/workspace/TaskBoard";
+
+// Shared pages
+import Connect from "./pages/Connect";
+import Landing from "./pages/Landing";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-// Component điều hướng thông minh
-const AppRoutes = () => {
-    const { session } = useAuth();
-    const { role, loading } = useUserRole();
-
-    // 1. Màn hình chờ (tránh nhấp nháy trắng)
-    if (loading) {
-        return (
-            <div className="flex h-screen w-full items-center justify-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-            </div>
-        );
-    }
-
-    // 2. Chưa đăng nhập -> Hiện trang Auth
-    if (!session) {
-        return (
-            <Routes>
-                <Route path="/auth" element={<Auth />} />
-                <Route path="*" element={<Navigate to="/auth" replace />} />
-            </Routes>
-        );
-    }
-
-    // 3. Đã đăng nhập -> Điều hướng theo Role (Chặt chẽ hơn)
-    const dashboardPath = role === "therapist"
-        ? "/therapist/dashboard"
-        : (role === "parent" ? "/parent/hub" : "/auth");
-
-    return (
-        <Routes>
-            {/* Redirect root to appropriate dashboard */}
-            <Route path="/" element={<Navigate to={dashboardPath} replace />} />
-
-            {/* Parent Routes protected by role guard */}
-            <Route path="/parent" element={<Navigate to="/parent/hub" replace />} />
-            <Route path="/parent/dashboard" element={<ProtectedRoute allowedRole="parent"><UnifiedDashboard /></ProtectedRoute>} />
-            <Route path="/parent/hub" element={<ProtectedRoute allowedRole="parent"><FamilyHub /></ProtectedRoute>} />
-            <Route path="/parent/track" element={<ProtectedRoute allowedRole="parent"><ParentTrack /></ProtectedRoute>} />
-            <Route path="/parent/exercises" element={<ProtectedRoute allowedRole="parent"><ExerciseAssignments /></ProtectedRoute>} />
-            <Route path="/parent/analyze" element={<ProtectedRoute allowedRole="parent"><ParentAnalyze /></ProtectedRoute>} />
-            <Route path="/parent/forum" element={<ProtectedRoute allowedRole="parent"><Forum /></ProtectedRoute>} />
-            <Route path="/parent/profile" element={<ProtectedRoute allowedRole="parent"><ParentProfile /></ProtectedRoute>} />
-
-            {/* Assessment Routes (Shared for now) */}
-            <Route path="/assessment" element={<AssessmentHome />} />
-
-            {/* Therapist Routes protected by role guard */}
-            <Route path="/therapist" element={<Navigate to="/therapist/dashboard" replace />} />
-            <Route path="/therapist/dashboard" element={<ProtectedRoute allowedRole="therapist"><TherapistDashboard /></ProtectedRoute>} />
-            <Route path="/therapist/patients" element={<ProtectedRoute allowedRole="therapist"><TherapistPatients /></ProtectedRoute>} />
-            <Route path="/therapist/review" element={<ProtectedRoute allowedRole="therapist"><VideoReview /></ProtectedRoute>} />
-            <Route path="/therapist/library" element={<ProtectedRoute allowedRole="therapist"><TherapistLibrary /></ProtectedRoute>} />
-            <Route path="/therapist/sessions" element={<ProtectedRoute allowedRole="therapist"><TherapistSessions /></ProtectedRoute>} />
-            <Route path="/therapist/reports" element={<ProtectedRoute allowedRole="therapist"><TherapistReports /></ProtectedRoute>} />
-            <Route path="/therapist/messages" element={<ProtectedRoute allowedRole="therapist"><TherapistMessages /></ProtectedRoute>} />
-            <Route path="/therapist/settings" element={<ProtectedRoute allowedRole="therapist"><TherapistProfile /></ProtectedRoute>} />
-            <Route path="/therapist/profile" element={<ProtectedRoute allowedRole="therapist"><TherapistProfile /></ProtectedRoute>} />
-            <Route path="/therapist/patient/:parentId" element={<ProtectedRoute allowedRole="therapist"><TherapistPatientDetail /></ProtectedRoute>} />
-
-            {/* Auth route (in case user navigates here while logged in) */}
-            <Route path="/auth" element={<Navigate to={dashboardPath} replace />} />
-
-            {/* 404 */}
-            <Route path="*" element={<NotFound />} />
-        </Routes>
-    );
-};
-
 const App = () => (
-    <QueryClientProvider client={queryClient}>
+  <QueryClientProvider client={queryClient}>
+    <ThemeProvider>
+      <AuthProvider>
         <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-                <AuthProvider>
-                    <AppRoutes />
-                </AuthProvider>
-            </BrowserRouter>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <ThemeWrapper>
+              <Routes>
+                {/* Landing Page - Public */}
+                <Route path="/" element={<Landing />} />
+
+                {/* Auth routes - Public */}
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/select-role" element={<RoleSelection />} />
+
+                {/* Magic link connection route */}
+                <Route path="/connect" element={<Connect />} />
+                <Route path="/parent/connect" element={<Connect />} />
+
+                {/* Redirect shortcuts */}
+                <Route path="/parent" element={<Navigate to="/parent/dashboard" replace />} />
+                <Route path="/therapist" element={<Navigate to="/therapist/dashboard" replace />} />
+
+                {/* Parent Routes */}
+                <Route element={<ProtectedRoute allowedRole="parent"><ParentLayout /></ProtectedRoute>}>
+                  <Route path="/parent/hub" element={<FamilyHub />} />
+                  <Route path="/parent/dashboard" element={<UnifiedDashboard />} />
+                  <Route path="/parent/home" element={<Navigate to="/parent/dashboard" replace />} />
+                  <Route path="/parent/track" element={<TrackingPage />} />
+                  <Route path="/parent/schedule" element={<SchedulePage />} />
+                  <Route path="/parent/analyze" element={<ParentAnalyze />} />
+                  <Route path="/parent/advise" element={<ParentAdvise />} />
+                  <Route path="/parent/profile" element={<ParentProfile />} />
+                  <Route path="/parent/map" element={<FindTherapist />} />
+                  <Route path="/parent/forum" element={<Forum />} />
+                  <Route path="/parent/exercises" element={<ExerciseAssignments />} />
+                </Route>
+
+                {/* ASSESSMENT MODE */}
+                <Route element={<FocusLayout />}>
+                  <Route path="/assessment" element={<AssessmentHome />} />
+                  <Route path="/assessment/detail-spotter" element={<DetailSpotter />} />
+                  <Route path="/assessment/rule-switcher" element={<RuleSwitcher />} />
+                  <Route path="/assessment/rule-switcher/tutorial" element={<RuleSwitcherTutorial />} />
+                  <Route path="/assessment/piano" element={<SequenceMemory />} />
+                  <Route path="/assessment/sequence-memory" element={<SequenceMemory />} />
+                  <Route path="/assessment/dispatcher" element={<DispatcherAssessment />} />
+                  <Route path="/assessment/matrix" element={<MatrixAssessment />} />
+                  <Route path="/assessment/result" element={<AssessmentResult />} />
+                </Route>
+
+                {/* WORKSPACE MODE */}
+                <Route element={<ProtectedRoute allowedRole="parent"><FocusLayout /></ProtectedRoute>}>
+                  <Route path="/workspace/task" element={<TaskBoard />} />
+                </Route>
+
+                {/* Therapist Routes */}
+                <Route element={<ProtectedRoute allowedRole="therapist"><TherapistLayout /></ProtectedRoute>}>
+                  <Route path="/therapist/dashboard" element={<TherapistDashboard />} />
+                  <Route path="/therapist/patients" element={<TherapistPatients />} />
+                  <Route path="/therapist/review" element={<TherapistVideoReview />} />
+                  <Route path="/therapist/library" element={<TherapistLibrary />} />
+                  <Route path="/therapist/sessions" element={<TherapistSessions />} />
+                  <Route path="/therapist/reports" element={<TherapistReports />} />
+                  <Route path="/therapist/messages" element={<TherapistMessages />} />
+                  <Route path="/therapist/settings" element={<TherapistSettings />} />
+                  <Route path="/therapist/patient/:parentId" element={<TherapistPatientDetail />} />
+                </Route>
+
+                {/* Fallback */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </ThemeWrapper>
+          </BrowserRouter>
         </TooltipProvider>
-    </QueryClientProvider>
+      </AuthProvider>
+    </ThemeProvider>
+  </QueryClientProvider>
 );
 
 export default App;

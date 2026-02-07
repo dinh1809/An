@@ -31,6 +31,13 @@ import {
   TrendingUp
 } from "lucide-react";
 import { format, subDays } from "date-fns";
+import { VideoAnnotationPlayer } from "@/components/therapist/VideoAnnotationPlayer";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface Profile {
   user_id: string;
@@ -71,6 +78,7 @@ export default function TherapistPatientDetail() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [logs, setLogs] = useState<BehaviorLog[]>([]);
   const [videos, setVideos] = useState<VideoUpload[]>([]);
+  const [selectedVideo, setSelectedVideo] = useState<VideoUpload | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -127,6 +135,14 @@ export default function TherapistPatientDetail() {
         .order("created_at", { ascending: false })
         .limit(10),
     ]);
+
+    if (profileRes.error) console.error("Profile Fetch Error:", profileRes.error);
+    if (logsRes.error) console.error("Logs Fetch Error:", logsRes.error);
+    if (videosRes.error) {
+      console.error("Videos Fetch Error:", videosRes.error);
+    } else {
+      console.log("Videos Fetched:", videosRes.data?.length, videosRes.data);
+    }
 
     if (profileRes.data) setProfile(profileRes.data);
     if (logsRes.data) setLogs(logsRes.data);
@@ -354,7 +370,8 @@ export default function TherapistPatientDetail() {
                     {videos.map((video) => (
                       <div
                         key={video.id}
-                        className="flex items-center gap-3 p-3 rounded-xl bg-muted/50"
+                        onClick={() => setSelectedVideo(video)}
+                        className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 hover:bg-muted cursor-pointer transition-colors"
                       >
                         <Video className="h-5 w-5 text-primary" />
                         <div className="flex-1">
@@ -363,13 +380,27 @@ export default function TherapistPatientDetail() {
                             {format(new Date(video.created_at), "MMM d, yyyy")}
                           </p>
                         </div>
-                        <Badge variant="secondary">View</Badge>
+                        <Badge variant="secondary">Review</Badge>
                       </div>
                     ))}
                   </div>
                 )}
               </CardContent>
             </Card>
+
+            <Dialog open={!!selectedVideo} onOpenChange={(open) => !open && setSelectedVideo(null)}>
+              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto w-full">
+                <DialogHeader>
+                  <DialogTitle>{selectedVideo?.title}</DialogTitle>
+                </DialogHeader>
+                {selectedVideo && (
+                  <VideoAnnotationPlayer
+                    videoId={selectedVideo.id}
+                    videoUrl={selectedVideo.file_url}
+                  />
+                )}
+              </DialogContent>
+            </Dialog>
           </TabsContent>
         </Tabs>
       </div>

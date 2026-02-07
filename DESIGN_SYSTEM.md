@@ -252,5 +252,102 @@
 }
 ```
 
--
+---
 
+## 6. 🌐 Landing Page Structure
+
+### Recommended Sections (Corporate)
+1. **Hero Section**
+   - Headline: "Vượt qua Vực thẳm Dịch vụ với Đánh giá Nghề nghiệp Khoa học"
+   - Subheadline: "Chuyển hóa năng lực Đa dạng thần kinh thành Hồ sơ Việc làm Số"
+   - CTA: "Bắt đầu Đánh giá Miễn phí" (Primary button)
+   - Visual: Radar Chart animation hoặc Game preview
+
+2. **Problem Statement**
+   - Statistics: "85% thanh thiếu niên Tự kỷ thất nghiệp sau 18 tuổi"
+   - Pain point: Phỏng vấn truyền thống không phù hợp
+
+3. **Solution (3 Core Games)**
+   - Detail Spotter → Visual-Spatial Intelligence
+   - Chaos Switcher → Logical-Mathematical Intelligence
+   - Sequence Master Pro → Working Memory
+   - Each with icon + description + job examples
+
+4. **How It Works (3 Steps)**
+   - Step 1: Chơi 3 game (15 phút)
+   - Step 2: AI phân tích dữ liệu Telemetry
+   - Step 3: Nhận Hồ sơ Nghề nghiệp + Job Matching
+
+5. **Social Proof**
+   - Testimonials from therapists/parents
+   - Partner logos (if available)
+   - Success metrics
+
+6. **Pricing/CTA**
+   - Free for individuals
+   - Enterprise pricing for organizations
+   - Final CTA: "Đăng ký ngay"
+
+7. **Footer**
+   - Contact info
+   - Privacy policy
+   - Social links
+
+---
+
+## 7. 🌐 Accessibility Checklist
+
+- [ ] **Color Contrast:** All text meets WCAG AA (4.5:1 for body, 3:1 for large text)
+- [ ] **Focus Indicators:** Visible 2px outline on all interactive elements
+- [ ] **Keyboard Navigation:** All features accessible via Tab/Enter/Space
+- [ ] **Screen Reader:** Semantic HTML (nav, main, section, article)
+- [ ] **Alt Text:** All images have descriptive alt attributes
+- [ ] **Reduced Motion:** Respect `prefers-reduced-motion` preference
+- [ ] **Form Labels:** All inputs have associated labels
+- [ ] **ARIA:** Use sparingly, prefer semantic HTML
+
+---
+
+## 8. 🚀 Implementation Priority
+
+### Phase 1: Foundation (Week 1)
+- [ ] Set up CSS variables in `index.css`
+- [ ] Import Google Fonts (Inter + JetBrains Mono)
+- [ ] Create base component styles (buttons, cards, inputs)
+
+### Phase 2: Landing Page (Week 2)
+- [ ] Hero section with gradient background
+- [ ] 3 Core Games showcase (cards with icons)
+- [ ] How It Works timeline
+- [ ] Footer with links
+
+### Phase 3: Polish (Week 3)
+- [ ] Add micro-animations (hover effects, scroll reveals)
+- [ ] Optimize for mobile (responsive breakpoints)
+- [ ] Accessibility audit with Lighthouse
+- [ ] Performance optimization (lazy loading images)
+
+---
+
+## 9. 📦 Tech Stack Recommendations
+
+- **Framework:** React + Vite + TypeScript
+- **UI Library:** Shadcn/UI (pre-built accessible components)
+- **Styling:** TailwindCSS (utility-first, matches this design system)
+- **Icons:** Lucide React (consistent, professional icons)
+- **Charts:** Recharts (for Radar Chart on result page)
+- **Animations:** Framer Motion (smooth, performant)
+
+---
+
+## 10. 🎯 Key Differentiators (vs Generic Landing Pages)
+
+✅ **Scientific Credibility:** Use of proper color psychology (Teal = Trust, Purple = Intelligence)  
+✅ **Sensory-Friendly:** No harsh reds, no auto-playing sounds, respect reduced motion  
+✅ **Data-Driven:** Showcase the Radar Chart prominently (visual proof of assessment)  
+✅ **Enterprise-Grade:** Clean, professional design suitable for HR departments  
+✅ **Accessibility-First:** WCAG AA compliant from day one  
+
+---
+
+**Next Steps:** Implement this design system in `src/index.css` and create the landing page components.
